@@ -10,7 +10,7 @@
 
 使用步骤:
 1. 下载并安装插件: https://github.com/eritpchy/WechatFp/releases/download/1.3/WechatFp-1.3-release.apk
-2. 下载并安装微信6.5.10版本 https://github.com/eritpchy/WechatFp/releases/download/1.3/WechatFp-1.3-release.apk
+2. 下载并安装微信6.5.10版本 https://github.com/eritpchy/WechatFp/releases/download/1.3/weixin6510.apk
 3. 启用插件, 输入密码
 4. 重启手机,Enjoy.
 
