@@ -1,15 +1,12 @@
 package com.yyxx.wechatfp;
 
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
@@ -34,32 +31,32 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
      */
-    private SharedPreferences prefs,defaultprefs;
+    private SharedPreferences prefs;
     private EditTextPreference mPaypwd;
     private CheckBoxPreference mEnable;
     private FingerprintIdentify mFingerprintIdentify;
     private static final String MOD_PREFS = "fp_settings";
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        prefs=getSharedPreferences(MOD_PREFS, 1);
-        defaultprefs= PreferenceManager.getDefaultSharedPreferences(this);
+        prefs = XPreferenceProvider.getRemoteSharedPreference(this);
         addPreferencesFromResource(R.xml.preference);
-        mEnable=(CheckBoxPreference)findPreference("enable_fp");
-        mPaypwd=(EditTextPreference)findPreference("paypwd");
-        mPaypwd.setText(prefs.getString("paypwd",""));
-        mEnable.setChecked(prefs.getBoolean("enable_fp",false));
+        mEnable = (CheckBoxPreference) findPreference("enable_fp");
+        mPaypwd = (EditTextPreference) findPreference("paypwd");
+        mPaypwd.setText(prefs.getString("paypwd", ""));
+        mEnable.setChecked(prefs.getBoolean("enable_fp", false));
         mPaypwd.setOnPreferenceChangeListener(this);
         mEnable.setOnPreferenceChangeListener(this);
         mEnable.setOnPreferenceClickListener(this);
         mPaypwd.setOnPreferenceClickListener(this);
         mFingerprintIdentify = new FingerprintIdentify(this);
-        if(!mFingerprintIdentify.isHardwareEnable()){
+        if (!mFingerprintIdentify.isHardwareEnable()) {
             Toast.makeText(this, "指纹传感器不可用，请确认本机已配备指纹传感器", Toast.LENGTH_SHORT).show();
             mEnable.setChecked(false);
             mEnable.setEnabled(false);
             mPaypwd.setEnabled(false);
-        }else{
-            if(!mFingerprintIdentify.isRegisteredFingerprint()){
+        } else {
+            if (!mFingerprintIdentify.isRegisteredFingerprint()) {
                 Toast.makeText(this, "未录入指纹，请在设置中录入有效指纹", Toast.LENGTH_SHORT).show();
                 mEnable.setChecked(false);
                 mEnable.setEnabled(false);
@@ -71,31 +68,24 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
-        if(preference==mPaypwd){
-            SharedPreferences.Editor mEditor=prefs.edit();
-            SharedPreferences.Editor dmEditor=defaultprefs.edit();
+        if (preference == mPaypwd) {
+            SharedPreferences.Editor mEditor = prefs.edit();
 
             String ANDROID_ID = Settings.System.getString(getContentResolver(), Settings.System.ANDROID_ID);
-            Log.e("deviceid",ANDROID_ID);
+            Log.e("deviceid", ANDROID_ID);
 
-            String pwd=(String)newValue;
-            Log.e("deviceid",AESHelper.encrypt(pwd,ANDROID_ID));
-            if(pwd.length()>10){
-                mEditor.putString("paypwd",pwd);
-                dmEditor.putString("paypwd",pwd);
-            }else{
-                mEditor.putString("paypwd", AESHelper.encrypt(pwd,ANDROID_ID));
-                dmEditor.putString("paypwd", AESHelper.encrypt(pwd,ANDROID_ID));
+            String pwd = (String) newValue;
+            Log.e("deviceid", AESHelper.encrypt(pwd, ANDROID_ID));
+            if (pwd.length() > 10) {
+                mEditor.putString("paypwd", pwd);
+            } else {
+                mEditor.putString("paypwd", AESHelper.encrypt(pwd, ANDROID_ID));
             }
-            dmEditor.commit();
             return mEditor.commit();
         }
-        if(preference==mEnable){
-            SharedPreferences.Editor mEditor=prefs.edit();
-            SharedPreferences.Editor dmEditor=defaultprefs.edit();
-            mEditor.putBoolean("enable_fp",(boolean)newValue);
-            mEditor.putBoolean("enable_fp",(boolean)newValue);
-            dmEditor.commit();
+        if (preference == mEnable) {
+            SharedPreferences.Editor mEditor = prefs.edit();
+            mEditor.putBoolean("enable_fp", (boolean) newValue);
             return mEditor.commit();
         }
         return false;
@@ -103,8 +93,8 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
 
     @Override
     public boolean onPreferenceClick(Preference preference) {
-        if(preference==mPaypwd){
-            mPaypwd.setText(prefs.getString("paypwd",""));
+        if (preference == mPaypwd) {
+            mPaypwd.setText(prefs.getString("paypwd", ""));
         }
         return false;
     }
