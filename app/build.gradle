@@ -1,5 +1,7 @@
 apply plugin: 'com.android.application'
 
+def ADB_PATH = "${android.getSdkDirectory()}/platform-tools/adb"
+
 android {
     compileSdkVersion 26
     buildToolsVersion "26.0.1"
@@ -24,6 +26,38 @@ android {
         }
     }
 }
+
+
+android.applicationVariants.all { variant ->
+    variant.getCompileConfiguration().resolutionStrategy {
+        if (variant.install != null) {
+            variant.install.doLast {
+                println "Running app..."
+                exec {
+                    executable = ADB_PATH
+                    args = ['shell', "am start -n ${variant.applicationId}/.SettingsActivity"]
+                }
+            }
+        }
+    }
+}
+
+task debugWechat(dependsOn: "installDebug") {
+    doLast {
+        println "Stop WeChat..."
+        exec {
+            executable = ADB_PATH
+            args = ['shell', "am force-stop com.tencent.mm"]
+        }
+        println "Start WeChat..."
+        exec {
+            executable = ADB_PATH
+            args = ['shell', "am start -n com.tencent.mm/com.tencent.mm.ui.LauncherUI"]
+        }
+
+    }
+}
+
 
 dependencies {
     implementation 'com.android.support:support-v4:26.0.2'
