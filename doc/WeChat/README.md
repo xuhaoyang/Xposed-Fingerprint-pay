@@ -1,4 +1,4 @@
-#使用教程
+# 使用教程
 
 1. 在Xposed -> 模块页中勾选启用WeChatFp, 重启手机\
 ![1](https://github.com/eritpchy/WechatFp/raw/master/doc/WeChat/1.jpg)
