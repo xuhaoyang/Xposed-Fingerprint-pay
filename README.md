@@ -6,7 +6,7 @@
 
 感谢原作者 dss16694/WechatFp , 这么给力的项目
 
-#注意: 这是Xposed插件
+## 注意: 这是Xposed插件
 
 使用步骤:
 1. 下载并安装插件: https://github.com/eritpchy/WechatFp/releases/download/1.3/WechatFp-1.3-release.apk

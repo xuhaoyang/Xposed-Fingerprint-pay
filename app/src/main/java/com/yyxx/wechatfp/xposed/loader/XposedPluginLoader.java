@@ -1,8 +1,11 @@
-package com.yyxx.wechatfp;
+package com.yyxx.wechatfp.xposed.loader;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+
+import com.yyxx.wechatfp.BuildConfig;
+import com.yyxx.wechatfp.util.log.L;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -13,7 +16,6 @@ import java.util.Map;
 import dalvik.system.BaseDexClassLoader;
 import dalvik.system.DexClassLoader;
 import dalvik.system.DexFile;
-import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 /**
@@ -43,7 +45,6 @@ public class XposedPluginLoader {
     }
 
     private static Object loadFromDex(Context context, Class pluginClz) throws Exception {
-        XposedBridge.log(context.toString());
         try {
             ApplicationInfo info = context.getPackageManager().getApplicationInfo(BuildConfig.APPLICATION_ID, 0);
             String apkPath = info.sourceDir;
@@ -85,13 +86,13 @@ public class XposedPluginLoader {
                     try {
                         findClzMethod.invoke(classLoader, className);
                     } catch (Exception e) {
-                        XposedBridge.log(e);
+                        L.d(e);
                     }
                 }
             }
             return true;
         } catch (Exception e) {
-            XposedBridge.log(e);
+            L.e(e);
         }
         return false;
     }

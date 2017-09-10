@@ -10,7 +10,9 @@ android {
         minSdkVersion 14
         targetSdkVersion 26
         versionCode 6
-        versionName "1.3.0"
+        versionName "1.4.0"
+        buildConfigField "String", "APP_SETTINGS_NAME", "\"指紋設置\""
+        buildConfigField "String", "APP_PRODUCT_NAME", "\"WeChatFp\""
     }
     buildTypes {
         release {
@@ -35,7 +37,7 @@ android.applicationVariants.all { variant ->
                 println "Running app..."
                 exec {
                     executable = ADB_PATH
-                    args = ['shell', "am start -n ${variant.applicationId}/.SettingsActivity"]
+                    args = ['shell', "am start -n ${variant.applicationId}/.activity.HomeActivity"]
                 }
             }
         }
@@ -62,6 +64,7 @@ task debugWechat(dependsOn: "installDebug") {
 dependencies {
     implementation 'com.android.support:support-v4:26.0.2'
     implementation 'com.wei.android.lib:fingerprintidentify:1.2.1'
-    implementation 'com.crossbowffs.remotepreferences:remotepreferences:0.5'
+    implementation 'com.google.code.gson:gson:2.8.1'
+    implementation 'com.squareup.okhttp3:okhttp:3.8.1'
     provided 'de.robv.android.xposed:api:53'
 }

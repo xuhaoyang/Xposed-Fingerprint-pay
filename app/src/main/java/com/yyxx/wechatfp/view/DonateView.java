@@ -1,0 +1,88 @@
+package com.yyxx.wechatfp.view;
+
+import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.util.AttributeSet;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+
+import com.yyxx.wechatfp.adapter.PreferenceAdapter;
+import com.yyxx.wechatfp.util.DonateUtil;
+import com.yyxx.wechatfp.util.DpUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by Jason on 2017/9/9.
+ */
+
+public class DonateView extends DialogFrameLayout implements AdapterView.OnItemClickListener {
+
+    private static final String SETTINGS_NAME_ALIPAY = "支付寶";
+    private static final String SETTINGS_NAME_WECHAT = "微信";
+
+
+    private List<PreferenceAdapter.Data> mSettingsDataList = new ArrayList<>();
+    private PreferenceAdapter mListAdapter;
+    private ListView mListView;
+
+    public DonateView(@NonNull Context context) {
+        super(context);
+        init(context);
+    }
+
+    public DonateView(@NonNull Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+        init(context);
+    }
+
+    public DonateView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        init(context);
+    }
+
+    private void init(Context context) {
+        LinearLayout rootVerticalLayout = new LinearLayout(context);
+        rootVerticalLayout.setOrientation(LinearLayout.VERTICAL);
+
+        int defHPadding = DpUtil.dip2px(context, 15);
+        int defVPadding = DpUtil.dip2px(context, 12);
+
+        mListView = new ListView(context);
+        mListView.setDividerHeight(0);
+        mListView.setOnItemClickListener(this);
+        mListView.setPadding(defHPadding, defVPadding, defHPadding, defVPadding);
+        mListView.setDivider(new ColorDrawable(Color.TRANSPARENT));
+
+        mSettingsDataList.add(new PreferenceAdapter.Data(SETTINGS_NAME_ALIPAY, "276308768@qq.com"));
+        mSettingsDataList.add(new PreferenceAdapter.Data(SETTINGS_NAME_WECHAT, "eritpchy"));
+        mListAdapter = new PreferenceAdapter(mSettingsDataList);
+
+        rootVerticalLayout.addView(mListView);
+
+        this.addView(rootVerticalLayout);
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        mListView.setAdapter(mListAdapter);
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+        PreferenceAdapter.Data data = mListAdapter.getItem(position);
+        final Context context = getContext();
+        if (SETTINGS_NAME_ALIPAY.equals(data.title)) {
+            DonateUtil.openAlipayPayPage(context);
+        } else if (SETTINGS_NAME_WECHAT.equals(data.title)) {
+            DonateUtil.openWeChatPay(context);
+        }
+    }
+}

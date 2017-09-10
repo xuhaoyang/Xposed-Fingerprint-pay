@@ -1,12 +1,12 @@
-package com.yyxx.wechatfp.Utils;
+package com.yyxx.wechatfp.util;
 
 import java.io.UnsupportedEncodingException;
 
-import javax.crypto.Cipher; 
+import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
 ///* AES对称加密解密类 */ 
-public class AESHelper {
+public class AESUtil {
 
 private static final String CipherMode = "AES/ECB/PKCS5Padding";
 

@@ -1,14 +1,15 @@
-package com.yyxx.wechatfp;
+package com.yyxx.wechatfp.xposed.plugin;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.annotation.Keep;
+import android.text.TextUtils;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -17,14 +18,25 @@ import android.widget.Toast;
 
 import com.wei.android.lib.fingerprintidentify.FingerprintIdentify;
 import com.wei.android.lib.fingerprintidentify.base.BaseFingerprint;
-import com.yyxx.wechatfp.Utils.AESHelper;
+import com.yyxx.wechatfp.BuildConfig;
+import com.yyxx.wechatfp.Constant;
+import com.yyxx.wechatfp.network.updateCheck.UpdateFactory;
+import com.yyxx.wechatfp.util.Config;
+import com.yyxx.wechatfp.util.Task;
+import com.yyxx.wechatfp.util.log.L;
+import com.yyxx.wechatfp.view.SettingsView;
+import com.yyxx.wechatfp.xposed.ObfuscationHelper;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.LinkedList;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-
-import static com.yyxx.wechatfp.WalletBaseUI.WECHAT_PACKAGENAME;
 
 /**
  * Created by Jason on 2017/9/8.
@@ -40,59 +52,80 @@ public class XposedPlugin {
     private TextView mPayTitleTextView, mPasswordTextView;
     private static FingerprintIdentify mFingerprintIdentify;
     private static boolean mNeedFingerprint;
+    private Activity mCurrentActivity;
 
     @Keep
-    public void main(final Context context, XC_LoadPackage.LoadPackageParam lpparam) {
-        XposedBridge.log("Xposed plugin init version: " + BuildConfig.VERSION_NAME);
+    public void main(final Context context, final XC_LoadPackage.LoadPackageParam lpparam) {
+        L.d("Xposed plugin init version: " + BuildConfig.VERSION_NAME);
         try {
 
-            PackageInfo packageInfo = context.getPackageManager().getPackageInfo(WECHAT_PACKAGENAME, 0);
+            PackageInfo packageInfo = context.getPackageManager().getPackageInfo(Constant.PACKAGE_BANE_WECHAT, 0);
             int versionCode = packageInfo.versionCode;
             String versionName = packageInfo.versionName;
             boolean isVersionSupported = ObfuscationHelper.init(versionCode, versionName, lpparam);
             if (!isVersionSupported) {
                 Toast.makeText(context, "当前版本:" + versionName + "." + versionCode + "不支持", Toast.LENGTH_LONG).show();
-                XposedBridge.log("当前版本:" + versionName + "." + versionCode + "不支持");
+                L.d("当前版本:" + versionName + "." + versionCode + "不支持");
                 return;
             }
 
             XposedHelpers.findAndHookMethod(ObfuscationHelper.MM_Classes.PayUI, "onCreate", Bundle.class, new XC_MethodHook() {
                 @TargetApi(21)
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    XposedBridge.log("PayUI onCreate");
+                    L.d("PayUI onCreate");
                     mWalletPayUIActivity = (Activity) param.thisObject;
-                    mNeedFingerprint = true;
+                    if (new Config(context).isOn()) {
+                        mNeedFingerprint = true;
+                    } else {
+                        mNeedFingerprint = false;
+                    }
+                }
+            });
+            XposedHelpers.findAndHookMethod(Activity.class, "onResume", new XC_MethodHook() {
+                @TargetApi(21)
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    boolean firstStartUp = mCurrentActivity == null;
+                    mCurrentActivity = (Activity) param.thisObject;
+                    if (firstStartUp) {
+                        Task.onMain(6000L, new Runnable() {
+                            @Override
+                            public void run() {
+                                UpdateFactory.doUpdateCheck(mCurrentActivity);
+                            }
+                        });
+                    }
+                    L.d("Activity onResume =", mCurrentActivity);
                 }
             });
 
             XposedHelpers.findAndHookMethod(ObfuscationHelper.MM_Classes.FetchUI, "onCreate", Bundle.class, new XC_MethodHook() {
                 @TargetApi(21)
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    XposedBridge.log("FetchUI onCreate");
+                    L.d("FetchUI onCreate");
                     mWalletPayUIActivity = (Activity) param.thisObject;
-                    mNeedFingerprint = true;
+                    if (new Config(context).isOn()) {
+                        mNeedFingerprint = true;
+                    } else {
+                        mNeedFingerprint = false;
+                    }
                 }
             });
 
             XposedHelpers.findAndHookConstructor(ObfuscationHelper.MM_Classes.Payview, Context.class, new XC_MethodHook() {
                 @TargetApi(21)
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    XposedBridge.log("Payview Constructor");
-                    SharedPreferences xmodPrefs = XPreferenceProvider.getRemoteSharedPreference(context);
-                    XposedBridge.log("设置数量" + String.valueOf(xmodPrefs.getAll().size()));
-                    boolean fingerPrintEnabled = xmodPrefs.getBoolean("enable_fp", false);
-                    XposedBridge.log("fingerPrintEnabled:" + fingerPrintEnabled);
+                    L.d("Payview Constructor");
 
-                    if (fingerPrintEnabled && mNeedFingerprint && mWalletPayUIActivity != null) {
+                    if (mNeedFingerprint && mWalletPayUIActivity != null) {
                         initFingerPrintLock();
                         mPasswordLayout = (RelativeLayout) XposedHelpers.getObjectField(param.thisObject, ObfuscationHelper.MM_Fields.PaypwdView);
                         mInputEditText = (EditText) XposedHelpers.getObjectField(mPasswordLayout, ObfuscationHelper.MM_Fields.PaypwdEditText);
-                        XposedBridge.log("密码输入框:" + mInputEditText.getClass().getName());
+                        L.d("密码输入框:" + mInputEditText.getClass().getName());
                         mInputEditText.setVisibility(View.GONE);
                         mPayTitleTextView = (TextView) XposedHelpers.getObjectField(param.thisObject, ObfuscationHelper.MM_Fields.PayTitle);
                         mPayTitleTextView.setText(ObfuscationHelper.MM_Res.Finger_title);
                         final View mKeyboard = (View) XposedHelpers.getObjectField(param.thisObject, ObfuscationHelper.MM_Fields.PayInputView);
-                        XposedBridge.log("密码键盘:" + mKeyboard.getClass().getName());
+                        L.d("密码键盘:" + mKeyboard.getClass().getName());
                         mKeyboard.setVisibility(View.GONE);
                         mFingerPrintLayout = new RelativeLayout(mWalletPayUIActivity);
                         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -109,7 +142,7 @@ public class XposedPlugin {
                                 mInputEditText.setVisibility(View.VISIBLE);
                                 mKeyboard.setVisibility(View.VISIBLE);
                                 mFingerprintIdentify.cancelIdentify();
-                                mPayTitleTextView.setText(ObfuscationHelper.MM_Res.passwd_title);
+                                mPayTitleTextView.setText(ObfuscationHelper.MM_Res.Passwd_title);
                             }
                         });
                         mPasswordTextView = (TextView) XposedHelpers.getObjectField(param.thisObject, ObfuscationHelper.MM_Fields.Passwd_Text);
@@ -121,7 +154,7 @@ public class XposedPlugin {
                                 mInputEditText.setVisibility(View.VISIBLE);
                                 mKeyboard.setVisibility(View.VISIBLE);
                                 mFingerprintIdentify.cancelIdentify();
-                                mPayTitleTextView.setText(ObfuscationHelper.MM_Res.passwd_title);
+                                mPayTitleTextView.setText(ObfuscationHelper.MM_Res.Passwd_title);
                             }
                         });
                     } else {
@@ -133,12 +166,87 @@ public class XposedPlugin {
             XposedHelpers.findAndHookMethod(ObfuscationHelper.MM_Classes.Payview, "dismiss", new XC_MethodHook() {
                 @TargetApi(21)
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    XposedBridge.log("Payview dismiss");
+                    L.d("Payview dismiss");
                     if (mWalletPayUIActivity != null) {
                         mFingerprintIdentify.cancelIdentify();
                         mWalletPayUIActivity = null;
                         mNeedFingerprint = false;
                     }
+                }
+            });
+
+            final Class<?> className = ObfuscationHelper.MM_Classes.PreferenceAdapter;
+            XposedHelpers.findAndHookMethod(className, "getView", int.class, View.class, ViewGroup.class, new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    View view = (View) param.getResult();
+                    if (view == null) {
+                        return;
+                    }
+                    int position = (int) param.args[0];
+                    BaseAdapter baseAdapter = (BaseAdapter) param.thisObject;
+                    Object item = baseAdapter.getItem(position);
+                    if(BuildConfig.APP_SETTINGS_NAME.equals(String.valueOf(item))) {
+                        view.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(final View view) {
+                                view.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            Activity activity = mCurrentActivity;
+                                            if (activity == null || activity.isDestroyed()) {
+                                                return;
+                                            }
+                                            SettingsView settingsView = new SettingsView(activity);
+                                            settingsView.showInDialog();
+                                        } catch (Exception | Error e) {
+                                            L.e(e);
+                                        }
+                                    }
+                                });
+
+                            }
+                        });
+                        L.d(item);
+                    }
+                }
+            });
+
+            XposedHelpers.findAndHookMethod(className, "notifyDataSetChanged", new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+
+                    Field vpQField = className.getDeclaredField(ObfuscationHelper.MM_Fields.PreferenceAdapter_vpQ);
+                    vpQField.setAccessible(true);
+                    HashMap<String, Object> vpQ = (HashMap<String, Object>) vpQField.get(param.thisObject);
+
+                    if (!vpQ.toString().contains("通用")) {
+                        return;
+                    }
+                    Field vpPField = className.getDeclaredField(ObfuscationHelper.MM_Fields.PreferenceAdapter_vpP);
+                    vpPField.setAccessible(true);
+                    LinkedList<String> vpP = (LinkedList<String>) vpPField.get(param.thisObject);
+
+                    String key = BuildConfig.APPLICATION_ID;
+                    if (vpP.contains(key)) {
+                        return;
+                    }
+
+                    Class<?> preferenceClz = XposedHelpers.findClass("com.tencent.mm.ui.base.preference.Preference", lpparam.classLoader);
+                    Constructor<?> preferenceCon = preferenceClz.getConstructor(Context.class);
+                    preferenceCon.setAccessible(true);
+                    Object preference = preferenceCon.newInstance(context);
+                    Method setTitle = preferenceClz.getDeclaredMethod("setTitle", CharSequence.class);
+                    setTitle.setAccessible(true);
+                    setTitle.invoke(preference, BuildConfig.APP_SETTINGS_NAME);
+                    vpP.add(0, key);
+                    vpQ.put(key, preference);
+                }
+
+                @TargetApi(21)
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+
                 }
             });
         } catch (Throwable l) {
@@ -180,21 +288,12 @@ public class XposedPlugin {
     }
 
     private static void onSuccessUnlock(Context context) {
-        String pwd;
-        String ANDROID_ID = Settings.System.getString(mWalletPayUIActivity.getContentResolver(), Settings.System.ANDROID_ID);
-
-        SharedPreferences xmodPrefs = XPreferenceProvider.getRemoteSharedPreference(context);
-        XposedBridge.log("设置数量" + String.valueOf(xmodPrefs.getAll().size()));
-        if (xmodPrefs.getAll().size() > 0) {
-            pwd = xmodPrefs.getString("paypwd", "");
-        } else {
-            pwd = "";
+        Config config = new Config(context);
+        String pwd = config.getPassword();
+        if (TextUtils.isEmpty(pwd)) {
+            Toast.makeText(mWalletPayUIActivity, "未设定支付密码，请前往設置->指紋設置中设定微信的支付密码", Toast.LENGTH_SHORT).show();
+            return;
         }
-        if (pwd.length() > 0) {
-            mInputEditText.setText(AESHelper.decrypt(pwd, ANDROID_ID));
-        } else {
-            Toast.makeText(mWalletPayUIActivity, "未设定支付密码，请在WechatFp中设定微信的支付密码", Toast.LENGTH_SHORT).show();
-        }
-
+        mInputEditText.setText(pwd);
     }
 }
