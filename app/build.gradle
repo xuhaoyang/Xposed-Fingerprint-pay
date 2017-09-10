@@ -10,7 +10,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 26
         versionCode 6
-        versionName "1.4.0"
+        versionName "1.4.1"
         buildConfigField "String", "APP_SETTINGS_NAME", "\"指紋設置\""
         buildConfigField "String", "APP_PRODUCT_NAME", "\"WeChatFp\""
     }
@@ -27,6 +27,10 @@ android {
             dirs 'libs'
         }
     }
+
+    packagingOptions {
+        exclude 'publicsuffixes.gz'
+    }
 }
 
 
@@ -40,6 +44,10 @@ android.applicationVariants.all { variant ->
                     args = ['shell', "am start -n ${variant.applicationId}/.activity.HomeActivity"]
                 }
             }
+        }
+        variant.outputs.each { output ->
+            def apkName = "WeChatFp-${android.defaultConfig.versionName}-${variant.buildType.name}.apk"
+            output.outputFileName = apkName
         }
     }
 }

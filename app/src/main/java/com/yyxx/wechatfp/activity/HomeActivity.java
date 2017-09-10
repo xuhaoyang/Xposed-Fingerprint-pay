@@ -9,6 +9,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.yyxx.wechatfp.BuildConfig;
 import com.yyxx.wechatfp.R;
 import com.yyxx.wechatfp.adapter.PreferenceAdapter;
 import com.yyxx.wechatfp.network.updateCheck.UpdateFactory;
@@ -38,6 +39,7 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
         list.add(new PreferenceAdapter.Data(SETTINGS_NAME_HELP_WECHAT, "查看使用教程"));
         list.add(new PreferenceAdapter.Data(SETTINGS_NAME_CHECKUPDATE, "點擊檢查软件更新"));
         list.add(new PreferenceAdapter.Data(SETTINGS_NAME_WEBSIDE, "訪問項目主頁"));
+        list.add(new PreferenceAdapter.Data("当前版本", BuildConfig.VERSION_NAME));
         mListAdapter = new PreferenceAdapter(list);
         listView.setAdapter(mListAdapter);
         listView.setOnItemClickListener(this);

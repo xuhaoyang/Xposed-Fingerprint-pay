@@ -186,7 +186,7 @@ public class XposedPlugin {
                     int position = (int) param.args[0];
                     BaseAdapter baseAdapter = (BaseAdapter) param.thisObject;
                     Object item = baseAdapter.getItem(position);
-                    if(BuildConfig.APP_SETTINGS_NAME.equals(String.valueOf(item))) {
+                    if(String.valueOf(item).contains(BuildConfig.APP_SETTINGS_NAME)) {
                         view.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(final View view) {
@@ -237,9 +237,15 @@ public class XposedPlugin {
                     Constructor<?> preferenceCon = preferenceClz.getConstructor(Context.class);
                     preferenceCon.setAccessible(true);
                     Object preference = preferenceCon.newInstance(context);
-                    Method setTitle = preferenceClz.getDeclaredMethod("setTitle", CharSequence.class);
-                    setTitle.setAccessible(true);
-                    setTitle.invoke(preference, BuildConfig.APP_SETTINGS_NAME);
+
+                    Method setTitleMethod = preferenceClz.getDeclaredMethod("setTitle", CharSequence.class);
+                    setTitleMethod.setAccessible(true);
+                    setTitleMethod.invoke(preference, BuildConfig.APP_SETTINGS_NAME);
+
+                    Method setSummaryMethod = preferenceClz.getDeclaredMethod("setSummary", CharSequence.class);
+                    setSummaryMethod.setAccessible(true);
+                    setSummaryMethod.invoke(preference, BuildConfig.VERSION_NAME);
+
                     vpP.add(0, key);
                     vpQ.put(key, preference);
                 }

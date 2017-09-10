@@ -72,7 +72,7 @@ public class SettingsView extends DialogFrameLayout implements AdapterView.OnIte
 
         TextView settingsTitle = new TextView(context);
         settingsTitle.setTextSize(TEXT_SIZE_BIG);
-        settingsTitle.setText(BuildConfig.APP_SETTINGS_NAME);
+        settingsTitle.setText(BuildConfig.APP_SETTINGS_NAME + " " + BuildConfig.VERSION_NAME);
         settingsTitle.setTextColor(Color.WHITE);
         settingsTitle.setTypeface(null, Typeface.BOLD);
         settingsTitle.setBackgroundColor(0xFF1AAEE5);
