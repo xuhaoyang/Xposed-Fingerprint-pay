@@ -22,3 +22,7 @@
 4. 启用插件, 输入密码
 5. 重启手机,Enjoy.
 
+
+![qq](https://github.com/eritpchy/WechatFp/raw/master/doc/qqGroup.png)
+
+QQ交流群: [665167891](http://shang.qq.com/wpa/qunwpa?idkey=4b76babd76c69db09fbbafb4509c1e34caf7f8f8ad0fdcbb4492889fd66a673b)
