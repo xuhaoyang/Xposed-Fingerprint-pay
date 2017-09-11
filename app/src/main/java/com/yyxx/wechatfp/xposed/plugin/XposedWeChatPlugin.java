@@ -23,6 +23,7 @@ import com.yyxx.wechatfp.Constant;
 import com.yyxx.wechatfp.network.updateCheck.UpdateFactory;
 import com.yyxx.wechatfp.util.Config;
 import com.yyxx.wechatfp.util.Task;
+import com.yyxx.wechatfp.util.Umeng;
 import com.yyxx.wechatfp.util.log.L;
 import com.yyxx.wechatfp.view.SettingsView;
 import com.yyxx.wechatfp.xposed.ObfuscationHelper;
@@ -58,7 +59,7 @@ public class XposedWeChatPlugin {
     public void main(final Context context, final XC_LoadPackage.LoadPackageParam lpparam) {
         L.d("Xposed plugin init version: " + BuildConfig.VERSION_NAME);
         try {
-
+            Umeng.init(context);
             PackageInfo packageInfo = context.getPackageManager().getPackageInfo(Constant.PACKAGE_NAME_WECHAT, 0);
             int versionCode = packageInfo.versionCode;
             String versionName = packageInfo.versionName;
@@ -268,14 +269,14 @@ public class XposedWeChatPlugin {
                 public void onSucceed() {
                     // 验证成功，自动结束指纹识别
                     Toast.makeText(mWalletPayUIActivity, "指纹识别成功", Toast.LENGTH_SHORT).show();
-                    L.e("指纹识别成功");
+                    L.d("指纹识别成功");
                     onSuccessUnlock(mWalletPayUIActivity);
                 }
 
                 @Override
                 public void onNotMatch(int availableTimes) {
                     // 指纹不匹配，并返回可用剩余次数并自动继续验证
-                    L.e("指纹识别失败，还可尝试" + String.valueOf(availableTimes) + "次");
+                    L.d("指纹识别失败，还可尝试" + String.valueOf(availableTimes) + "次");
                     Toast.makeText(mWalletPayUIActivity, "指纹识别失败，还可尝试" + String.valueOf(availableTimes) + "次", Toast.LENGTH_SHORT).show();
                 }
 
@@ -283,19 +284,19 @@ public class XposedWeChatPlugin {
                 public void onFailed(boolean isDeviceLocked) {
                     // 错误次数达到上限或者API报错停止了验证，自动结束指纹识别
                     // isDeviceLocked 表示指纹硬件是否被暂时锁定
-                    L.e("多次尝试错误，请确认指纹");
+                    L.d("多次尝试错误，请确认指纹");
                     Toast.makeText(mWalletPayUIActivity, "多次尝试错误，请确认指纹", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onStartFailedByDeviceLocked() {
                     // 第一次调用startIdentify失败，因为设备被暂时锁定
-                    L.e("系统限制，重启后必须验证密码后才能使用指纹验证");
+                    L.d("系统限制，重启后必须验证密码后才能使用指纹验证");
                     Toast.makeText(mWalletPayUIActivity, "系统限制，重启后必须验证密码后才能使用指纹验证", Toast.LENGTH_SHORT).show();
                 }
             });
         } else {
-            L.e("系统指纹功能未启用");
+            L.d("系统指纹功能未启用");
             Toast.makeText(mWalletPayUIActivity, "系统指纹功能未启用", Toast.LENGTH_SHORT).show();
         }
     }

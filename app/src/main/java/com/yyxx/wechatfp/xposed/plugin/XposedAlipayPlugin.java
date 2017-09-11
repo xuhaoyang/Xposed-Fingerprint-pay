@@ -30,6 +30,7 @@ import com.yyxx.wechatfp.util.DpUtil;
 import com.yyxx.wechatfp.util.ImageUtil;
 import com.yyxx.wechatfp.util.StyleUtil;
 import com.yyxx.wechatfp.util.Task;
+import com.yyxx.wechatfp.util.Umeng;
 import com.yyxx.wechatfp.util.ViewUtil;
 import com.yyxx.wechatfp.util.log.L;
 import com.yyxx.wechatfp.view.SettingsView;
@@ -61,6 +62,7 @@ public class XposedAlipayPlugin {
     public void main(final Context context, final XC_LoadPackage.LoadPackageParam lpparam) {
         L.d("Xposed plugin init version: " + BuildConfig.VERSION_NAME);
         try {
+            Umeng.init(context);
             final PackageInfo packageInfo = context.getPackageManager().getPackageInfo(lpparam.packageName, 0);
             final int versionCode = packageInfo.versionCode;
             String versionName = packageInfo.versionName;

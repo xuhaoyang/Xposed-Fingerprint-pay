@@ -2,6 +2,7 @@ package com.yyxx.wechatfp.util.log.handler;
 
 import android.util.Log;
 
+import com.yyxx.wechatfp.util.Umeng;
 import com.yyxx.wechatfp.util.log.inf.ILog;
 
 /**
@@ -17,5 +18,6 @@ public class GenericLog implements ILog {
     @Override
     public void error(String tag, String msg) {
         Log.e(tag, msg);
+        Umeng.reportError(tag + " " + msg);
     }
 }

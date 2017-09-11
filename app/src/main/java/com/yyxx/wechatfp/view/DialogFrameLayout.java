@@ -11,6 +11,7 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import com.yyxx.wechatfp.listener.OnDismissListener;
+import com.yyxx.wechatfp.util.Umeng;
 
 /**
  * Created by Jason on 2017/9/9.
@@ -55,6 +56,7 @@ public abstract class DialogFrameLayout extends FrameLayout implements DialogInt
         dialog = builder.create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         dialog.show();
+        Umeng.onResume(getContext());
     }
 
     @Override
@@ -63,6 +65,7 @@ public abstract class DialogFrameLayout extends FrameLayout implements DialogInt
         if (listener != null) {
             listener.onDismiss(this);
         }
+        Umeng.onPause(getContext());
     }
 
     public DialogFrameLayout withOnDismissListener(OnDismissListener listener) {

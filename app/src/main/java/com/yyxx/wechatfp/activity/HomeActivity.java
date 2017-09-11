@@ -14,6 +14,7 @@ import com.yyxx.wechatfp.R;
 import com.yyxx.wechatfp.adapter.PreferenceAdapter;
 import com.yyxx.wechatfp.network.updateCheck.UpdateFactory;
 import com.yyxx.wechatfp.util.Task;
+import com.yyxx.wechatfp.util.Umeng;
 import com.yyxx.wechatfp.util.UrlUtil;
 
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Umeng.init(this);
         setContentView(R.layout.home);
 
         ListView listView = (ListView) findViewById(R.id.list);
@@ -70,6 +72,18 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
             UrlUtil.openUrl(this, PROJECT_URL);
             Toast.makeText(this, "如果您擁有Github賬戶, 別忘了給我的項目+個Star噢", Toast.LENGTH_LONG).show();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Umeng.onResume(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Umeng.onPause(this);
     }
 }
 

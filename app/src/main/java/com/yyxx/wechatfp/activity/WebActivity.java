@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.webkit.WebView;
 
+import com.yyxx.wechatfp.util.Umeng;
 import com.yyxx.wechatfp.util.log.L;
 
 
@@ -41,5 +42,17 @@ public class WebActivity extends AppCompatActivity {
             webView.loadUrl(url);
         }
         setContentView(webView);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Umeng.onResume(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Umeng.onPause(this);
     }
 }
