@@ -28,4 +28,4 @@
 
 ![qq](https://github.com/eritpchy/WechatFp/raw/master/doc/qqGroup.png)
 
-QQ交流群: [665167891](http://shang.qq.com/wpa/qunwpa?idkey=4b76babd76c69db09fbbafb4509c1e34caf7f8f8ad0fdcbb4492889fd66a673b)
+QQ交流群: [665167891](http://shang.qq.com/wpa/qunwpa?idkey=91c2cd8f14532413701607c364f03f43afa1539a24b96b8907c92f3c018894e5)
