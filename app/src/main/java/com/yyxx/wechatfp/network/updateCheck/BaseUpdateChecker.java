@@ -18,43 +18,34 @@ public abstract class BaseUpdateChecker implements IUpdateCheck, UpdateResultLis
 
     @Override
     public void onNoUpdate() {
-        Task.onMain(new Runnable() {
-            @Override
-            public void run() {
-                UpdateResultListener listener = mResultListener;
-                if (listener == null) {
-                    return;
-                }
-                listener.onNoUpdate();
+        Task.onMain(() -> {
+            UpdateResultListener listener = mResultListener;
+            if (listener == null) {
+                return;
             }
+            listener.onNoUpdate();
         });
     }
 
     @Override
     public void onNetErr() {
-        Task.onMain(new Runnable() {
-            @Override
-            public void run() {
-                UpdateResultListener listener = mResultListener;
-                if (listener == null) {
-                    return;
-                }
-                listener.onNetErr();
+        Task.onMain(() -> {
+            UpdateResultListener listener = mResultListener;
+            if (listener == null) {
+                return;
             }
+            listener.onNetErr();
         });
     }
 
     @Override
     public void onHasUpdate(final String version, final String content, final String pageUrl, final String downloadUrl) {
-        Task.onMain(new Runnable() {
-            @Override
-            public void run() {
-                UpdateResultListener listener = mResultListener;
-                if (listener == null) {
-                    return;
-                }
-                listener.onHasUpdate(version, content, pageUrl, downloadUrl);
+        Task.onMain(() -> {
+            UpdateResultListener listener = mResultListener;
+            if (listener == null) {
+                return;
             }
+            listener.onHasUpdate(version, content, pageUrl, downloadUrl);
         });
     }
 }

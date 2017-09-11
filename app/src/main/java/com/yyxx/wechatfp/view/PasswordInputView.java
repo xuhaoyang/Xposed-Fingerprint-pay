@@ -72,12 +72,9 @@ public class PasswordInputView extends DialogFrameLayout {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        post(new Runnable() {
-            @Override
-            public void run() {
-                InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(mInputView, InputMethodManager.SHOW_IMPLICIT);
-            }
+        post(() -> {
+            InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(mInputView, InputMethodManager.SHOW_IMPLICIT);
         });
     }
 

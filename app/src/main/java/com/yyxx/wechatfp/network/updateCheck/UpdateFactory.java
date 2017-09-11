@@ -2,7 +2,6 @@ package com.yyxx.wechatfp.network.updateCheck;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -53,24 +52,11 @@ public class UpdateFactory {
                 }
                 AlertDialog.Builder builder = new AlertDialog.Builder(context).setTitle("發現新版本 " + version);
                 builder.setMessage(content);
-                builder.setNeutralButton("跳過這個版本", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        new Config(context).setSkipVersion(version);
-                    }
-                });
-                builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
+                builder.setNeutralButton("跳過這個版本", (dialogInterface, i) -> new Config(context).setSkipVersion(version));
+                builder.setNegativeButton("取消", (dialogInterface, i) -> {
 
-                    }
                 });
-                builder.setPositiveButton("前往更新頁", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        UrlUtil.openUrl(context, pageUrl);
-                    }
-                });
+                builder.setPositiveButton("前往更新頁", (dialogInterface, i) -> UrlUtil.openUrl(context, pageUrl));
 
                 builder.show();
             }

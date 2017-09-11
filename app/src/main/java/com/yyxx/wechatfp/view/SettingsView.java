@@ -19,7 +19,6 @@ import android.widget.Toast;
 import com.yyxx.wechatfp.BuildConfig;
 import com.yyxx.wechatfp.Constant;
 import com.yyxx.wechatfp.adapter.PreferenceAdapter;
-import com.yyxx.wechatfp.listener.OnDismissListener;
 import com.yyxx.wechatfp.network.updateCheck.UpdateFactory;
 import com.yyxx.wechatfp.util.Config;
 import com.yyxx.wechatfp.util.DpUtil;
@@ -125,19 +124,16 @@ public class SettingsView extends DialogFrameLayout implements AdapterView.OnIte
             if (!TextUtils.isEmpty(config.getPassword())) {
                 passwordInputView.setDefaultText(DEFAULT_HIDDEN_PASS);
             }
-            passwordInputView.withOnDismissListener(new OnDismissListener() {
-                @Override
-                public void onDismiss(View v) {
-                    PasswordInputView inputView = (PasswordInputView) v;
-                    String inputText = inputView.getInput();
-                    if (TextUtils.isEmpty(inputText)) {
-                        return;
-                    }
-                    if (DEFAULT_HIDDEN_PASS.equals(inputText)) {
-                        return;
-                    }
-                    config.setPassword(inputText);
+            passwordInputView.withOnDismissListener(v -> {
+                PasswordInputView inputView = (PasswordInputView) v;
+                String inputText = inputView.getInput();
+                if (TextUtils.isEmpty(inputText)) {
+                    return;
                 }
+                if (DEFAULT_HIDDEN_PASS.equals(inputText)) {
+                    return;
+                }
+                config.setPassword(inputText);
             }).showInDialog(true);
         } else if (SETTINGS_NAME_CHECKUPDATE.equals(data.title)) {
             UpdateFactory.doUpdateCheck(context, false, true);

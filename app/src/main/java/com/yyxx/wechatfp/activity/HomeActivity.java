@@ -48,12 +48,7 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
         mListAdapter = new PreferenceAdapter(list);
         listView.setAdapter(mListAdapter);
         listView.setOnItemClickListener(this);
-        Task.onMain(1000L, new Runnable() {
-            @Override
-            public void run() {
-                UpdateFactory.doUpdateCheck(HomeActivity.this);
-            }
-        });
+        Task.onMain(1000L, () -> UpdateFactory.doUpdateCheck(HomeActivity.this));
     }
 
     @Override

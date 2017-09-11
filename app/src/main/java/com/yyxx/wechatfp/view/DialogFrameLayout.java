@@ -45,11 +45,8 @@ public abstract class DialogFrameLayout extends FrameLayout implements DialogInt
             builder.setTitle(title);
         }
         if (showConfirmBtn) {
-            builder.setPositiveButton("確定", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
+            builder.setPositiveButton("確定", (dialogInterface, i) -> {
 
-                }
             });
         }
         AlertDialog dialog;

@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.pm.PackageInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -15,7 +14,6 @@ import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -76,12 +74,7 @@ public class XposedAlipayPlugin {
                     final String activityClzName = activity.getClass().getName();
                     mCurrentActivity = activity;
                     if (activityClzName.contains(".UserSettingActivity")) {
-                        Task.onMain(10, new Runnable() {
-                            @Override
-                            public void run() {
-                                doSettingsMenuInject(activity);
-                            }
-                        });
+                        Task.onMain(10, () -> doSettingsMenuInject(activity));
                     } else if (activityClzName.contains(".FlyBirdWindowActivity")) {
                         L.d("found");
                         final Config config = new Config(activity);
@@ -89,26 +82,23 @@ public class XposedAlipayPlugin {
                             return;
                         }
                         mIsViewTreeObserverFirst = true;
-                        activity.getWindow().getDecorView().getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                            @Override
-                            public void onGlobalLayout() {
-                                if (mCurrentActivity == null) {
-                                    return;
-                                }
-                                if (activity.isDestroyed()) {
-                                    return;
-                                }
-                                if (mCurrentActivity != activity) {
-                                    return;
-                                }
-                                View key1View = ViewUtil.findViewByName(activity, "com.alipay.android.app", "simplePwdLayout");
-                                if (key1View == null) {
-                                    return;
-                                }
-                                if (mIsViewTreeObserverFirst) {
-                                    mIsViewTreeObserverFirst = false;
-                                    showFingerPrintDialog(activity);
-                                }
+                        activity.getWindow().getDecorView().getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+                            if (mCurrentActivity == null) {
+                                return;
+                            }
+                            if (activity.isDestroyed()) {
+                                return;
+                            }
+                            if (mCurrentActivity != activity) {
+                                return;
+                            }
+                            View key1View = ViewUtil.findViewByName(activity, "com.alipay.android.app", "simplePwdLayout");
+                            if (key1View == null) {
+                                return;
+                            }
+                            if (mIsViewTreeObserverFirst) {
+                                mIsViewTreeObserverFirst = false;
+                                showFingerPrintDialog(activity);
                             }
                         });
 
@@ -119,24 +109,16 @@ public class XposedAlipayPlugin {
                             return;
                         }
                         activity.getWindow().getDecorView().setAlpha(0);
-                        Task.onMain(1500, new Runnable() {
-                            @Override
-                            public void run() {
-                                final String modulePackageName = "com.alipay.android.phone.safepaybase";
-                                View key1View = ViewUtil.findViewByName(activity, modulePackageName, "key_num_1");
-                                if (key1View != null) {
-                                    showFingerPrintDialog(activity);
-                                    return;
-                                }
-
-                                //try again
-                                Task.onMain(2000, new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        showFingerPrintDialog(activity);
-                                    }
-                                });
+                        Task.onMain(1500, () -> {
+                            final String modulePackageName = "com.alipay.android.phone.safepaybase";
+                            View key1View = ViewUtil.findViewByName(activity, modulePackageName, "key_num_1");
+                            if (key1View != null) {
+                                showFingerPrintDialog(activity);
+                                return;
                             }
+
+                            //try again
+                            Task.onMain(2000, () -> showFingerPrintDialog(activity));
                         });
                     }
                 }
@@ -223,16 +205,13 @@ public class XposedAlipayPlugin {
             cancelBtn.setBackground(ViewUtil.genBackgroundDefaultDrawable());
             cancelBtn.setText("取消");
             StyleUtil.apply(cancelBtn);
-            cancelBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    mPwdActivityDontShowFlag = true;
-                    AlertDialog dialog = mFingerPrintAlertDialog;
-                    if (dialog != null) {
-                        dialog.dismiss();
-                    }
-                    activity.onBackPressed();
+            cancelBtn.setOnClickListener(view -> {
+                mPwdActivityDontShowFlag = true;
+                AlertDialog dialog = mFingerPrintAlertDialog;
+                if (dialog != null) {
+                    dialog.dismiss();
                 }
+                activity.onBackPressed();
             });
 
             View lineHView = new View(context);
@@ -242,13 +221,10 @@ public class XposedAlipayPlugin {
             enterPassBtn.setBackground(ViewUtil.genBackgroundDefaultDrawable());
             enterPassBtn.setText("输入密码");
             StyleUtil.apply(enterPassBtn);
-            enterPassBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    AlertDialog dialog = mFingerPrintAlertDialog;
-                    if (dialog != null) {
-                        dialog.dismiss();
-                    }
+            enterPassBtn.setOnClickListener(view -> {
+                AlertDialog dialog = mFingerPrintAlertDialog;
+                if (dialog != null) {
+                    dialog.dismiss();
                 }
             });
 
@@ -266,58 +242,52 @@ public class XposedAlipayPlugin {
             rootVLinearLayout.addView(lineVView, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1));
             rootVLinearLayout.addView(buttonHLinearLayout, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, DpUtil.dip2px(context, 60)));
 
-            initFingerPrintLock(context, new Runnable() {
-                @Override
-                public void run() {
-                    String pwd = new Config(activity).getPassword();
-                    if (TextUtils.isEmpty(pwd)) {
-                        Toast.makeText(activity, "未设定支付密码，请前往設置->指紋設置中设定支付宝的支付密码", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
+            initFingerPrintLock(context, () -> {
+                String pwd = new Config(activity).getPassword();
+                if (TextUtils.isEmpty(pwd)) {
+                    Toast.makeText(activity, "未设定支付密码，请前往設置->指紋設置中设定支付宝的支付密码", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-                    String modulePackageName = "com.alipay.android.phone.safepaybase";
-                    View keysView[] = new View[] {
-                            ViewUtil.findViewByName(activity, modulePackageName, "key_num_1"),
-                            ViewUtil.findViewByName(activity, modulePackageName, "key_num_2"),
-                            ViewUtil.findViewByName(activity, modulePackageName, "key_num_3"),
-                            ViewUtil.findViewByName(activity, modulePackageName, "key_num_4", "key_4"),
-                            ViewUtil.findViewByName(activity, modulePackageName, "key_num_5"),
-                            ViewUtil.findViewByName(activity, modulePackageName, "key_num_6"),
-                            ViewUtil.findViewByName(activity, modulePackageName, "key_num_7"),
-                            ViewUtil.findViewByName(activity, modulePackageName, "key_num_8"),
-                            ViewUtil.findViewByName(activity, modulePackageName, "key_num_9"),
-                            ViewUtil.findViewByName(activity, modulePackageName, "key_num_0"),
-                    };
+                String modulePackageName = "com.alipay.android.phone.safepaybase";
+                View keysView[] = new View[] {
+                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_1"),
+                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_2"),
+                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_3"),
+                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_4", "key_4"),
+                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_5"),
+                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_6"),
+                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_7"),
+                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_8"),
+                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_9"),
+                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_0"),
+                };
 
-                    try {
-                        inputPassword(pwd, keysView);
-                    } catch (NullPointerException e) {
-                        Toast.makeText(context, "Oops.. 输入失败了. 请手动输入密码", Toast.LENGTH_LONG).show();
-                    } catch (Exception e) {
-                        Toast.makeText(context, "Oops.. 输入失败了. 请手动输入密码", Toast.LENGTH_LONG).show();
-                        L.e(e);
-                    }
-                    AlertDialog dialog = mFingerPrintAlertDialog;
-                    if (dialog != null) {
-                        dialog.dismiss();
-                    }
+                try {
+                    inputPassword(pwd, keysView);
+                } catch (NullPointerException e) {
+                    Toast.makeText(context, "Oops.. 输入失败了. 请手动输入密码", Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
+                    Toast.makeText(context, "Oops.. 输入失败了. 请手动输入密码", Toast.LENGTH_LONG).show();
+                    L.e(e);
+                }
+                AlertDialog dialog = mFingerPrintAlertDialog;
+                if (dialog != null) {
+                    dialog.dismiss();
                 }
             });
 
-            AlertDialog dialog = new AlertDialog.Builder(new ContextThemeWrapper(context, android.R.style.Theme_Holo_Light_Dialog_MinWidth)).setView(rootVLinearLayout).setOnDismissListener(new DialogInterface.OnDismissListener() {
-                @Override
-                public void onDismiss(DialogInterface dialogInterface) {
-                    FingerprintIdentify fingerprintIdentify = mFingerprintIdentify;
-                    if (fingerprintIdentify != null) {
-                        fingerprintIdentify.cancelIdentify();
-                    }
-                    if (!mPwdActivityDontShowFlag) {
-                        activity.getWindow().getDecorView().setAlpha(1);
-                    }
-                    try {
-                        bitmap.recycle();
-                    } catch (Exception e) {
-                    }
+            AlertDialog dialog = new AlertDialog.Builder(new ContextThemeWrapper(context, android.R.style.Theme_Holo_Light_Dialog_MinWidth)).setView(rootVLinearLayout).setOnDismissListener(dialogInterface -> {
+                FingerprintIdentify fingerprintIdentify = mFingerprintIdentify;
+                if (fingerprintIdentify != null) {
+                    fingerprintIdentify.cancelIdentify();
+                }
+                if (!mPwdActivityDontShowFlag) {
+                    activity.getWindow().getDecorView().setAlpha(1);
+                }
+                try {
+                    bitmap.recycle();
+                } catch (Exception e) {
                 }
             }).setCancelable(false).create();
             mFingerPrintAlertDialog = dialog;
@@ -353,12 +323,7 @@ public class XposedAlipayPlugin {
         itemHlinearLayout.setBackground(ViewUtil.genBackgroundDefaultDrawable(Color.WHITE));
         itemHlinearLayout.setGravity(Gravity.CENTER_VERTICAL);
         itemHlinearLayout.setClickable(true);
-        itemHlinearLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new SettingsView(activity).showInDialog();
-            }
-        });
+        itemHlinearLayout.setOnClickListener(view -> new SettingsView(activity).showInDialog());
 
         int defHPadding = DpUtil.dip2px(activity, 15);
 

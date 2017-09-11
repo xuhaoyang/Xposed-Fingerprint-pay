@@ -88,12 +88,7 @@ public class XposedWeChatPlugin {
                     boolean firstStartUp = mCurrentActivity == null;
                     mCurrentActivity = (Activity) param.thisObject;
                     if (firstStartUp) {
-                        Task.onMain(6000L, new Runnable() {
-                            @Override
-                            public void run() {
-                                UpdateFactory.doUpdateCheck(mCurrentActivity);
-                            }
-                        });
+                        Task.onMain(6000L, () -> UpdateFactory.doUpdateCheck(mCurrentActivity));
                     }
                     L.d("Activity onResume =", mCurrentActivity);
                 }
@@ -136,27 +131,21 @@ public class XposedWeChatPlugin {
                         mFingerprintImageView.setImageResource(ObfuscationHelper.MM_Res.Finger_icon);
                         mFingerPrintLayout.addView(mFingerprintImageView);
                         mPasswordLayout.addView(mFingerPrintLayout);
-                        mFingerprintImageView.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                mPasswordLayout.removeView(mFingerPrintLayout);
-                                mInputEditText.setVisibility(View.VISIBLE);
-                                mKeyboard.setVisibility(View.VISIBLE);
-                                mFingerprintIdentify.cancelIdentify();
-                                mPayTitleTextView.setText(ObfuscationHelper.MM_Res.Passwd_title);
-                            }
+                        mFingerprintImageView.setOnClickListener(view -> {
+                            mPasswordLayout.removeView(mFingerPrintLayout);
+                            mInputEditText.setVisibility(View.VISIBLE);
+                            mKeyboard.setVisibility(View.VISIBLE);
+                            mFingerprintIdentify.cancelIdentify();
+                            mPayTitleTextView.setText(ObfuscationHelper.MM_Res.Passwd_title);
                         });
                         mPasswordTextView = (TextView) XposedHelpers.getObjectField(param.thisObject, ObfuscationHelper.MM_Fields.Passwd_Text);
                         mPasswordTextView.setVisibility(View.VISIBLE);
-                        mPasswordTextView.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                mPasswordLayout.removeView(mFingerPrintLayout);
-                                mInputEditText.setVisibility(View.VISIBLE);
-                                mKeyboard.setVisibility(View.VISIBLE);
-                                mFingerprintIdentify.cancelIdentify();
-                                mPayTitleTextView.setText(ObfuscationHelper.MM_Res.Passwd_title);
-                            }
+                        mPasswordTextView.setOnClickListener(view -> {
+                            mPasswordLayout.removeView(mFingerPrintLayout);
+                            mInputEditText.setVisibility(View.VISIBLE);
+                            mKeyboard.setVisibility(View.VISIBLE);
+                            mFingerprintIdentify.cancelIdentify();
+                            mPayTitleTextView.setText(ObfuscationHelper.MM_Res.Passwd_title);
                         });
                     } else {
 
@@ -188,27 +177,18 @@ public class XposedWeChatPlugin {
                     BaseAdapter baseAdapter = (BaseAdapter) param.thisObject;
                     Object item = baseAdapter.getItem(position);
                     if(String.valueOf(item).contains(BuildConfig.APP_SETTINGS_NAME)) {
-                        view.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(final View view) {
-                                view.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        try {
-                                            Activity activity = mCurrentActivity;
-                                            if (activity == null || activity.isDestroyed()) {
-                                                return;
-                                            }
-                                            SettingsView settingsView = new SettingsView(activity);
-                                            settingsView.showInDialog();
-                                        } catch (Exception | Error e) {
-                                            L.e(e);
-                                        }
-                                    }
-                                });
-
+                        view.setOnClickListener(view1 -> view1.post(() -> {
+                            try {
+                                Activity activity = mCurrentActivity;
+                                if (activity == null || activity.isDestroyed()) {
+                                    return;
+                                }
+                                SettingsView settingsView = new SettingsView(activity);
+                                settingsView.showInDialog();
+                            } catch (Exception | Error e) {
+                                L.e(e);
                             }
-                        });
+                        }));
                         L.d(item);
                     }
                 }
