@@ -2,7 +2,7 @@
 
 ![1](https://github.com/eritpchy/WechatFp/raw/master/app/src/main/res/mipmap-xhdpi/ic_launcher.png)
 # WechatFp
-让微信和支付宝在支持指纹识别的手机上支持指纹支付, 即使他们都不打算支持!
+让微信和支付宝在支持指纹识别的手机上使用指纹支付, 即使他们都不打算支持!
 
 已适配版本:
 微信: 6.5.8 6.5.10-1080 6.5.13-1100\
