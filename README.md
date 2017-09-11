@@ -22,6 +22,9 @@
 4. 启用插件, 输入密码
 5. 重启手机,Enjoy.
 
+百度云下载地址:
+链接: https://pan.baidu.com/s/1eSq0QNw 密码: fbrg
+
 
 ![qq](https://github.com/eritpchy/WechatFp/raw/master/doc/qqGroup.png)
 
