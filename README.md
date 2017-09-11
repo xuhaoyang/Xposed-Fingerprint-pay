@@ -25,6 +25,7 @@
 百度云下载地址:
 链接: https://pan.baidu.com/s/1eSq0QNw 密码: fbrg
 
+小提示: 由于没有复杂密码的支付宝账号, 支付宝的支付密码只支持6位简单密码噢
 
 ![qq](https://github.com/eritpchy/WechatFp/raw/master/doc/qqGroup.png)
 
