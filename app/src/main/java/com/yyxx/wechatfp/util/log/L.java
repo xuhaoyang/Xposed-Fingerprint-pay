@@ -78,15 +78,10 @@ public class L {
     }
 
     private static String getTraceTag() {
-        if (BuildConfig.DEBUG) {
-            StackTraceElement stackTrace = Thread.currentThread().getStackTrace()[4];
+        StackTraceElement stackTrace = Thread.currentThread().getStackTrace()[4];
 
-            String className = stackTrace.getClassName();
-            className = className.replaceAll("\\$.+", "");
-            return " [" + stackTrace.getMethodName() + "](" + className.substring(className.lastIndexOf('.') + 1) + ".java:" + stackTrace.getLineNumber() + ")";
-        } else {
-            return "";
-        }
+        String className = stackTrace.getClassName();
+        className = className.replaceAll("\\$.+", "");
+        return " [" + stackTrace.getMethodName() + "](" + className.substring(className.lastIndexOf('.') + 1) + ".java:" + stackTrace.getLineNumber() + ")";
     }
-
 }

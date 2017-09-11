@@ -18,14 +18,14 @@
             android:value="true" />
         <meta-data
             android:name="xposeddescription"
-            android:value="让带指纹的手机支持微信的指纹支付" />
+            android:value="让带指纹的手机支持微信和支付宝的指纹支付" />
         <meta-data
             android:name="xposedminversion"
             android:value="54" />
 
         <activity
             android:name=".activity.HomeActivity"
-            android:label="微信指纹支付">
+            android:label="指纹支付">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

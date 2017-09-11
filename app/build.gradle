@@ -9,8 +9,8 @@ android {
         applicationId "com.yyxx.wechatfp"
         minSdkVersion 14
         targetSdkVersion 26
-        versionCode 6
-        versionName "1.4.1"
+        versionCode 7
+        versionName "2.0.0"
         buildConfigField "String", "APP_SETTINGS_NAME", "\"指紋設置\""
         buildConfigField "String", "APP_PRODUCT_NAME", "\"WeChatFp\""
     }
@@ -52,13 +52,18 @@ android.applicationVariants.all { variant ->
     }
 }
 
-task debugWechat(dependsOn: "installDebug") {
+task stopWeChat {
     doLast {
         println "Stop WeChat..."
         exec {
             executable = ADB_PATH
             args = ['shell', "am force-stop com.tencent.mm"]
         }
+    }
+}
+
+task debugWeChat(dependsOn: ["installDebug", stopWeChat]) {
+    doLast {
         println "Start WeChat..."
         exec {
             executable = ADB_PATH
@@ -68,6 +73,26 @@ task debugWechat(dependsOn: "installDebug") {
     }
 }
 
+task stopAlipay {
+    doLast {
+        println "Stop Alipay..."
+        exec {
+            executable = ADB_PATH
+            args = ['shell', "am force-stop com.eg.android.AlipayGphone"]
+        }
+    }
+}
+
+task debugAlipay(dependsOn: ["installDebug", stopAlipay]) {
+    doLast {
+        println "Start WeChat..."
+        exec {
+            executable = ADB_PATH
+            args = ['shell', "am start -n com.eg.android.AlipayGphone/com.eg.android.AlipayGphone.AlipayLogin"]
+        }
+
+    }
+}
 
 dependencies {
     implementation 'com.android.support:support-v4:26.0.2'

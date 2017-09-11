@@ -11,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
+import com.yyxx.wechatfp.Constant;
 import com.yyxx.wechatfp.adapter.PreferenceAdapter;
 import com.yyxx.wechatfp.util.DonateUtil;
 import com.yyxx.wechatfp.util.DpUtil;
@@ -61,7 +62,9 @@ public class DonateView extends DialogFrameLayout implements AdapterView.OnItemC
         mListView.setDivider(new ColorDrawable(Color.TRANSPARENT));
 
         mSettingsDataList.add(new PreferenceAdapter.Data(SETTINGS_NAME_ALIPAY, "276308768@qq.com"));
-        mSettingsDataList.add(new PreferenceAdapter.Data(SETTINGS_NAME_WECHAT, "eritpchy"));
+        if (Constant.PACKAGE_NAME_WECHAT.equals(context.getPackageName())) {
+            mSettingsDataList.add(new PreferenceAdapter.Data(SETTINGS_NAME_WECHAT, "eritpchy"));
+        }
         mListAdapter = new PreferenceAdapter(mSettingsDataList);
 
         rootVerticalLayout.addView(mListView);

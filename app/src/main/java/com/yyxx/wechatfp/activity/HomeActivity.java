@@ -19,12 +19,14 @@ import com.yyxx.wechatfp.util.UrlUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.yyxx.wechatfp.Constant.HELP_URL_ALIPAY;
 import static com.yyxx.wechatfp.Constant.HELP_URL_WECHAT;
 import static com.yyxx.wechatfp.Constant.PROJECT_URL;
 
 public class HomeActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
     public static final String SETTINGS_NAME_HELP_WECHAT = "微信指纹";
+    public static final String SETTINGS_NAME_HELP_ALIPAY = "支付宝指纹";
     private static final String SETTINGS_NAME_CHECKUPDATE = "檢查更新";
     private static final String SETTINGS_NAME_WEBSIDE = "項目主頁";
 
@@ -37,6 +39,7 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
         ListView listView = (ListView) findViewById(R.id.list);
         List<PreferenceAdapter.Data> list = new ArrayList<>();
         list.add(new PreferenceAdapter.Data(SETTINGS_NAME_HELP_WECHAT, "查看使用教程"));
+        list.add(new PreferenceAdapter.Data(SETTINGS_NAME_HELP_ALIPAY, "查看使用教程"));
         list.add(new PreferenceAdapter.Data(SETTINGS_NAME_CHECKUPDATE, "點擊檢查软件更新"));
         list.add(new PreferenceAdapter.Data(SETTINGS_NAME_WEBSIDE, "訪問項目主頁"));
         list.add(new PreferenceAdapter.Data("当前版本", BuildConfig.VERSION_NAME));
@@ -59,6 +62,8 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
         }
         if (SETTINGS_NAME_HELP_WECHAT.equals(data.title)) {
             WebActivity.openUrl(this, HELP_URL_WECHAT);
+        } else if (SETTINGS_NAME_HELP_ALIPAY.equals(data.title)) {
+            WebActivity.openUrl(this, HELP_URL_ALIPAY);
         } else if (SETTINGS_NAME_CHECKUPDATE.equals(data.title)) {
             UpdateFactory.doUpdateCheck(this, false, true);
         } else if (SETTINGS_NAME_WEBSIDE.equals(data.title)) {

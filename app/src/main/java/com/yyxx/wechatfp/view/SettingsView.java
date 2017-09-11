@@ -86,8 +86,13 @@ public class SettingsView extends DialogFrameLayout implements AdapterView.OnIte
         mListView.setPadding(defHPadding, defVPadding, defHPadding, defVPadding);
         mListView.setDivider(new ColorDrawable(Color.TRANSPARENT));
 
-        mSettingsDataList.add(new PreferenceAdapter.Data(SETTINGS_NAME_SWITCH, "啟用微信指紋支付", true, new Config(context).isOn()));
-        mSettingsDataList.add(new PreferenceAdapter.Data(SETTINGS_NAME_PASSWORD, "請輸入微信支付的密碼, 密碼會加密后保存, 請放心"));
+        if (context.getPackageManager().equals(Constant.PACKAGE_NAME_WECHAT)) {
+            mSettingsDataList.add(new PreferenceAdapter.Data(SETTINGS_NAME_SWITCH, "啟用微信指紋支付", true, new Config(context).isOn()));
+            mSettingsDataList.add(new PreferenceAdapter.Data(SETTINGS_NAME_PASSWORD, "請輸入微信的支付密碼, 密碼會加密后保存, 請放心"));
+        } else {
+            mSettingsDataList.add(new PreferenceAdapter.Data(SETTINGS_NAME_SWITCH, "啟用支付宝指紋支付", true, new Config(context).isOn()));
+            mSettingsDataList.add(new PreferenceAdapter.Data(SETTINGS_NAME_PASSWORD, "請輸入支付宝的支付密碼, 密碼會加密后保存, 請放心"));
+        }
         mSettingsDataList.add(new PreferenceAdapter.Data(SETTINGS_NAME_DONATE, "如果您覺得本軟件好用, 歡迎贊助, 多少都是心意"));
         mSettingsDataList.add(new PreferenceAdapter.Data(SETTINGS_NAME_CHECKUPDATE, "點擊檢查插件更新"));
         mSettingsDataList.add(new PreferenceAdapter.Data(SETTINGS_NAME_WEBSIDE, "訪問項目主頁"));
