@@ -66,8 +66,8 @@ public class ViewUtil {
         long downTime = SystemClock.uptimeMillis();
         long eventTime = SystemClock.uptimeMillis() + 100;
 
-        float x = new Random(downTime).nextInt(width);
-        float y = new Random(eventTime).nextInt(width);
+        float x = width > 0 ? new Random(downTime).nextInt(width) : 0;
+        float y = height > 0 ? new Random(eventTime).nextInt(height) : 0;
         ;
 // List of meta states found here:     developer.android.com/reference/android/view/KeyEvent.html#getMetaState()
         int metaState = 0;

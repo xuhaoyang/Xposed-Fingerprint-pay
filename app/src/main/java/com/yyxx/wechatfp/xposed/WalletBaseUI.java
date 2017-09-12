@@ -8,6 +8,7 @@ import com.yyxx.wechatfp.BuildConfig;
 import com.yyxx.wechatfp.util.log.L;
 import com.yyxx.wechatfp.xposed.loader.XposedPluginLoader;
 import com.yyxx.wechatfp.xposed.plugin.XposedAlipayPlugin;
+import com.yyxx.wechatfp.xposed.plugin.XposedTaobaoPlugin;
 import com.yyxx.wechatfp.xposed.plugin.XposedWeChatPlugin;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -16,7 +17,8 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 
-import static com.yyxx.wechatfp.Constant.PACKAGE_NAME_ALIPY;
+import static com.yyxx.wechatfp.Constant.PACKAGE_NAME_ALIPAY;
+import static com.yyxx.wechatfp.Constant.PACKAGE_NAME_TAOBAO;
 import static com.yyxx.wechatfp.Constant.PACKAGE_NAME_WECHAT;
 
 
@@ -38,13 +40,33 @@ public class WalletBaseUI implements IXposedHookZygoteInit, IXposedHookLoadPacka
                     XposedPluginLoader.load(XposedWeChatPlugin.class, context, lpparam);
                 }
             });
-        } else if (lpparam.packageName.equals(PACKAGE_NAME_ALIPY)) {
+        } else if (lpparam.packageName.equals(PACKAGE_NAME_ALIPAY)) {
+            L.d("loaded: [" + lpparam.packageName + "]" + " version:" + BuildConfig.VERSION_NAME);
             XposedHelpers.findAndHookMethod(Application.class, "onCreate", new XC_MethodHook() {
                 @TargetApi(21)
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     L.d("Application onCreate");
                     Context context = (Context) param.thisObject;
                     XposedPluginLoader.load(XposedAlipayPlugin.class, context, lpparam);
+                }
+            });
+        } else if (lpparam.packageName.equals(PACKAGE_NAME_TAOBAO)) {
+            L.d("loaded: [" + lpparam.packageName + "]" + " version:" + BuildConfig.VERSION_NAME);
+            XposedHelpers.findAndHookMethod(Application.class, "onCreate", new XC_MethodHook() {
+                //受Atlas影响Application onCreate入口只需执行一次即可
+                private boolean mCalled = false;
+                @TargetApi(21)
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    L.d("Application onCreate");
+                    if (mCalled == false) {
+                        mCalled = true;
+                        Context context = (Context) param.thisObject;
+                        if (context == null) {
+                            L.d("context eq null what the hell.");
+                            return;
+                        }
+                        XposedPluginLoader.load(XposedTaobaoPlugin.class, context, lpparam);
+                    }
                 }
             });
         }

@@ -10,8 +10,8 @@ android {
         applicationId "com.yyxx.wechatfp"
         minSdkVersion 14
         targetSdkVersion 26
-        versionCode 7
-        versionName "2.0.0"
+        versionCode 8
+        versionName "2.1.0"
         buildConfigField "String", "APP_SETTINGS_NAME", "\"指紋設置\""
         buildConfigField "String", "APP_PRODUCT_NAME", "\"WeChatFp\""
     }
@@ -97,6 +97,27 @@ task debugAlipay(dependsOn: ["installDebug", stopAlipay]) {
         exec {
             executable = ADB_PATH
             args = ['shell', "am start -n com.eg.android.AlipayGphone/com.eg.android.AlipayGphone.AlipayLogin"]
+        }
+
+    }
+}
+
+task stopTaobao {
+    doLast {
+        println "Stop taobao..."
+        exec {
+            executable = ADB_PATH
+            args = ['shell', "am force-stop com.taobao.taobao"]
+        }
+    }
+}
+
+task debugTaobao(dependsOn: ["installDebug", stopTaobao]) {
+    doLast {
+        println "Start Taobao..."
+        exec {
+            executable = ADB_PATH
+            args = ['shell', "am start -n com.taobao.taobao/com.taobao.tao.welcome.Welcome"]
         }
 
     }

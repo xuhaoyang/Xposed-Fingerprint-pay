@@ -47,7 +47,7 @@ import static com.yyxx.wechatfp.Constant.ICON_FINGER_PRINT_BASE64;
  * Created by Jason on 2017/9/8.
  */
 
-public class XposedAlipayPlugin {
+public class XposedTaobaoPlugin {
 
     private AlertDialog mFingerPrintAlertDialog;
     private boolean mPwdActivityDontShowFlag;
@@ -56,6 +56,7 @@ public class XposedAlipayPlugin {
     private Activity mCurrentActivity;
 
     private boolean mIsViewTreeObserverFirst;
+
     @Keep
     public void main(final Context context, final XC_LoadPackage.LoadPackageParam lpparam) {
         L.d("Xposed plugin init version: " + BuildConfig.VERSION_NAME);
@@ -73,7 +74,7 @@ public class XposedAlipayPlugin {
                     final Activity activity = (Activity) param.thisObject;
                     final String activityClzName = activity.getClass().getName();
                     mCurrentActivity = activity;
-                    if (activityClzName.contains(".UserSettingActivity")) {
+                    if (activityClzName.contains(".TaobaoSettingActivity")) {
                         Task.onMain(10, () -> doSettingsMenuInject(activity));
                     } else if (activityClzName.contains(".FlyBirdWindowActivity")) {
                         L.d("found");
@@ -92,7 +93,7 @@ public class XposedAlipayPlugin {
                             if (mCurrentActivity != activity) {
                                 return;
                             }
-                            View key1View = ViewUtil.findViewByName(activity, "com.alipay.android.app", "simplePwdLayout");
+                            View key1View = ViewUtil.findViewByName(activity, "com.taobao.taobao", "mini_spwd_input");
                             if (key1View == null) {
                                 return;
                             }
@@ -110,7 +111,7 @@ public class XposedAlipayPlugin {
                         }
                         activity.getWindow().getDecorView().setAlpha(0);
                         Task.onMain(1500, () -> {
-                            final String modulePackageName = "com.alipay.android.phone.safepaybase";
+                            final String modulePackageName = "com.taobao.taobao";
                             View key1View = ViewUtil.findViewByName(activity, modulePackageName, "key_num_1");
                             if (key1View != null) {
                                 showFingerPrintDialog(activity);
@@ -206,12 +207,10 @@ public class XposedAlipayPlugin {
             cancelBtn.setText("取消");
             StyleUtil.apply(cancelBtn);
             cancelBtn.setOnClickListener(view -> {
-                mPwdActivityDontShowFlag = true;
                 AlertDialog dialog = mFingerPrintAlertDialog;
                 if (dialog != null) {
                     dialog.dismiss();
                 }
-                activity.onBackPressed();
             });
 
             View lineHView = new View(context);
@@ -249,7 +248,7 @@ public class XposedAlipayPlugin {
                     return;
                 }
 
-                String modulePackageName = "com.alipay.android.phone.safepaybase";
+                String modulePackageName = "com.taobao.taobao";
                 View keysView[] = new View[] {
                         ViewUtil.findViewByName(activity, modulePackageName, "key_num_1"),
                         ViewUtil.findViewByName(activity, modulePackageName, "key_num_2"),
@@ -296,11 +295,11 @@ public class XposedAlipayPlugin {
         } catch (OutOfMemoryError e) {
         }
     }
-    private void doSettingsMenuInject(final Activity activity) {
-        int logout_id = activity.getResources().getIdentifier("logout", "id", "com.alipay.android.phone.openplatform");
 
-        View logutView = activity.findViewById(logout_id);
-        LinearLayout linearLayout = (LinearLayout) logutView.getParent();
+    private void doSettingsMenuInject(final Activity activity) {
+        View itemView = ViewUtil.findViewByName(activity, activity.getPackageName(), "v_setting_page_item");
+
+        LinearLayout linearLayout = (LinearLayout) itemView.getParent();
         linearLayout.setPadding(0, 0, 0, 0);
         List<ViewGroup.LayoutParams> childViewParamsList = new ArrayList<>();
         List<View> childViewList = new ArrayList<>();
