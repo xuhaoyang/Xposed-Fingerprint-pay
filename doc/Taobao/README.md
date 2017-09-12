@@ -6,9 +6,9 @@
 2. 进入支付宝设置 -> 指纹设置中\
     注意: 如未找到指纹设置, 说明插件不支持该淘宝版本, 或者加载模块失败了. 请尝试使用仓库内提供的淘宝版本
     https://github.com/eritpchy/WechatFp/releases/latest
-![2](https://github.com/eritpchy/WechatFp/raw/master/doc/Taobao/2.jpg)
+![2](https://github.com/eritpchy/WechatFp/raw/master/doc/Taobao/2.1.jpg)
 
 3. 勾选启用, 输入密码\
-![3](https://github.com/eritpchy/WechatFp/raw/master/doc/Taobao/3.jpg)
+![3](https://github.com/eritpchy/WechatFp/raw/master/doc/Taobao/3.1.jpg)
 
 4. 一切准备就绪, Enjoy.
