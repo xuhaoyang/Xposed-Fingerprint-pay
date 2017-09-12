@@ -85,11 +85,11 @@ public class SettingsView extends DialogFrameLayout implements AdapterView.OnIte
         mListView.setPadding(defHPadding, defVPadding, defHPadding, defVPadding);
         mListView.setDivider(new ColorDrawable(Color.TRANSPARENT));
 
-        if (context.getPackageManager().equals(Constant.PACKAGE_NAME_WECHAT)) {
-            mSettingsDataList.add(new PreferenceAdapter.Data(SETTINGS_NAME_SWITCH, "啟用微信指紋支付", true, new Config(context).isOn()));
+        if (context.getPackageName().equals(Constant.PACKAGE_NAME_WECHAT)) {
+            mSettingsDataList.add(new PreferenceAdapter.Data(SETTINGS_NAME_SWITCH, "啟用微信指紋支付", true, Config.from(context).isOn()));
             mSettingsDataList.add(new PreferenceAdapter.Data(SETTINGS_NAME_PASSWORD, "請輸入微信的支付密碼, 密碼會加密后保存, 請放心"));
         } else {
-            mSettingsDataList.add(new PreferenceAdapter.Data(SETTINGS_NAME_SWITCH, "啟用支付宝指紋支付", true, new Config(context).isOn()));
+            mSettingsDataList.add(new PreferenceAdapter.Data(SETTINGS_NAME_SWITCH, "啟用支付宝指紋支付", true, Config.from(context).isOn()));
             mSettingsDataList.add(new PreferenceAdapter.Data(SETTINGS_NAME_PASSWORD, "請輸入支付宝的支付密碼, 密碼會加密后保存, 請放心"));
         }
         mSettingsDataList.add(new PreferenceAdapter.Data(SETTINGS_NAME_DONATE, "如果您覺得本軟件好用, 歡迎贊助, 多少都是心意"));
@@ -114,7 +114,7 @@ public class SettingsView extends DialogFrameLayout implements AdapterView.OnIte
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
         PreferenceAdapter.Data data = mListAdapter.getItem(position);
         final Context context = getContext();
-        final Config config = new Config(context);
+        final Config config = Config.from(context);
         if (SETTINGS_NAME_SWITCH.equals(data.title)) {
             data.selectionState = !data.selectionState;
             config.setOn(data.selectionState);

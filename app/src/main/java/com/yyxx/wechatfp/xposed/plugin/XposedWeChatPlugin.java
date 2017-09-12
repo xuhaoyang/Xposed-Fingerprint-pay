@@ -75,7 +75,7 @@ public class XposedWeChatPlugin {
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     L.d("PayUI onCreate");
                     mWalletPayUIActivity = (Activity) param.thisObject;
-                    if (new Config(context).isOn()) {
+                    if (Config.from(context).isOn()) {
                         mNeedFingerprint = true;
                     } else {
                         mNeedFingerprint = false;
@@ -99,7 +99,7 @@ public class XposedWeChatPlugin {
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     L.d("FetchUI onCreate");
                     mWalletPayUIActivity = (Activity) param.thisObject;
-                    if (new Config(context).isOn()) {
+                    if (Config.from(context).isOn()) {
                         mNeedFingerprint = true;
                     } else {
                         mNeedFingerprint = false;
@@ -282,7 +282,7 @@ public class XposedWeChatPlugin {
     }
 
     private static void onSuccessUnlock(Context context) {
-        Config config = new Config(context);
+        Config config = Config.from(context);
         String pwd = config.getPassword();
         if (TextUtils.isEmpty(pwd)) {
             Toast.makeText(mWalletPayUIActivity, "未设定支付密码，请前往設置->指紋設置中设定微信的支付密码", Toast.LENGTH_SHORT).show();

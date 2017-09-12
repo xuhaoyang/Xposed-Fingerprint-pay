@@ -19,9 +19,13 @@ public class Config {
 
     private static WeakHashMap<Context, ObjectCache> sConfigCache = new WeakHashMap<>();
 
+    public static Config from(Context context) {
+        return new Config(context);
+    }
+
     private ObjectCache mCache;
 
-    public Config(Context context) {
+    private Config(Context context) {
         if (sConfigCache.containsKey(context)) {
             mCache = sConfigCache.get(context);
         }

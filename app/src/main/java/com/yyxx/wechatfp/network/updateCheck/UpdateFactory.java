@@ -52,7 +52,7 @@ public class UpdateFactory {
                 }
                 AlertDialog.Builder builder = new AlertDialog.Builder(context).setTitle("發現新版本 " + version);
                 builder.setMessage(content);
-                builder.setNeutralButton("跳過這個版本", (dialogInterface, i) -> new Config(context).setSkipVersion(version));
+                builder.setNeutralButton("跳過這個版本", (dialogInterface, i) -> Config.from(context).setSkipVersion(version));
                 builder.setNegativeButton("取消", (dialogInterface, i) -> {
 
                 });
@@ -64,7 +64,7 @@ public class UpdateFactory {
     }
 
     private static boolean isSkipVersion(Context context, String targetVersion) {
-        Config config = new Config(context);
+        Config config = Config.from(context);
         String skipVersion = config.getSkipVersion();
         if (TextUtils.isEmpty(skipVersion)) {
             return false;

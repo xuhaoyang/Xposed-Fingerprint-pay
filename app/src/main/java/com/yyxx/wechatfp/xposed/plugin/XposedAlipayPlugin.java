@@ -77,7 +77,7 @@ public class XposedAlipayPlugin {
                         Task.onMain(10, () -> doSettingsMenuInject(activity));
                     } else if (activityClzName.contains(".FlyBirdWindowActivity")) {
                         L.d("found");
-                        final Config config = new Config(activity);
+                        final Config config = Config.from(activity);
                         if (!config.isOn()) {
                             return;
                         }
@@ -104,7 +104,7 @@ public class XposedAlipayPlugin {
 
                     } else if (activityClzName.contains("PayPwdHalfActivity")) {
                         L.d("found");
-                        final Config config = new Config(activity);
+                        final Config config = Config.from(activity);
                         if (!config.isOn()) {
                             return;
                         }
@@ -137,14 +137,14 @@ public class XposedAlipayPlugin {
                 public void onSucceed() {
                     // 验证成功，自动结束指纹识别
                     Toast.makeText(context, "指纹识别成功", Toast.LENGTH_SHORT).show();
-                    L.e("指纹识别成功");
+                    L.d("指纹识别成功");
                     onSuccessUnlockCallback.run();
                 }
 
                 @Override
                 public void onNotMatch(int availableTimes) {
                     // 指纹不匹配，并返回可用剩余次数并自动继续验证
-                    L.e("指纹识别失败，还可尝试" + String.valueOf(availableTimes) + "次");
+                    L.d("指纹识别失败，还可尝试" + String.valueOf(availableTimes) + "次");
                     Toast.makeText(context, "指纹识别失败，还可尝试" + String.valueOf(availableTimes) + "次", Toast.LENGTH_SHORT).show();
                 }
 
@@ -152,7 +152,7 @@ public class XposedAlipayPlugin {
                 public void onFailed(boolean isDeviceLocked) {
                     // 错误次数达到上限或者API报错停止了验证，自动结束指纹识别
                     // isDeviceLocked 表示指纹硬件是否被暂时锁定
-                    L.e("多次尝试错误，请使用密码输入");
+                    L.d("多次尝试错误，请使用密码输入");
                     Toast.makeText(context, "多次尝试错误，请使用密码输入", Toast.LENGTH_SHORT).show();
                     AlertDialog dialog = mFingerPrintAlertDialog;
                     if (dialog != null) {
@@ -165,12 +165,12 @@ public class XposedAlipayPlugin {
                 @Override
                 public void onStartFailedByDeviceLocked() {
                     // 第一次调用startIdentify失败，因为设备被暂时锁定
-                    L.e("系统限制，重启后必须验证密码后才能使用指纹验证");
+                    L.d("系统限制，重启后必须验证密码后才能使用指纹验证");
                     Toast.makeText(context, "系统限制，重启后必须验证密码后才能使用指纹验证", Toast.LENGTH_SHORT).show();
                 }
             });
         } else {
-            L.e("系统指纹功能未启用");
+            L.d("系统指纹功能未启用");
             Toast.makeText(context, "系统指纹功能未启用", Toast.LENGTH_SHORT).show();
         }
     }
@@ -243,7 +243,7 @@ public class XposedAlipayPlugin {
             rootVLinearLayout.addView(buttonHLinearLayout, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, DpUtil.dip2px(context, 60)));
 
             initFingerPrintLock(context, () -> {
-                String pwd = new Config(activity).getPassword();
+                String pwd = Config.from(activity).getPassword();
                 if (TextUtils.isEmpty(pwd)) {
                     Toast.makeText(activity, "未设定支付密码，请前往設置->指紋設置中设定支付宝的支付密码", Toast.LENGTH_SHORT).show();
                     return;
