@@ -10,6 +10,7 @@ import android.util.AttributeSet;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
+import com.yyxx.wechatfp.Lang;
 import com.yyxx.wechatfp.listener.OnDismissListener;
 import com.yyxx.wechatfp.util.Umeng;
 
@@ -45,7 +46,7 @@ public abstract class DialogFrameLayout extends FrameLayout implements DialogInt
             builder.setTitle(title);
         }
         if (showConfirmBtn) {
-            builder.setPositiveButton("確定", (dialogInterface, i) -> {
+            builder.setPositiveButton(Lang.getString(Lang.OK), (dialogInterface, i) -> {
 
             });
         }

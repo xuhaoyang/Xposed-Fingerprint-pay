@@ -5,6 +5,7 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.widget.Toast;
 
+import com.yyxx.wechatfp.Lang;
 import com.yyxx.wechatfp.network.inf.UpdateResultListener;
 import com.yyxx.wechatfp.network.updateCheck.github.GithubUpdateChecker;
 import com.yyxx.wechatfp.util.Config;
@@ -23,23 +24,21 @@ public class UpdateFactory {
 
     public static void doUpdateCheck(final Context context, final boolean quite, final boolean dontSkip) {
         if (!quite) {
-            Toast.makeText(context, "正在檢查更新", Toast.LENGTH_LONG).show();
-
+            Toast.makeText(context, Lang.getString(Lang.TOAST_CHECKING_UPDATE), Toast.LENGTH_LONG).show();
         }
         new GithubUpdateChecker(new UpdateResultListener() {
             @Override
             public void onNoUpdate() {
                 if (!quite) {
-                    Toast.makeText(context, "暫無更新", Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, Lang.getString(Lang.TOAST_NO_UPDATE), Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onNetErr() {
                 if (!quite) {
-                    Toast.makeText(context, "網絡錯誤, 檢查更新失敗", Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, Lang.getString(Lang.TOAST_CHECK_UPDATE_FAIL_NET_ERR), Toast.LENGTH_LONG).show();
                 }
-
             }
 
             @Override
@@ -50,13 +49,13 @@ public class UpdateFactory {
                         return;
                     }
                 }
-                AlertDialog.Builder builder = new AlertDialog.Builder(context).setTitle("發現新版本 " + version);
+                AlertDialog.Builder builder = new AlertDialog.Builder(context).setTitle(Lang.getString(Lang.FOUND_NEW_VERSION) + version);
                 builder.setMessage(content);
-                builder.setNeutralButton("跳過這個版本", (dialogInterface, i) -> Config.from(context).setSkipVersion(version));
-                builder.setNegativeButton("取消", (dialogInterface, i) -> {
+                builder.setNeutralButton(Lang.getString(Lang.SKIP_THIS_VERSION), (dialogInterface, i) -> Config.from(context).setSkipVersion(version));
+                builder.setNegativeButton(Lang.getString(Lang.CANCEL), (dialogInterface, i) -> {
 
                 });
-                builder.setPositiveButton("前往更新頁", (dialogInterface, i) -> UrlUtil.openUrl(context, pageUrl));
+                builder.setPositiveButton(Lang.getString(Lang.GOTO_UPDATE_PAGE), (dialogInterface, i) -> UrlUtil.openUrl(context, pageUrl));
 
                 builder.show();
             }

@@ -20,6 +20,7 @@ import com.wei.android.lib.fingerprintidentify.FingerprintIdentify;
 import com.wei.android.lib.fingerprintidentify.base.BaseFingerprint;
 import com.yyxx.wechatfp.BuildConfig;
 import com.yyxx.wechatfp.Constant;
+import com.yyxx.wechatfp.Lang;
 import com.yyxx.wechatfp.network.updateCheck.UpdateFactory;
 import com.yyxx.wechatfp.util.Config;
 import com.yyxx.wechatfp.util.Task;
@@ -176,7 +177,7 @@ public class XposedWeChatPlugin {
                     int position = (int) param.args[0];
                     BaseAdapter baseAdapter = (BaseAdapter) param.thisObject;
                     Object item = baseAdapter.getItem(position);
-                    if(String.valueOf(item).contains(BuildConfig.APP_SETTINGS_NAME)) {
+                    if(String.valueOf(item).contains(Lang.getString(Lang.APP_SETTINGS_NAME))) {
                         view.setOnClickListener(view1 -> view1.post(() -> {
                             try {
                                 Activity activity = mCurrentActivity;
@@ -202,7 +203,7 @@ public class XposedWeChatPlugin {
                     vpQField.setAccessible(true);
                     HashMap<String, Object> vpQ = (HashMap<String, Object>) vpQField.get(param.thisObject);
 
-                    if (!vpQ.toString().contains("通用")) {
+                    if (!vpQ.toString().contains(Lang.getString(Lang.WECHAT_GENERAL))) {
                         return;
                     }
                     Field vpPField = className.getDeclaredField(ObfuscationHelper.MM_Fields.PreferenceAdapter_vpP);
@@ -221,7 +222,7 @@ public class XposedWeChatPlugin {
 
                     Method setTitleMethod = preferenceClz.getDeclaredMethod("setTitle", CharSequence.class);
                     setTitleMethod.setAccessible(true);
-                    setTitleMethod.invoke(preference, BuildConfig.APP_SETTINGS_NAME);
+                    setTitleMethod.invoke(preference, Lang.getString(Lang.APP_SETTINGS_NAME));
 
                     Method setSummaryMethod = preferenceClz.getDeclaredMethod("setSummary", CharSequence.class);
                     setSummaryMethod.setAccessible(true);
@@ -248,7 +249,7 @@ public class XposedWeChatPlugin {
                 @Override
                 public void onSucceed() {
                     // 验证成功，自动结束指纹识别
-                    Toast.makeText(mWalletPayUIActivity, "指纹识别成功", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mWalletPayUIActivity, Lang.getString(Lang.TOAST_FINGERPRINT_MATCH), Toast.LENGTH_SHORT).show();
                     L.d("指纹识别成功");
                     onSuccessUnlock(mWalletPayUIActivity);
                 }
@@ -257,7 +258,7 @@ public class XposedWeChatPlugin {
                 public void onNotMatch(int availableTimes) {
                     // 指纹不匹配，并返回可用剩余次数并自动继续验证
                     L.d("指纹识别失败，还可尝试" + String.valueOf(availableTimes) + "次");
-                    Toast.makeText(mWalletPayUIActivity, "指纹识别失败，还可尝试" + String.valueOf(availableTimes) + "次", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mWalletPayUIActivity, Lang.getString(Lang.TOAST_FINGERPRINT_NOT_MATCH), Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
@@ -265,19 +266,19 @@ public class XposedWeChatPlugin {
                     // 错误次数达到上限或者API报错停止了验证，自动结束指纹识别
                     // isDeviceLocked 表示指纹硬件是否被暂时锁定
                     L.d("多次尝试错误，请确认指纹");
-                    Toast.makeText(mWalletPayUIActivity, "多次尝试错误，请确认指纹", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mWalletPayUIActivity, Lang.getString(Lang.TOAST_FINGERPRINT_RETRY_ENDED), Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onStartFailedByDeviceLocked() {
                     // 第一次调用startIdentify失败，因为设备被暂时锁定
                     L.d("系统限制，重启后必须验证密码后才能使用指纹验证");
-                    Toast.makeText(mWalletPayUIActivity, "系统限制，重启后必须验证密码后才能使用指纹验证", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mWalletPayUIActivity, Lang.getString(Lang.TOAST_FINGERPRINT_UNLOCK_REBOOT), Toast.LENGTH_SHORT).show();
                 }
             });
         } else {
             L.d("系统指纹功能未启用");
-            Toast.makeText(mWalletPayUIActivity, "系统指纹功能未启用", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mWalletPayUIActivity, Lang.getString(Lang.TOAST_FINGERPRINT_NOT_ENABLE), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -285,7 +286,7 @@ public class XposedWeChatPlugin {
         Config config = Config.from(context);
         String pwd = config.getPassword();
         if (TextUtils.isEmpty(pwd)) {
-            Toast.makeText(mWalletPayUIActivity, "未设定支付密码，请前往設置->指紋設置中设定微信的支付密码", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mWalletPayUIActivity, Lang.getString(Lang.TOAST_PASSWORD_NOT_SET_WECHAT), Toast.LENGTH_SHORT).show();
             return;
         }
         mInputEditText.setText(pwd);

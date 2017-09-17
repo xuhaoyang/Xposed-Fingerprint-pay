@@ -12,7 +12,6 @@ android {
         targetSdkVersion 26
         versionCode 8
         versionName "2.1.0"
-        buildConfigField "String", "APP_SETTINGS_NAME", "\"指紋設置\""
         buildConfigField "String", "APP_PRODUCT_NAME", "\"WeChatFp\""
     }
 

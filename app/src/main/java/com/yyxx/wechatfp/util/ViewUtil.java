@@ -68,8 +68,7 @@ public class ViewUtil {
 
         float x = width > 0 ? new Random(downTime).nextInt(width) : 0;
         float y = height > 0 ? new Random(eventTime).nextInt(height) : 0;
-        ;
-// List of meta states found here:     developer.android.com/reference/android/view/KeyEvent.html#getMetaState()
+
         int metaState = 0;
         MotionEvent motionEvent = MotionEvent.obtain(
                 downTime,

@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.yyxx.wechatfp.Constant;
+import com.yyxx.wechatfp.Lang;
 import com.yyxx.wechatfp.adapter.PreferenceAdapter;
 import com.yyxx.wechatfp.util.DonateUtil;
 import com.yyxx.wechatfp.util.DpUtil;
@@ -24,10 +25,6 @@ import java.util.List;
  */
 
 public class DonateView extends DialogFrameLayout implements AdapterView.OnItemClickListener {
-
-    private static final String SETTINGS_NAME_ALIPAY = "支付寶";
-    private static final String SETTINGS_NAME_WECHAT = "微信";
-
 
     private List<PreferenceAdapter.Data> mSettingsDataList = new ArrayList<>();
     private PreferenceAdapter mListAdapter;
@@ -61,9 +58,9 @@ public class DonateView extends DialogFrameLayout implements AdapterView.OnItemC
         mListView.setPadding(defHPadding, defVPadding, defHPadding, defVPadding);
         mListView.setDivider(new ColorDrawable(Color.TRANSPARENT));
 
-        mSettingsDataList.add(new PreferenceAdapter.Data(SETTINGS_NAME_ALIPAY, "276308768@qq.com"));
+        mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_ALIPAY), Constant.AUTHOR_ALIPAY));
         if (Constant.PACKAGE_NAME_WECHAT.equals(context.getPackageName())) {
-            mSettingsDataList.add(new PreferenceAdapter.Data(SETTINGS_NAME_WECHAT, "eritpchy"));
+            mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_WECHAT), Constant.AUTHOR_WECHAT));
         }
         mListAdapter = new PreferenceAdapter(mSettingsDataList);
 
@@ -82,9 +79,9 @@ public class DonateView extends DialogFrameLayout implements AdapterView.OnItemC
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
         PreferenceAdapter.Data data = mListAdapter.getItem(position);
         final Context context = getContext();
-        if (SETTINGS_NAME_ALIPAY.equals(data.title)) {
+        if (Lang.getString(Lang.SETTINGS_TITLE_ALIPAY).equals(data.title)) {
             DonateUtil.openAlipayPayPage(context);
-        } else if (SETTINGS_NAME_WECHAT.equals(data.title)) {
+        } else if (Lang.getString(Lang.SETTINGS_TITLE_WECHAT).equals(data.title)) {
             DonateUtil.openWeChatPay(context);
         }
     }

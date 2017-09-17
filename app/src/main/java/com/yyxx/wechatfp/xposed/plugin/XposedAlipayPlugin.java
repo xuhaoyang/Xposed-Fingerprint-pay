@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.wei.android.lib.fingerprintidentify.FingerprintIdentify;
 import com.wei.android.lib.fingerprintidentify.base.BaseFingerprint;
 import com.yyxx.wechatfp.BuildConfig;
+import com.yyxx.wechatfp.Lang;
 import com.yyxx.wechatfp.util.Config;
 import com.yyxx.wechatfp.util.DpUtil;
 import com.yyxx.wechatfp.util.ImageUtil;
@@ -136,7 +137,7 @@ public class XposedAlipayPlugin {
                 @Override
                 public void onSucceed() {
                     // 验证成功，自动结束指纹识别
-                    Toast.makeText(context, "指纹识别成功", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_MATCH), Toast.LENGTH_SHORT).show();
                     L.d("指纹识别成功");
                     onSuccessUnlockCallback.run();
                 }
@@ -145,7 +146,7 @@ public class XposedAlipayPlugin {
                 public void onNotMatch(int availableTimes) {
                     // 指纹不匹配，并返回可用剩余次数并自动继续验证
                     L.d("指纹识别失败，还可尝试" + String.valueOf(availableTimes) + "次");
-                    Toast.makeText(context, "指纹识别失败，还可尝试" + String.valueOf(availableTimes) + "次", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_NOT_MATCH), Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
@@ -153,7 +154,7 @@ public class XposedAlipayPlugin {
                     // 错误次数达到上限或者API报错停止了验证，自动结束指纹识别
                     // isDeviceLocked 表示指纹硬件是否被暂时锁定
                     L.d("多次尝试错误，请使用密码输入");
-                    Toast.makeText(context, "多次尝试错误，请使用密码输入", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_RETRY_ENDED), Toast.LENGTH_SHORT).show();
                     AlertDialog dialog = mFingerPrintAlertDialog;
                     if (dialog != null) {
                         if (dialog.isShowing()) {
@@ -166,12 +167,12 @@ public class XposedAlipayPlugin {
                 public void onStartFailedByDeviceLocked() {
                     // 第一次调用startIdentify失败，因为设备被暂时锁定
                     L.d("系统限制，重启后必须验证密码后才能使用指纹验证");
-                    Toast.makeText(context, "系统限制，重启后必须验证密码后才能使用指纹验证", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_UNLOCK_REBOOT), Toast.LENGTH_SHORT).show();
                 }
             });
         } else {
             L.d("系统指纹功能未启用");
-            Toast.makeText(context, "系统指纹功能未启用", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_NOT_ENABLE), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -191,7 +192,7 @@ public class XposedAlipayPlugin {
 
             TextView textView = new TextView(context);
             StyleUtil.apply(textView);
-            textView.setText("请验证已有指纹");
+            textView.setText(Lang.getString(Lang.FINGERPRINT_VERIFICATION));
 
             View lineVView = new View(context);
             lineVView.setBackgroundColor(0xFFBBBBBB);
@@ -203,7 +204,7 @@ public class XposedAlipayPlugin {
 
             Button cancelBtn = new Button(context);
             cancelBtn.setBackground(ViewUtil.genBackgroundDefaultDrawable());
-            cancelBtn.setText("取消");
+            cancelBtn.setText(Lang.getString(Lang.CANCEL));
             StyleUtil.apply(cancelBtn);
             cancelBtn.setOnClickListener(view -> {
                 mPwdActivityDontShowFlag = true;
@@ -219,7 +220,7 @@ public class XposedAlipayPlugin {
 
             Button enterPassBtn = new Button(context);
             enterPassBtn.setBackground(ViewUtil.genBackgroundDefaultDrawable());
-            enterPassBtn.setText("输入密码");
+            enterPassBtn.setText(Lang.getString(Lang.ENTER_PASSWORD));
             StyleUtil.apply(enterPassBtn);
             enterPassBtn.setOnClickListener(view -> {
                 AlertDialog dialog = mFingerPrintAlertDialog;
@@ -245,7 +246,7 @@ public class XposedAlipayPlugin {
             initFingerPrintLock(context, () -> {
                 String pwd = Config.from(activity).getPassword();
                 if (TextUtils.isEmpty(pwd)) {
-                    Toast.makeText(activity, "未设定支付密码，请前往設置->指紋設置中设定支付宝的支付密码", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, Lang.getString(Lang.TOAST_PASSWORD_NOT_SET_ALIPAY), Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -266,9 +267,9 @@ public class XposedAlipayPlugin {
                 try {
                     inputPassword(pwd, keysView);
                 } catch (NullPointerException e) {
-                    Toast.makeText(context, "Oops.. 输入失败了. 请手动输入密码", Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, Lang.getString(Lang.TOAST_PASSWORD_AUTO_ENTER_FAIL), Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
-                    Toast.makeText(context, "Oops.. 输入失败了. 请手动输入密码", Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, Lang.getString(Lang.TOAST_PASSWORD_AUTO_ENTER_FAIL), Toast.LENGTH_LONG).show();
                     L.e(e);
                 }
                 AlertDialog dialog = mFingerPrintAlertDialog;
@@ -328,7 +329,7 @@ public class XposedAlipayPlugin {
 
         TextView itemNameText = new TextView(activity);
         StyleUtil.apply(itemNameText);
-        itemNameText.setText(BuildConfig.APP_SETTINGS_NAME);
+        itemNameText.setText(Lang.getString(Lang.APP_SETTINGS_NAME));
         itemNameText.setGravity(Gravity.CENTER_VERTICAL);
         itemNameText.setPadding(defHPadding, 0, 0, 0);
         itemNameText.setTextSize(StyleUtil.TEXT_SIZE_BIG);

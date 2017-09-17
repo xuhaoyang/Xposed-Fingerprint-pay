@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import com.yyxx.wechatfp.Lang;
 import com.yyxx.wechatfp.util.DpUtil;
 
 /**
@@ -80,6 +81,6 @@ public class PasswordInputView extends DialogFrameLayout {
 
     @Override
     public String getDialogTitle() {
-        return "請輸入密碼";
+        return Lang.getString(Lang.ENTER_PASSWORD);
     }
 }
