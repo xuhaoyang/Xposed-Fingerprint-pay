@@ -12,6 +12,9 @@ import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+
+import com.yyxx.wechatfp.util.log.L;
 
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -117,5 +120,26 @@ public class ViewUtil {
             }
         }
         return null;
+    }
+
+
+    public static void recursiveLoopChildren(ViewGroup parent) {
+        for (int i = parent.getChildCount() - 1; i >= 0; i--) {
+            final View child = parent.getChildAt(i);
+            if (child instanceof ViewGroup) {
+                recursiveLoopChildren((ViewGroup) child);
+                // DO SOMETHING WITH VIEWGROUP, AFTER CHILDREN HAS BEEN LOOPED
+                L.d("ViewGroup", child);
+            } else {
+                if (child != null) {
+                    try {
+                        L.d("view", child);
+                    } catch (Exception e) {
+
+                    }
+                    // DO SOMETHING WITH VIEW
+                }
+            }
+        }
     }
 }

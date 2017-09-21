@@ -93,8 +93,9 @@ public class XposedAlipayPlugin {
                             if (mCurrentActivity != activity) {
                                 return;
                             }
-                            View key1View = ViewUtil.findViewByName(activity, "com.alipay.android.app", "simplePwdLayout");
-                            if (key1View == null) {
+
+                            if (ViewUtil.findViewByName(activity, "com.alipay.android.app", "simplePwdLayout") == null
+                                    && ViewUtil.findViewByName(activity, "com.alipay.android.phone.safepaybase", "mini_linSimplePwdComponent") == null ) {
                                 return;
                             }
                             if (mIsViewTreeObserverFirst) {
