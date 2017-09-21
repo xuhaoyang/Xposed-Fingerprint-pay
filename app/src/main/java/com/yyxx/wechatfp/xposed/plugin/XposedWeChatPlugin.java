@@ -108,10 +108,10 @@ public class XposedWeChatPlugin {
                 }
             });
 
-            XposedHelpers.findAndHookConstructor(ObfuscationHelper.MM_Classes.Payview, Context.class, new XC_MethodHook() {
+            XposedHelpers.findAndHookConstructor(ObfuscationHelper.MM_Classes.PayView, Context.class, new XC_MethodHook() {
                 @TargetApi(21)
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    L.d("Payview Constructor");
+                    L.d("PayView Constructor");
 
                     if (mNeedFingerprint && mWalletPayUIActivity != null) {
                         initFingerPrintLock();
@@ -154,10 +154,10 @@ public class XposedWeChatPlugin {
                 }
             });
 
-            XposedHelpers.findAndHookMethod(ObfuscationHelper.MM_Classes.Payview, "dismiss", new XC_MethodHook() {
+            XposedHelpers.findAndHookMethod(ObfuscationHelper.MM_Classes.PayView, "dismiss", new XC_MethodHook() {
                 @TargetApi(21)
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    L.d("Payview dismiss");
+                    L.d("PayView dismiss");
                     if (mWalletPayUIActivity != null) {
                         mFingerprintIdentify.cancelIdentify();
                         mWalletPayUIActivity = null;
