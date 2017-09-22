@@ -16,6 +16,8 @@ import android.view.ViewGroup;
 
 import com.yyxx.wechatfp.util.log.L;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -67,7 +69,7 @@ public class ViewUtil {
             height = 0;
         }
         long downTime = SystemClock.uptimeMillis();
-        long eventTime = SystemClock.uptimeMillis() + 100;
+        long eventTime = SystemClock.uptimeMillis() + 200;
 
         float x = width > 0 ? new Random(downTime).nextInt(width) : 0;
         float y = height > 0 ? new Random(eventTime).nextInt(height) : 0;
@@ -114,9 +116,19 @@ public class ViewUtil {
             if (id == 0) {
                 continue;
             }
-            View view = activity.findViewById(id);
-            if (view != null) {
-                return view;
+            View rootView = activity.getWindow().getDecorView();
+            List<View> viewList = new ArrayList<>();
+            getChildViews((ViewGroup) rootView, id, viewList);
+            int outViewListSize = viewList.size();
+            if (outViewListSize == 1) {
+                return viewList.get(0);
+            } else if (outViewListSize > 1) {
+                for (View view : viewList) {
+                    if (view.isShown()) {
+                        return view;
+                    }
+                }
+                return viewList.get(0);
             }
         }
         return null;
@@ -139,6 +151,22 @@ public class ViewUtil {
                     }
                     // DO SOMETHING WITH VIEW
                 }
+            }
+        }
+    }
+
+    public static void getChildViews(ViewGroup parent, int id,List<View> outList) {
+        for (int i = parent.getChildCount() - 1; i >= 0; i--) {
+            final View child = parent.getChildAt(i);
+            if (child == null) {
+                continue;
+            }
+            if (id == child.getId()) {
+                outList.add(child);
+            }
+            if (child instanceof ViewGroup) {
+                getChildViews((ViewGroup) child, id, outList);
+            } else {
             }
         }
     }

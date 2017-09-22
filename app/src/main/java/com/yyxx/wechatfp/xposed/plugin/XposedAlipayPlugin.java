@@ -74,6 +74,9 @@ public class XposedAlipayPlugin {
                     final Activity activity = (Activity) param.thisObject;
                     final String activityClzName = activity.getClass().getName();
                     mCurrentActivity = activity;
+                    if (BuildConfig.DEBUG) {
+                        L.d("activity", activity, "clz", activityClzName);
+                    }
                     if (activityClzName.contains(".UserSettingActivity")) {
                         Task.onMain(10, () -> doSettingsMenuInject(activity));
                     } else if (activityClzName.contains(".FlyBirdWindowActivity")) {
