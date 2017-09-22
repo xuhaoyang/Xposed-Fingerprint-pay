@@ -135,7 +135,7 @@ public class Lang {
             case WECHAT_GENERAL:
                 return tr("通用", "一般", "General");
             case APP_SETTINGS_NAME:
-                return tr("指紋設置", "指纹設置", "Fingerprint");
+                return tr("指纹設置", "指紋設置", "Fingerprint");
 
             case TOAST_GIVE_ME_STAR:
                 return tr("如果您拥有Github账户, 别忘了给我的项目+个Star噢", "如果您擁有Github賬戶, 別忘了給我的項目+個Star噢", "Give me a star, if you like this project");
