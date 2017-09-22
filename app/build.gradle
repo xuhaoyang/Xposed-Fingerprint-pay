@@ -11,7 +11,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 26
         versionCode 8
-        versionName "2.1.0"
+        versionName "2.2.0"
         buildConfigField "String", "APP_PRODUCT_NAME", "\"WeChatFp\""
     }
 
