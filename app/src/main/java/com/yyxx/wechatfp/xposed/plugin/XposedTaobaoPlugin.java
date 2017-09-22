@@ -74,6 +74,9 @@ public class XposedTaobaoPlugin {
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     final Activity activity = (Activity) param.thisObject;
                     final String activityClzName = activity.getClass().getName();
+                    if (BuildConfig.DEBUG) {
+                        L.d("activity", activity, "clz", activityClzName);
+                    }
                     mCurrentActivity = activity;
                     if (activityClzName.contains(".TaobaoSettingActivity")) {
                         Task.onMain(10, () -> doSettingsMenuInject(activity));
@@ -94,8 +97,9 @@ public class XposedTaobaoPlugin {
                             if (mCurrentActivity != activity) {
                                 return;
                             }
-                            View key1View = ViewUtil.findViewByName(activity, "com.taobao.taobao", "mini_spwd_input");
-                            if (key1View == null) {
+                            ViewUtil.recursiveLoopChildren((ViewGroup) activity.getWindow().getDecorView());
+                            if (ViewUtil.findViewByName(activity, "com.taobao.taobao", "mini_spwd_input") == null
+                                    && ViewUtil.findViewByName(activity, "com.taobao.taobao", "simplePwdLayout") == null) {
                                 return;
                             }
                             if (mIsViewTreeObserverFirst) {
