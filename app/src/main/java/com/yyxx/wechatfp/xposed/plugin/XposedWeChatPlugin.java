@@ -4,11 +4,13 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageInfo;
-import android.os.Bundle;
+import android.graphics.Bitmap;
 import android.support.annotation.Keep;
 import android.text.TextUtils;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -23,8 +25,10 @@ import com.yyxx.wechatfp.Constant;
 import com.yyxx.wechatfp.Lang;
 import com.yyxx.wechatfp.network.updateCheck.UpdateFactory;
 import com.yyxx.wechatfp.util.Config;
+import com.yyxx.wechatfp.util.ImageUtil;
 import com.yyxx.wechatfp.util.Task;
 import com.yyxx.wechatfp.util.Umeng;
+import com.yyxx.wechatfp.util.ViewUtil;
 import com.yyxx.wechatfp.util.log.L;
 import com.yyxx.wechatfp.view.SettingsView;
 import com.yyxx.wechatfp.xposed.ObfuscationHelper;
@@ -46,14 +50,12 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class XposedWeChatPlugin {
 
-    private static Activity mWalletPayUIActivity;
-    private static EditText mInputEditText;
+    private EditText mInputEditText;
     private RelativeLayout mPasswordLayout;
     private ImageView mFingerprintImageView;
     private RelativeLayout mFingerPrintLayout;
     private TextView mPayTitleTextView, mPasswordTextView;
-    private static FingerprintIdentify mFingerprintIdentify;
-    private static boolean mNeedFingerprint;
+    private FingerprintIdentify mFingerprintIdentify;
     private Activity mCurrentActivity;
 
     @Keep
@@ -71,39 +73,14 @@ public class XposedWeChatPlugin {
                 return;
             }
 
-            XposedHelpers.findAndHookMethod(ObfuscationHelper.MM_Classes.PayUI, "onCreate", Bundle.class, new XC_MethodHook() {
-                @TargetApi(21)
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    L.d("PayUI onCreate");
-                    mWalletPayUIActivity = (Activity) param.thisObject;
-                    if (Config.from(context).isOn()) {
-                        mNeedFingerprint = true;
-                    } else {
-                        mNeedFingerprint = false;
-                    }
-                }
-            });
             XposedHelpers.findAndHookMethod(Activity.class, "onResume", new XC_MethodHook() {
                 @TargetApi(21)
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     boolean firstStartUp = mCurrentActivity == null;
                     mCurrentActivity = (Activity) param.thisObject;
+                    L.d("Activity onResume =", mCurrentActivity);
                     if (firstStartUp) {
                         Task.onMain(6000L, () -> UpdateFactory.doUpdateCheck(mCurrentActivity));
-                    }
-                    L.d("Activity onResume =", mCurrentActivity);
-                }
-            });
-
-            XposedHelpers.findAndHookMethod(ObfuscationHelper.MM_Classes.FetchUI, "onCreate", Bundle.class, new XC_MethodHook() {
-                @TargetApi(21)
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    L.d("FetchUI onCreate");
-                    mWalletPayUIActivity = (Activity) param.thisObject;
-                    if (Config.from(context).isOn()) {
-                        mNeedFingerprint = true;
-                    } else {
-                        mNeedFingerprint = false;
                     }
                 }
             });
@@ -112,42 +89,93 @@ public class XposedWeChatPlugin {
                 @TargetApi(21)
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     L.d("PayView Constructor");
-
-                    if (mNeedFingerprint && mWalletPayUIActivity != null) {
-                        initFingerPrintLock();
+                    if (Config.from(context).isOn()) {
                         mPasswordLayout = (RelativeLayout) XposedHelpers.getObjectField(param.thisObject, ObfuscationHelper.MM_Fields.PaypwdView);
+                        Context context = mPasswordLayout.getContext();
+
                         mInputEditText = (EditText) XposedHelpers.getObjectField(mPasswordLayout, ObfuscationHelper.MM_Fields.PaypwdEditText);
                         L.d("密码输入框:" + mInputEditText.getClass().getName());
-                        mInputEditText.setVisibility(View.GONE);
                         mPayTitleTextView = (TextView) XposedHelpers.getObjectField(param.thisObject, ObfuscationHelper.MM_Fields.PayTitle);
-                        mPayTitleTextView.setText(ObfuscationHelper.MM_Res.Finger_title);
                         final View mKeyboard = (View) XposedHelpers.getObjectField(param.thisObject, ObfuscationHelper.MM_Fields.PayInputView);
                         L.d("密码键盘:" + mKeyboard.getClass().getName());
-                        mKeyboard.setVisibility(View.GONE);
-                        mFingerPrintLayout = new RelativeLayout(mWalletPayUIActivity);
+                        mFingerPrintLayout = new RelativeLayout(context);
                         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
                         layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
                         mFingerPrintLayout.setLayoutParams(layoutParams);
-                        mFingerprintImageView = new ImageView(mWalletPayUIActivity);
-                        mFingerprintImageView.setImageResource(ObfuscationHelper.MM_Res.Finger_icon);
+                        mFingerprintImageView = new ImageView(context);
+
+                        try {
+                            final Bitmap bitmap = ImageUtil.base64ToBitmap(Constant.ICON_FINGER_PRINT_WECHAT_BASE64);
+                            mFingerprintImageView.setImageBitmap(bitmap);
+                            mFingerprintImageView.getViewTreeObserver().addOnWindowAttachListener(new ViewTreeObserver.OnWindowAttachListener() {
+                                @Override
+                                public void onWindowAttached() {
+
+                                }
+
+                                @Override
+                                public void onWindowDetached() {
+                                    mFingerprintImageView.getViewTreeObserver().removeOnWindowAttachListener(this);
+                                    try {
+                                        bitmap.recycle();
+                                    } catch (Exception e) {
+                                    }
+                                }
+                            });
+                        } catch (OutOfMemoryError e) {
+                            L.d(e);
+                        }
                         mFingerPrintLayout.addView(mFingerprintImageView);
-                        mPasswordLayout.addView(mFingerPrintLayout);
-                        mFingerprintImageView.setOnClickListener(view -> {
+
+                        TextView switchFpPwdTextView = (TextView) ViewUtil.findViewByText(mPasswordLayout.getRootView(),
+                                Lang.getString(Lang.WECHAT_PAYVIEW_FINGERPRINT_SWITCH_TEXT),
+                                Lang.getString(Lang.WECHAT_PAYVIEW_PASSWORD_SWITCH_TEXT));
+
+                        final Runnable switchToFingerprintRunnable = ()-> {
+                            mInputEditText.setVisibility(View.GONE);
+                            mKeyboard.setVisibility(View.GONE);
+                            mPasswordLayout.addView(mFingerPrintLayout);
+                            initFingerPrintLock(context);
+                            mPayTitleTextView.setText(Lang.getString(Lang.WECHAT_PAYVIEW_FINGERPRINT_TITLE));
+                            if (switchFpPwdTextView != null) {
+                                switchFpPwdTextView.setText(Lang.getString(Lang.WECHAT_PAYVIEW_PASSWORD_SWITCH_TEXT));
+                            }
+                        };
+
+                        final Runnable switchToPasswordRunnable = ()-> {
                             mPasswordLayout.removeView(mFingerPrintLayout);
                             mInputEditText.setVisibility(View.VISIBLE);
                             mKeyboard.setVisibility(View.VISIBLE);
                             mFingerprintIdentify.cancelIdentify();
-                            mPayTitleTextView.setText(ObfuscationHelper.MM_Res.Passwd_title);
-                        });
+                            mPayTitleTextView.setText(Lang.getString(Lang.WECHAT_PAYVIEW_PASSWORD_TITLE));
+                            if (switchFpPwdTextView != null) {
+                                switchFpPwdTextView.setText(Lang.getString(Lang.WECHAT_PAYVIEW_FINGERPRINT_SWITCH_TEXT));
+                            }
+                        };
+
+                        if (switchFpPwdTextView != null) {
+                            Task.onMain(()-> switchFpPwdTextView.setVisibility(View.VISIBLE));
+                            switchFpPwdTextView.setOnTouchListener((view, motionEvent) -> {
+                                try {
+                                    if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                                        if (mInputEditText.getVisibility() == View.GONE) {
+                                            switchToPasswordRunnable.run();
+                                        } else {
+                                            switchToFingerprintRunnable.run();
+                                        }
+                                    }
+                                } catch (Exception e) {
+                                    L.e(e);
+                                }
+                                return true;
+                            });
+                        }
+
+                        mFingerprintImageView.setOnClickListener(view -> switchToPasswordRunnable.run());
                         mPasswordTextView = (TextView) XposedHelpers.getObjectField(param.thisObject, ObfuscationHelper.MM_Fields.Passwd_Text);
                         mPasswordTextView.setVisibility(View.VISIBLE);
-                        mPasswordTextView.setOnClickListener(view -> {
-                            mPasswordLayout.removeView(mFingerPrintLayout);
-                            mInputEditText.setVisibility(View.VISIBLE);
-                            mKeyboard.setVisibility(View.VISIBLE);
-                            mFingerprintIdentify.cancelIdentify();
-                            mPayTitleTextView.setText(ObfuscationHelper.MM_Res.Passwd_title);
-                        });
+                        mPasswordTextView.setOnClickListener(view -> switchToPasswordRunnable.run());
+                        switchToFingerprintRunnable.run();
                     } else {
 
                     }
@@ -158,10 +186,8 @@ public class XposedWeChatPlugin {
                 @TargetApi(21)
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     L.d("PayView dismiss");
-                    if (mWalletPayUIActivity != null) {
+                    if (Config.from(context).isOn()) {
                         mFingerprintIdentify.cancelIdentify();
-                        mWalletPayUIActivity = null;
-                        mNeedFingerprint = false;
                     }
                 }
             });
@@ -242,23 +268,23 @@ public class XposedWeChatPlugin {
         }
     }
 
-    public static void initFingerPrintLock() {
-        mFingerprintIdentify = new FingerprintIdentify(mWalletPayUIActivity);
+    public void initFingerPrintLock(Context context) {
+        mFingerprintIdentify = new FingerprintIdentify(context);
         if (mFingerprintIdentify.isFingerprintEnable()) {
             mFingerprintIdentify.startIdentify(3, new BaseFingerprint.FingerprintIdentifyListener() {
                 @Override
                 public void onSucceed() {
                     // 验证成功，自动结束指纹识别
-                    Toast.makeText(mWalletPayUIActivity, Lang.getString(Lang.TOAST_FINGERPRINT_MATCH), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_MATCH), Toast.LENGTH_SHORT).show();
                     L.d("指纹识别成功");
-                    onSuccessUnlock(mWalletPayUIActivity);
+                    onSuccessUnlock(context);
                 }
 
                 @Override
                 public void onNotMatch(int availableTimes) {
                     // 指纹不匹配，并返回可用剩余次数并自动继续验证
                     L.d("指纹识别失败，还可尝试" + String.valueOf(availableTimes) + "次");
-                    Toast.makeText(mWalletPayUIActivity, Lang.getString(Lang.TOAST_FINGERPRINT_NOT_MATCH), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_NOT_MATCH), Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
@@ -266,27 +292,27 @@ public class XposedWeChatPlugin {
                     // 错误次数达到上限或者API报错停止了验证，自动结束指纹识别
                     // isDeviceLocked 表示指纹硬件是否被暂时锁定
                     L.d("多次尝试错误，请确认指纹");
-                    Toast.makeText(mWalletPayUIActivity, Lang.getString(Lang.TOAST_FINGERPRINT_RETRY_ENDED), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_RETRY_ENDED), Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onStartFailedByDeviceLocked() {
                     // 第一次调用startIdentify失败，因为设备被暂时锁定
                     L.d("系统限制，重启后必须验证密码后才能使用指纹验证");
-                    Toast.makeText(mWalletPayUIActivity, Lang.getString(Lang.TOAST_FINGERPRINT_UNLOCK_REBOOT), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_UNLOCK_REBOOT), Toast.LENGTH_SHORT).show();
                 }
             });
         } else {
             L.d("系统指纹功能未启用");
-            Toast.makeText(mWalletPayUIActivity, Lang.getString(Lang.TOAST_FINGERPRINT_NOT_ENABLE), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_NOT_ENABLE), Toast.LENGTH_SHORT).show();
         }
     }
 
-    private static void onSuccessUnlock(Context context) {
+    private void onSuccessUnlock(Context context) {
         Config config = Config.from(context);
         String pwd = config.getPassword();
         if (TextUtils.isEmpty(pwd)) {
-            Toast.makeText(mWalletPayUIActivity, Lang.getString(Lang.TOAST_PASSWORD_NOT_SET_WECHAT), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, Lang.getString(Lang.TOAST_PASSWORD_NOT_SET_WECHAT), Toast.LENGTH_SHORT).show();
             return;
         }
         mInputEditText.setText(pwd);

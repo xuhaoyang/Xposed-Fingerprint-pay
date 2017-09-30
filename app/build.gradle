@@ -10,8 +10,8 @@ android {
         applicationId "com.yyxx.wechatfp"
         minSdkVersion 14
         targetSdkVersion 26
-        versionCode 9
-        versionName "2.2.0"
+        versionCode 10
+        versionName "2.3.0"
         buildConfigField "String", "APP_PRODUCT_NAME", "\"WeChatFp\""
     }
 

@@ -10,35 +10,45 @@ public class ObfuscationHelper {
         public static Class<?> PayUI, FetchUI, PayView, WalletBaseUI, PreferenceAdapter;
 
         private static void init(int idx, LoadPackageParam lpparam) throws Throwable {
+            //classes3
             PayUI = XposedHelpers.findClass("com.tencent.mm.plugin.wallet.pay.ui." + new String[]{
                     "WalletPayUI", //6.5.8
                     "WalletPayUI", //6.5.10-1080
                     "WalletPayUI", //6.5.13-1081
                     "WalletPayUI", //6.5.13-1100
+                    "WalletPayUI", //6.5.16-1120
             }[idx], lpparam.classLoader);
+            //classes2
             PayView = XposedHelpers.findClass("com.tencent.mm.plugin.wallet_core.ui." + new String[]{
                     "l",  //6.5.8
                     "l",  //6.5.10-1080
                     "l",  //6.5.13-1081
                     "l",  //6.5.13-1100
+                    "l",  //6.5.16-1120
             }[idx], lpparam.classLoader);
+            //classes2
             FetchUI = XposedHelpers.findClass("com.tencent.mm.plugin.wallet.balance.ui." + new String[]{
                     "WalletBalanceFetchPwdInputUI",  //6.5.8
                     "WalletBalanceFetchPwdInputUI",  //6.5.10-1080
                     "WalletBalanceFetchPwdInputUI",  //6.5.13-1081
                     "WalletBalanceFetchPwdInputUI",  //6.5.13-1100
+                    "WalletBalanceFetchPwdInputUI",  //6.5.16-1120
             }[idx], lpparam.classLoader);
+            //classes2
             WalletBaseUI = XposedHelpers.findClass("com.tencent.mm.wallet_core.ui." + new String[]{
                     "WalletBaseUI",  //6.5.8
                     "WalletBaseUI",  //6.5.10-1080
                     "WalletBaseUI",  //6.5.13-1081
                     "WalletBaseUI",  //6.5.13-1100
+                    "WalletBaseUI",  //6.5.16-1120
             }[idx], lpparam.classLoader);
+            //classes
             PreferenceAdapter = XposedHelpers.findClass("com.tencent.mm.ui.base.preference." + new String[]{
                     "h",  //6.5.8
                     "h",  //6.5.10-1080
                     "h",  //6.5.13-1081
                     "h",  //6.5.13-1100
+                    "h",  //6.5.16-1120
             }[idx], lpparam.classLoader);
         }
     }
@@ -53,78 +63,64 @@ public class ObfuscationHelper {
         public static String PreferenceAdapter_vpP;
 
         private static void init(int idx) throws Throwable {
+            //classes2 PayView(com.tencent.mm.plugin.wallet_core.ui.l) => public EditHintPasswdView rWo;
             PaypwdView = new String[]{
                     "qVO",  //6.5.8
                     "ryk",  //6.5.10-1080
                     "rNe",  //6.5.13-1081
                     "rLB",  //6.5.13-1100
+                    "rWo",  //6.5.16-1120
             }[idx];
+            //EditHintPasswdView =>  private TenpaySecureEditText xhU;
             PaypwdEditText = new String[]{
                     "vyO",  //6.5.8
                     "wjm",  //6.5.10-1080
                     "wFP",  //6.5.13-1081
                     "wDJ",  //6.5.13-1100
+                    "xhU",  //6.5.16-1120
             }[idx];
+            //classes2 PayView(com.tencent.mm.plugin.wallet_core.ui.l) => protected MyKeyboardWindow mKeyboard;\n protected View nzg;
             PayInputView = new String[]{
                     "mOL",  //6.5.8
                     "nnG",  //6.5.10-1080
                     "npM",  //6.5.13-1081
                     "nol",  //6.5.13-1100
+                    "nzg",  //6.5.16-1120
             }[idx];
+            //classes2 PayView(com.tencent.mm.plugin.wallet_core.ui.l) => public TextView rWj;\n public TextView rWk;\n public FavourLayout rWl;
             PayTitle = new String[]{
                     "qVK",  //6.5.8
                     "ryg",  //6.5.10-1080
                     "rMZ",  //6.5.13-1081
                     "rLw",  //6.5.13-1100
+                    "rWj",  //6.5.16-1120
             }[idx];
+            //classes2 PayView(com.tencent.mm.plugin.wallet_core.ui.l) => public Bankcard rWC; \n public TextView rWD;
             Passwd_Text = new String[]{
                     "qVK",  //6.5.8
                     "ryz",  //6.5.10-1080
                     "rNt",  //6.5.13-1081
                     "rLQ",  //6.5.13-1100
+                    "rWD",  //6.5.16-1120
             }[idx];
+            //classes2 com.tencent.mm.ui.base.preference.h => private final HashMap<String, Preference> vOF;
             PreferenceAdapter_vpQ = new String[]{
                     "uoo",  //6.5.8
                     "uYA",  //6.5.10-1080
                     "vrF",  //6.5.13-1081
                     "vpQ",  //6.5.13-1100
+                    "vOF",  //6.5.16-1120
             }[idx];
+            //classes2 com.tencent.mm.ui.base.preference.h => private final LinkedList<String> vOE;
             PreferenceAdapter_vpP = new String[]{
                     "uon",  //6.5.8
                     "uYz",  //6.5.10-1080
                     "vrE",  //6.5.13-1081
                     "vpP",  //6.5.13-1100
+                    "vOE",  //6.5.16-1120
             }[idx];
         }
     }
-
-    public static class MM_Res {
-        public static int Finger_icon;
-        public static int Finger_title;
-        public static int Passwd_title;
-
-        private static void init(int idx) throws Throwable {
-            Finger_icon = new int[]{
-                    2130838280,  //6.5.8
-                    2130838289,  //6.5.10-1080
-                    2130838298,  //6.5.13-1081
-                    2130838298,  //6.5.13-1100
-            }[idx];
-            Finger_title = new int[]{
-                    2131236833,  //6.5.8
-                    2131236918,  //6.5.10-1080
-                    2131236963,  //6.5.13-1081
-                    2131236964,  //6.5.13-1100
-            }[idx];
-            Passwd_title = new int[]{
-                    2131236838,  //6.5.8
-                    2131236923,  //6.5.10-1080
-                    2131236968,  //6.5.13-1081
-                    2131236969,  //6.5.13-1100
-            }[idx];
-        }
-    }
-
 
     public static boolean init(int versioncode, String versionName, LoadPackageParam lpparam) throws Throwable {
         int versionIndex = isSupportedVersion(versioncode, versionName);
@@ -133,10 +129,8 @@ public class ObfuscationHelper {
         }
         MM_Classes.init(versionIndex, lpparam);
         MM_Fields.init(versionIndex);
-        MM_Res.init(versionIndex);
         return true;
     }
-
 
     public static int isSupportedVersion(int versionCode, String versionName) {
         if (versionName.contains("6.5.8")) {
@@ -150,6 +144,9 @@ public class ObfuscationHelper {
         }
         if (versionName.contains("6.5.13") && versionCode == 1100) {
             return 3;
+        }
+        if (versionName.contains("6.5.16") && versionCode == 1120) {
+            return 4;
         }
         return -1;
     }

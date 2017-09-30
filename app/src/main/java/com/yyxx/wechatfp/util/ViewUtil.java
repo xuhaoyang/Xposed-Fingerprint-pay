@@ -13,6 +13,7 @@ import android.support.annotation.Nullable;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.yyxx.wechatfp.util.log.L;
 
@@ -134,6 +135,34 @@ public class ViewUtil {
         return null;
     }
 
+    @Nullable
+    public static View findViewByText(View rootView, String... names) {
+        for (String name : names) {
+            List<View> viewList = new ArrayList<>();
+            getChildViews((ViewGroup) rootView, name, viewList);
+            int outViewListSize = viewList.size();
+            if (outViewListSize == 1) {
+                return viewList.get(0);
+            } else if (outViewListSize > 1) {
+                for (View view : viewList) {
+                    if (view.isShown()) {
+                        return view;
+                    }
+                }
+                return viewList.get(0);
+            }
+        }
+        return null;
+    }
+
+    private static String getViewInfo(View view) {
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append(String.valueOf(view));
+        if (view instanceof TextView) {
+            stringBuffer.append(" text:").append(((TextView) view).getText());
+        }
+        return stringBuffer.toString();
+    }
 
     public static void recursiveLoopChildren(ViewGroup parent) {
         for (int i = parent.getChildCount() - 1; i >= 0; i--) {
@@ -141,16 +170,34 @@ public class ViewUtil {
             if (child instanceof ViewGroup) {
                 recursiveLoopChildren((ViewGroup) child);
                 // DO SOMETHING WITH VIEWGROUP, AFTER CHILDREN HAS BEEN LOOPED
-                L.d("ViewGroup", child);
+                L.d("ViewGroup", getViewInfo(child));
             } else {
                 if (child != null) {
                     try {
-                        L.d("view", child);
+                        L.d("view", getViewInfo(child));
                     } catch (Exception e) {
 
                     }
                     // DO SOMETHING WITH VIEW
                 }
+            }
+        }
+    }
+
+    public static void getChildViews(ViewGroup parent, String text, List<View> outList) {
+        for (int i = parent.getChildCount() - 1; i >= 0; i--) {
+            final View child = parent.getChildAt(i);
+            if (child == null) {
+                continue;
+            }
+            if (child instanceof TextView) {
+                if (text.equals(String.valueOf(((TextView) child).getText()))) {
+                    outList.add(child);
+                }
+            }
+            if (child instanceof ViewGroup) {
+                getChildViews((ViewGroup) child, text, outList);
+            } else {
             }
         }
     }

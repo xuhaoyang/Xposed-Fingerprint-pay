@@ -42,7 +42,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
-import static com.yyxx.wechatfp.Constant.ICON_FINGER_PRINT_BASE64;
+import static com.yyxx.wechatfp.Constant.ICON_FINGER_PRINT_ALIPAY_BASE64;
 
 /**
  * Created by Jason on 2017/9/8.
@@ -186,7 +186,7 @@ public class XposedAlipayPlugin {
             activity.getWindow().getDecorView().setAlpha(0);
             mPwdActivityDontShowFlag = false;
             int defVMargin = DpUtil.dip2px(context, 30);
-            final Bitmap bitmap = ImageUtil.base64ToBitmap(ICON_FINGER_PRINT_BASE64);
+            final Bitmap bitmap = ImageUtil.base64ToBitmap(ICON_FINGER_PRINT_ALIPAY_BASE64);
             LinearLayout rootVLinearLayout = new LinearLayout(context);
             rootVLinearLayout.setOrientation(LinearLayout.VERTICAL);
             rootVLinearLayout.setGravity(Gravity.CENTER_HORIZONTAL);

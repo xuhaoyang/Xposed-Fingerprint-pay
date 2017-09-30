@@ -58,6 +58,10 @@ public class Lang {
     public static final int FINGERPRINT_VERIFICATION = 0x00000028;
     public static final int WECHAT_GENERAL = 0x00000029;
     public static final int APP_SETTINGS_NAME = 0x00000030;
+    public static final int WECHAT_PAYVIEW_PASSWORD_TITLE = 0x00000031;
+    public static final int WECHAT_PAYVIEW_FINGERPRINT_TITLE = 0x00000032;
+    public static final int WECHAT_PAYVIEW_PASSWORD_SWITCH_TEXT = 0x00000033;
+    public static final int WECHAT_PAYVIEW_FINGERPRINT_SWITCH_TEXT = 0x00000034;
 
     public static final int TOAST_GIVE_ME_STAR = 0x01000001;
     public static final int TOAST_CHECKING_UPDATE = 0x01000002;
@@ -83,7 +87,7 @@ public class Lang {
             case SETTINGS_TITLE_HELP_TAOBAO:
                 return tr("淘宝指纹", "淘宝指纹", "Taobao fingerprint pay");
             case SETTINGS_TITLE_CHECKUPDATE:
-                return tr("檢查更新", "檢查更新", "Check for update");
+                return tr("检查更新", "檢查更新", "Check for update");
             case SETTINGS_TITLE_WEBSIDE:
                 return tr("项目主页", "項目主頁", "Project homepage");
             case SETTINGS_TITLE_VERSION:
@@ -136,6 +140,14 @@ public class Lang {
                 return tr("通用", "一般", "General");
             case APP_SETTINGS_NAME:
                 return tr("指纹設置", "指紋設置", "Fingerprint");
+            case WECHAT_PAYVIEW_FINGERPRINT_TITLE:
+                return tr("请验证指纹", "請驗證指紋", "Verify fingerprint");
+            case WECHAT_PAYVIEW_PASSWORD_TITLE:
+                return tr("请输入支付密码", "請輸入付款密碼", "Enter payment password");
+            case WECHAT_PAYVIEW_PASSWORD_SWITCH_TEXT:
+                return tr("使用密码", "使用密碼", "Password");
+            case WECHAT_PAYVIEW_FINGERPRINT_SWITCH_TEXT:
+                return tr("使用指纹", "使用指紋", "Fingerprint");
 
             case TOAST_GIVE_ME_STAR:
                 return tr("如果您拥有Github账户, 别忘了给我的项目+个Star噢", "如果您擁有Github賬戶, 別忘了給我的項目+個Star噢", "Give me a star, if you like this project");
