@@ -7,8 +7,10 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import com.yyxx.wechatfp.util.Umeng;
+import com.yyxx.wechatfp.util.UrlUtil;
 import com.yyxx.wechatfp.util.log.L;
 
 
@@ -40,6 +42,25 @@ public class WebActivity extends AppCompatActivity {
         WebView webView = new WebView(this);
         if (!TextUtils.isEmpty(url)) {
             webView.loadUrl(url);
+            webView.setWebViewClient(new WebViewClient() {
+                @Override
+                public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                    if (TextUtils.isEmpty(url)) {
+                        return super.shouldOverrideUrlLoading(view, url);
+                    }
+                    String lurl = url.toLowerCase();
+                    if (lurl.startsWith("http://") || lurl.startsWith("https://")) {
+                        if (lurl.endsWith(".apk") || lurl.endsWith(".zip") || lurl.endsWith(".tar.gz") || lurl.contains("pan.baidu.com/s/")) {
+                            UrlUtil.openUrl(WebActivity.this, url);
+                            return true;
+                        }
+                        view.loadUrl(url);
+                        return true;
+                    }
+                    UrlUtil.openUrl(WebActivity.this, url);
+                    return true;
+                }
+            });
         }
         setContentView(webView);
     }

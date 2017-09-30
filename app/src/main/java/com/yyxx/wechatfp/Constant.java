@@ -9,11 +9,11 @@ public class Constant {
     public static final String PACKAGE_NAME_WECHAT = "com.tencent.mm";
     public static final String PACKAGE_NAME_ALIPAY = "com.eg.android.AlipayGphone";
     public static final String PACKAGE_NAME_TAOBAO = "com.taobao.taobao";
-    public static final String HELP_URL_WECHAT = "https://github.com/eritpchy/WechatFp/blob/master/doc/WeChat/README.md";
-    public static final String HELP_URL_ALIPAY = "https://github.com/eritpchy/WechatFp/blob/master/doc/Alipay/README.md";
-    public static final String HELP_URL_TAOBAO = "https://github.com/eritpchy/WechatFp/blob/master/doc/Taobao/README.md";
+    public static final String HELP_URL_WECHAT = "https://github.com/eritpchy/Xposed-Fingerprint-pay/blob/master/doc/WeChat/README.md";
+    public static final String HELP_URL_ALIPAY = "https://github.com/eritpchy/Xposed-Fingerprint-pay/blob/master/doc/Alipay/README.md";
+    public static final String HELP_URL_TAOBAO = "https://github.com/eritpchy/Xposed-Fingerprint-pay/blob/master/doc/Taobao/README.md";
     public static final String PROJECT_URL = "https://github.com/eritpchy/WechatFp";
-    public static final String UPDATE_URL_GITHUB = "https://api.github.com/repos/eritpchy/WechatFp/releases/latest";
+    public static final String UPDATE_URL_GITHUB = "https://api.github.com/repos/eritpchy/Xposed-Fingerprint-pay/releases/latest";
     public static final String DONATE_ID_ALIPAY = "https://qr.alipay.com/FKX012222QIU52C6LATAB7";
     public static final String DONATE_ID_WECHAT = "wxp://f2f0-1_Hm7XAY7SXA3B_0R0v-VJD71jYCWog";
     public static final String AUTHOR_ALIPAY = "276308768@qq.com";
