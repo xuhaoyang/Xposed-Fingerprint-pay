@@ -23,7 +23,7 @@
 
 使用步骤:
 1. 下载并安装插件: https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.2.0/WeChatFp-2.2.0-release.apk
-2. 下载并安装微信6.5.16-1120版本 https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/1.4.1/WeChat-6.5.13-1120.apk
+2. 下载并安装微信6.5.16-1120版本 https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.3.0/WeChat-6.5.16-1120.apk
 3. 下载并安装支付宝10.1.0.090418-114版本 https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.0.0/Alipay-10.1.0.090418-114.apk
 4. 下载并安装淘宝6.11.0-161版本 https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.1.0/Taobao-6.11.0-161.apk
 5. 启用插件, 输入密码
