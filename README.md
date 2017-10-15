@@ -22,6 +22,10 @@
 
 ## 注意: 这是Xposed插件
 
+最低配置要求:
+1. Android 6.0
+ 
+
 使用步骤:
 1. 下载并安装插件: https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.2.0/WeChatFp-2.2.0-release.apk
 2. 下载并安装微信6.5.16-1120版本 https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.3.0/WeChat-6.5.16-1120.apk
