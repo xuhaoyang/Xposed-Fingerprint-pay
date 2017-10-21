@@ -16,6 +16,7 @@ public class ObfuscationHelper {
                     "WalletPayUI", //6.5.10-1080
                     "WalletPayUI", //6.5.13-1081
                     "WalletPayUI", //6.5.13-1100
+                    "WalletPayUI", //6.5.16-1101
                     "WalletPayUI", //6.5.16-1120
             }[idx], lpparam.classLoader);
             //classes2
@@ -24,6 +25,7 @@ public class ObfuscationHelper {
                     "l",  //6.5.10-1080
                     "l",  //6.5.13-1081
                     "l",  //6.5.13-1100
+                    "l",  //6.5.16-1101
                     "l",  //6.5.16-1120
             }[idx], lpparam.classLoader);
             //classes2
@@ -32,6 +34,7 @@ public class ObfuscationHelper {
                     "WalletBalanceFetchPwdInputUI",  //6.5.10-1080
                     "WalletBalanceFetchPwdInputUI",  //6.5.13-1081
                     "WalletBalanceFetchPwdInputUI",  //6.5.13-1100
+                    "WalletBalanceFetchPwdInputUI",  //6.5.16-1101
                     "WalletBalanceFetchPwdInputUI",  //6.5.16-1120
             }[idx], lpparam.classLoader);
             //classes2
@@ -40,6 +43,7 @@ public class ObfuscationHelper {
                     "WalletBaseUI",  //6.5.10-1080
                     "WalletBaseUI",  //6.5.13-1081
                     "WalletBaseUI",  //6.5.13-1100
+                    "WalletBaseUI",  //6.5.16-1101
                     "WalletBaseUI",  //6.5.16-1120
             }[idx], lpparam.classLoader);
             //classes
@@ -48,6 +52,7 @@ public class ObfuscationHelper {
                     "h",  //6.5.10-1080
                     "h",  //6.5.13-1081
                     "h",  //6.5.13-1100
+                    "h",  //6.5.16-1101
                     "h",  //6.5.16-1120
             }[idx], lpparam.classLoader);
         }
@@ -69,6 +74,7 @@ public class ObfuscationHelper {
                     "ryk",  //6.5.10-1080
                     "rNe",  //6.5.13-1081
                     "rLB",  //6.5.13-1100
+                    "rWi",  //6.5.16-1101
                     "rWo",  //6.5.16-1120
             }[idx];
             //EditHintPasswdView =>  private TenpaySecureEditText xhU;
@@ -77,6 +83,7 @@ public class ObfuscationHelper {
                     "wjm",  //6.5.10-1080
                     "wFP",  //6.5.13-1081
                     "wDJ",  //6.5.13-1100
+                    "xhN",  //6.5.16-1101
                     "xhU",  //6.5.16-1120
             }[idx];
             //classes2 PayView(com.tencent.mm.plugin.wallet_core.ui.l) => protected MyKeyboardWindow mKeyboard;\n protected View nzg;
@@ -85,6 +92,7 @@ public class ObfuscationHelper {
                     "nnG",  //6.5.10-1080
                     "npM",  //6.5.13-1081
                     "nol",  //6.5.13-1100
+                    "nyY",  //6.5.16-1101
                     "nzg",  //6.5.16-1120
             }[idx];
             //classes2 PayView(com.tencent.mm.plugin.wallet_core.ui.l) => public TextView rWj;\n public TextView rWk;\n public FavourLayout rWl;
@@ -93,6 +101,7 @@ public class ObfuscationHelper {
                     "ryg",  //6.5.10-1080
                     "rMZ",  //6.5.13-1081
                     "rLw",  //6.5.13-1100
+                    "rWd",  //6.5.16-1101
                     "rWj",  //6.5.16-1120
             }[idx];
             //classes2 PayView(com.tencent.mm.plugin.wallet_core.ui.l) => public Bankcard rWC; \n public TextView rWD;
@@ -101,22 +110,25 @@ public class ObfuscationHelper {
                     "ryz",  //6.5.10-1080
                     "rNt",  //6.5.13-1081
                     "rLQ",  //6.5.13-1100
+                    "rWx",  //6.5.16-1101
                     "rWD",  //6.5.16-1120
             }[idx];
-            //classes2 com.tencent.mm.ui.base.preference.h => private final HashMap<String, Preference> vOF;
+            //classes SettingPreferenceAdapter(com.tencent.mm.ui.base.preference.h) => private final HashMap<String, Preference> vOF;
             PreferenceAdapter_vpQ = new String[]{
                     "uoo",  //6.5.8
                     "uYA",  //6.5.10-1080
                     "vrF",  //6.5.13-1081
                     "vpQ",  //6.5.13-1100
+                    "vOy",  //6.5.16-1101
                     "vOF",  //6.5.16-1120
             }[idx];
-            //classes2 com.tencent.mm.ui.base.preference.h => private final LinkedList<String> vOE;
+            //classes SettingPreferenceAdapter(com.tencent.mm.ui.base.preference.h) => private final LinkedList<String> vOE;
             PreferenceAdapter_vpP = new String[]{
                     "uon",  //6.5.8
                     "uYz",  //6.5.10-1080
                     "vrE",  //6.5.13-1081
                     "vpP",  //6.5.13-1100
+                    "vOx",  //6.5.16-1120
                     "vOE",  //6.5.16-1120
             }[idx];
         }
@@ -145,8 +157,11 @@ public class ObfuscationHelper {
         if (versionName.contains("6.5.13") && versionCode == 1100) {
             return 3;
         }
-        if (versionName.contains("6.5.16") && versionCode == 1120) {
+        if (versionName.contains("6.5.16") && versionCode == 1101) {//Play
             return 4;
+        }
+        if (versionName.contains("6.5.16") && versionCode == 1120) {
+            return 5;
         }
         return -1;
     }

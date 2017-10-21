@@ -5,7 +5,7 @@
 让微信和支付宝在支持指纹识别的手机上使用指纹支付, 即使他们都不打算支持!
 
 已适配版本:\
-微信: 6.5.8 [6.5.10-1080](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/1.3/weixin6510.apk) 6.5.13-1081 [6.5.13-1100](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/1.4.1/WeChat-6.5.13-1100.apk) [6.5.16-1120](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.3.0/WeChat-6.5.16-1120.apk)\
+微信: 6.5.8 [6.5.10-1080](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/1.3/weixin6510.apk) 6.5.13-1081 [6.5.13-1100](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/1.4.1/WeChat-6.5.13-1100.apk) [6.5.16-1101](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.4.0/WeChat-6.5.16-1101.apk) [6.5.16-1120](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.3.0/WeChat-6.5.16-1120.apk)\
 支付宝: 10.1.0.090418-114\
 淘宝: 6.11.0-161
 
@@ -27,7 +27,7 @@
  
 
 使用步骤:
-1. 下载并安装插件: https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.2.0/WeChatFp-2.2.0-release.apk
+1. 下载并安装插件: https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.4.0/WeChatFp-2.4.0-release.apk
 2. 下载并安装微信6.5.16-1120版本 https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.3.0/WeChat-6.5.16-1120.apk
 3. 下载并安装支付宝10.1.0.090418-114版本 https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.0.0/Alipay-10.1.0.090418-114.apk
 4. 下载并安装淘宝6.11.0-161版本 https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.1.0/Taobao-6.11.0-161.apk
