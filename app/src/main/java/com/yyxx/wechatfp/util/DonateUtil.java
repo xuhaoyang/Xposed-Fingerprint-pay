@@ -33,7 +33,7 @@ public class DonateUtil {
         return false;
     }
 
-    public static void openWeChatPay(Context context) {
+    public static boolean openWeChatPay(Context context) {
         try {
             Intent donateIntent = new Intent();
             donateIntent.setClassName(context, "com.tencent.mm.plugin.remittance.ui.RemittanceAdapterUI");
@@ -41,17 +41,15 @@ public class DonateUtil {
             donateIntent.putExtra("pay_channel", 13);
             donateIntent.putExtra("receiver_name", Constant.DONATE_ID_WECHAT);
             context.startActivity(donateIntent);
+            return true;
         } catch (Exception e) {
             L.e(e);
         }
+        return false;
     }
 
-    private static void openUri(Context context, String s) {
-        try {
-            Intent intent = Intent.parseUri(s, Intent.URI_INTENT_SCHEME);
-            context.startActivity(intent);
-        } catch (Exception e) {
-            L.e(e);
-        }
+    private static void openUri(Context context, String s) throws Exception {
+        Intent intent = Intent.parseUri(s, Intent.URI_INTENT_SCHEME);
+        context.startActivity(intent);
     }
 }

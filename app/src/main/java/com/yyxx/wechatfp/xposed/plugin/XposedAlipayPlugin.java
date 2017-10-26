@@ -15,6 +15,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -254,27 +255,15 @@ public class XposedAlipayPlugin {
                     return;
                 }
 
-                String modulePackageName = "com.alipay.android.phone.safepaybase";
-                View keysView[] = new View[] {
-                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_1"),
-                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_2"),
-                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_3"),
-                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_4", "key_4"),
-                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_5"),
-                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_6"),
-                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_7"),
-                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_8"),
-                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_9"),
-                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_0"),
-                };
-
-                try {
-                    inputPassword(pwd, keysView);
-                } catch (NullPointerException e) {
-                    Toast.makeText(context, Lang.getString(Lang.TOAST_PASSWORD_AUTO_ENTER_FAIL), Toast.LENGTH_LONG).show();
-                } catch (Exception e) {
-                    Toast.makeText(context, Lang.getString(Lang.TOAST_PASSWORD_AUTO_ENTER_FAIL), Toast.LENGTH_LONG).show();
-                    L.e(e);
+                if (!tryInputGenericPassword(activity, pwd)) {
+                    try {
+                        inputDigitPassword(activity, pwd);
+                    } catch (NullPointerException e) {
+                        Toast.makeText(context, Lang.getString(Lang.TOAST_PASSWORD_AUTO_ENTER_FAIL), Toast.LENGTH_LONG).show();
+                    } catch (Exception e) {
+                        Toast.makeText(context, Lang.getString(Lang.TOAST_PASSWORD_AUTO_ENTER_FAIL), Toast.LENGTH_LONG).show();
+                        L.e(e);
+                    }
                 }
                 AlertDialog dialog = mFingerPrintAlertDialog;
                 if (dialog != null) {
@@ -364,7 +353,20 @@ public class XposedAlipayPlugin {
         }
     }
 
-    private void inputPassword(String password, View[] ks) {
+    private void inputDigitPassword(Activity activity, String password) {
+        String modulePackageName = "com.alipay.android.phone.safepaybase";
+        View ks[] = new View[] {
+                ViewUtil.findViewByName(activity, modulePackageName, "key_num_1"),
+                ViewUtil.findViewByName(activity, modulePackageName, "key_num_2"),
+                ViewUtil.findViewByName(activity, modulePackageName, "key_num_3"),
+                ViewUtil.findViewByName(activity, modulePackageName, "key_num_4", "key_4"),
+                ViewUtil.findViewByName(activity, modulePackageName, "key_num_5"),
+                ViewUtil.findViewByName(activity, modulePackageName, "key_num_6"),
+                ViewUtil.findViewByName(activity, modulePackageName, "key_num_7"),
+                ViewUtil.findViewByName(activity, modulePackageName, "key_num_8"),
+                ViewUtil.findViewByName(activity, modulePackageName, "key_num_9"),
+                ViewUtil.findViewByName(activity, modulePackageName, "key_num_0"),
+        };
         char[] chars = password.toCharArray();
         for (char c : chars) {
             View v;
@@ -404,5 +406,58 @@ public class XposedAlipayPlugin {
             }
             ViewUtil.performActionClick(v);
         }
+    }
+
+    private boolean tryInputGenericPassword(Activity activity, String password) {
+        ViewGroup rootView = (ViewGroup) activity.getWindow().getDecorView();
+        EditText pwdEditText = findPasswordEditText(rootView);
+        L.d("pwdEditText", pwdEditText);
+        if (pwdEditText == null) {
+            return false;
+        }
+        View confirmPwdBtn = findConfirmPasswordBtn(rootView);
+        L.d("confirmPwdBtn", confirmPwdBtn);
+        if (confirmPwdBtn == null) {
+            return false;
+        }
+        pwdEditText.setText(password);
+        ((View)confirmPwdBtn.getParent()).performClick();
+        return true;
+    }
+
+    private EditText findPasswordEditText(ViewGroup viewGroup) {
+        List<View> outList = new ArrayList<>();
+        ViewUtil.getChildViews(viewGroup, "", outList);
+        for (View view : outList) {
+            if (view instanceof EditText) {
+                if (view.getId() != -1) {
+                    continue;
+                }
+                if (!view.isShown()) {
+                    continue;
+                }
+                return (EditText) view;
+            }
+        }
+        return null;
+    }
+
+    private View findConfirmPasswordBtn(ViewGroup viewGroup) {
+
+        List<View> outList = new ArrayList<>();
+        ViewUtil.getChildViews(viewGroup, "付款", outList);
+        if (outList.isEmpty()) {
+            ViewUtil.getChildViews(viewGroup, "Pay", outList);
+        }
+        for (View view : outList) {
+            if (view.getId() != -1) {
+                continue;
+            }
+            if (!view.isShown()) {
+                continue;
+            }
+            return view;
+        }
+        return null;
     }
 }

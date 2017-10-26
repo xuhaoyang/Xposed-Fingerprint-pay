@@ -15,6 +15,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -97,7 +98,6 @@ public class XposedTaobaoPlugin {
                             if (mCurrentActivity != activity) {
                                 return;
                             }
-                            ViewUtil.recursiveLoopChildren((ViewGroup) activity.getWindow().getDecorView());
                             if (ViewUtil.findViewByName(activity, "com.taobao.taobao", "mini_spwd_input") == null
                                     && ViewUtil.findViewByName(activity, "com.taobao.taobao", "simplePwdLayout") == null) {
                                 return;
@@ -253,27 +253,15 @@ public class XposedTaobaoPlugin {
                     return;
                 }
 
-                String modulePackageName = "com.taobao.taobao";
-                View keysView[] = new View[] {
-                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_1"),
-                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_2"),
-                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_3"),
-                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_4", "key_4"),
-                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_5"),
-                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_6"),
-                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_7"),
-                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_8"),
-                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_9"),
-                        ViewUtil.findViewByName(activity, modulePackageName, "key_num_0"),
-                };
-
-                try {
-                    inputPassword(pwd, keysView);
-                } catch (NullPointerException e) {
-                    Toast.makeText(context, Lang.getString(Lang.TOAST_PASSWORD_AUTO_ENTER_FAIL), Toast.LENGTH_LONG).show();
-                } catch (Exception e) {
-                    Toast.makeText(context, Lang.getString(Lang.TOAST_PASSWORD_AUTO_ENTER_FAIL), Toast.LENGTH_LONG).show();
-                    L.e(e);
+                if (!tryInputGenericPassword(activity, pwd)) {
+                    try {
+                        inputDigitPassword(activity, pwd);
+                    } catch (NullPointerException e) {
+                        Toast.makeText(context, Lang.getString(Lang.TOAST_PASSWORD_AUTO_ENTER_FAIL), Toast.LENGTH_LONG).show();
+                    } catch (Exception e) {
+                        Toast.makeText(context, Lang.getString(Lang.TOAST_PASSWORD_AUTO_ENTER_FAIL), Toast.LENGTH_LONG).show();
+                        L.e(e);
+                    }
                 }
                 AlertDialog dialog = mFingerPrintAlertDialog;
                 if (dialog != null) {
@@ -363,7 +351,20 @@ public class XposedTaobaoPlugin {
         }
     }
 
-    private void inputPassword(String password, View[] ks) {
+    private void inputDigitPassword(Activity activity, String password) {
+        String modulePackageName = "com.taobao.taobao";
+        View ks[] = new View[] {
+                ViewUtil.findViewByName(activity, modulePackageName, "key_num_1"),
+                ViewUtil.findViewByName(activity, modulePackageName, "key_num_2"),
+                ViewUtil.findViewByName(activity, modulePackageName, "key_num_3"),
+                ViewUtil.findViewByName(activity, modulePackageName, "key_num_4", "key_4"),
+                ViewUtil.findViewByName(activity, modulePackageName, "key_num_5"),
+                ViewUtil.findViewByName(activity, modulePackageName, "key_num_6"),
+                ViewUtil.findViewByName(activity, modulePackageName, "key_num_7"),
+                ViewUtil.findViewByName(activity, modulePackageName, "key_num_8"),
+                ViewUtil.findViewByName(activity, modulePackageName, "key_num_9"),
+                ViewUtil.findViewByName(activity, modulePackageName, "key_num_0"),
+        };
         char[] chars = password.toCharArray();
         for (char c : chars) {
             View v;
@@ -403,5 +404,78 @@ public class XposedTaobaoPlugin {
             }
             ViewUtil.performActionClick(v);
         }
+    }
+
+    private boolean tryInputGenericPassword(Activity activity, String password) {
+        EditText pwdEditText = findPasswordEditText(activity);
+        L.d("pwdEditText", pwdEditText);
+        if (pwdEditText == null) {
+            return false;
+        }
+        View confirmPwdBtn = findConfirmPasswordBtn(activity);
+        L.d("confirmPwdBtn", confirmPwdBtn);
+        if (confirmPwdBtn == null) {
+            return false;
+        }
+        pwdEditText.setText(password);
+        confirmPwdBtn.performClick();
+        return true;
+    }
+
+    private EditText findPasswordEditText(Activity activity) {
+        View pwdEditText = ViewUtil.findViewByName(activity, "com.taobao.taobao", "input_et_password");;
+        if (pwdEditText instanceof EditText) {
+            if (!pwdEditText.isShown()) {
+                return null;
+            }
+            return (EditText) pwdEditText;
+        }
+        ViewGroup viewGroup = (ViewGroup)activity.getWindow().getDecorView();
+        List<View> outList = new ArrayList<>();
+        ViewUtil.getChildViews(viewGroup, "", outList);
+        for (View view : outList) {
+            if (view instanceof EditText) {
+                if (view.getId() != -1) {
+                    continue;
+                }
+                if (!view.isShown()) {
+                    continue;
+                }
+                return (EditText) view;
+            }
+        }
+        return null;
+    }
+
+    private View findConfirmPasswordBtn(Activity activity) {
+        View okView =  ViewUtil.findViewByName(activity, "com.taobao.taobao", "button_ok");
+        if (okView != null) {
+            if (!okView.isShown()) {
+                return null;
+            }
+            return okView;
+        }
+        ViewGroup viewGroup = (ViewGroup)activity.getWindow().getDecorView();
+        List<View> outList = new ArrayList<>();
+        ViewUtil.getChildViews(viewGroup, "确认", outList);
+        if (outList.isEmpty()) {
+            ViewUtil.getChildViews(viewGroup, "付款", outList);
+        }
+        if (outList.isEmpty()) {
+            ViewUtil.getChildViews(viewGroup, "確認", outList);
+        }
+        if (outList.isEmpty()) {
+            ViewUtil.getChildViews(viewGroup, "Pay", outList);
+        }
+        for (View view : outList) {
+            if (view.getId() != -1) {
+                continue;
+            }
+            if (!view.isShown()) {
+                continue;
+            }
+            return (View) view.getParent();
+        }
+        return null;
     }
 }

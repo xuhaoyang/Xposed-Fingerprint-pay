@@ -88,7 +88,7 @@ public class SettingsView extends DialogFrameLayout implements AdapterView.OnIte
         }
         mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_DONATE), Lang.getString(Lang.SETTINGS_SUB_TITLE_DONATE)));
         mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_CHECKUPDATE), Lang.getString(Lang.SETTINGS_SUB_TITLE_CHECKUPDATE)));
-        mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_WEBSIDE), Lang.getString(Lang.SETTINGS_SUB_TITLE_WEBSIDE)));
+        mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_WEBSIDE), Constant.PROJECT_URL));
         mListAdapter = new PreferenceAdapter(mSettingsDataList);
 
         rootVerticalLayout.addView(settingsTitle);

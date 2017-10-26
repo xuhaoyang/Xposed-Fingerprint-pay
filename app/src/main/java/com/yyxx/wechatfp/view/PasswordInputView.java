@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import com.yyxx.wechatfp.Constant;
 import com.yyxx.wechatfp.Lang;
 import com.yyxx.wechatfp.util.DpUtil;
 
@@ -44,9 +45,17 @@ public class PasswordInputView extends DialogFrameLayout {
         mInputView.setFocusable(true);
         mInputView.setFocusableInTouchMode(true);
         mInputView.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-        mInputView.setInputType(InputType.TYPE_CLASS_NUMBER
-                | InputType.TYPE_NUMBER_VARIATION_PASSWORD
-        );
+        String packageName = context.getPackageName();
+        if (Constant.PACKAGE_NAME_ALIPAY.equals(packageName)
+                || Constant.PACKAGE_NAME_TAOBAO.equals(packageName)) {
+            mInputView.setInputType(InputType.TYPE_CLASS_TEXT
+                    | InputType.TYPE_TEXT_VARIATION_PASSWORD
+            );
+        } else {
+            mInputView.setInputType(InputType.TYPE_CLASS_NUMBER
+                    | InputType.TYPE_NUMBER_VARIATION_PASSWORD
+            );
+        }
 
         LayoutParams layoutParam = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         int defHMargin = DpUtil.dip2px(context, 15);

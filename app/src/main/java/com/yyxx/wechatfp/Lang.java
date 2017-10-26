@@ -75,6 +75,8 @@ public class Lang {
     public static final int TOAST_PASSWORD_NOT_SET_ALIPAY = 0x01000010;
     public static final int TOAST_PASSWORD_NOT_SET_WECHAT = 0x01000011;
     public static final int TOAST_PASSWORD_AUTO_ENTER_FAIL = 0x01000012;
+    public static final int TOAST_GOTO_DONATE_PAGE_FAIL_ALIPAY = 0x01000013;
+    public static final int TOAST_GOTO_DONATE_PAGE_FAIL_WECHAT = 0x01000014;
 
     private static final int TEMPLATE = 0xFFFFFFFF;
 
@@ -117,7 +119,7 @@ public class Lang {
             case SETTINGS_TITLE_WECHAT:
                 return tr("微信", "微信", "WeChat");
             case ENTER_PASSWORD:
-                return tr("请输入密码", "請輸入密碼", "Enter password");
+                return tr("输入密码", "輸入密碼", "Enter password");
             case SETTINGS_TITLE_SWITCH:
                 return tr("启用", "啟用", "Enable");
             case SETTINGS_TITLE_PASSWORD:
@@ -173,6 +175,10 @@ public class Lang {
                 return tr("未设定支付密码，请前往設置->指紋設置中设定微信的支付密码", "未設定支付密碼，請前往設置 -> 指紋設置中設定微信的支付密碼", "Payment password not set, please goto Settings -> Fingerprint to enter you payment password");
             case TOAST_PASSWORD_AUTO_ENTER_FAIL:
                 return tr("Oops.. 输入失败了. 请手动输入密码", "Oops.. 輸入失敗了. 請手動輸入密碼", "Oops... auto input failure, switch to manual input");
+            case TOAST_GOTO_DONATE_PAGE_FAIL_ALIPAY:
+                return tr("调用支付宝捐赠页失败, 您可以手动转账捐赠哦, 帐号: " + Constant.AUTHOR_ALIPAY, "調用支付寶捐贈頁失敗, 您可以手動轉賬捐贈哦, 帳號: " + Constant.AUTHOR_ALIPAY, "Can't jump to Alipay donate page, You can do it manually by transfer to account: " + Constant.AUTHOR_ALIPAY);
+            case TOAST_GOTO_DONATE_PAGE_FAIL_WECHAT:
+                return tr("调用微信捐赠页失败, 您可以手动转账捐赠哦, 帐号: " + Constant.AUTHOR_WECHAT, "調用微信捐贈頁失敗, 您可以手動轉賬捐贈哦, 帳號: " + Constant.AUTHOR_WECHAT, "Can't jump to WeChat donate page, You can do it manually by transfer to account: " + Constant.AUTHOR_WECHAT);
             case TEMPLATE:
                 return tr("", "", "");
         }

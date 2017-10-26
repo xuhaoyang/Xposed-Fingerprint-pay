@@ -174,7 +174,7 @@ public class ViewUtil {
             } else {
                 if (child != null) {
                     try {
-                        L.d("view", getViewInfo(child));
+                        L.d("view", getViewInfo(child), child.getTag());
                     } catch (Exception e) {
 
                     }

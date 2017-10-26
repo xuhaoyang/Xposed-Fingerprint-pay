@@ -7,6 +7,8 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.util.Log;
 
+import com.yyxx.wechatfp.util.log.L;
+
 /**
  * Created by Jason on 2017/7/7.
  */
@@ -59,7 +61,11 @@ public class UrlUtil {
             Uri content_url = Uri.parse(url);
             intent.setData(content_url);
         }
-        context.startActivity(intent);
+        try {
+            context.startActivity(intent);
+        } catch (Exception e) {
+            L.d(e);
+        }
     }
 
 }

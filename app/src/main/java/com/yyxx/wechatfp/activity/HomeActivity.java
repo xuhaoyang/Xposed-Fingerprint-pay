@@ -42,7 +42,7 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
         list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_HELP_ALIPAY), Lang.getString(Lang.SETTINGS_SUB_TITLE_HELP_ALIPAY)));
         list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_HELP_TAOBAO), Lang.getString(Lang.SETTINGS_SUB_TITLE_HELP_TAOBAO)));
         list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_CHECKUPDATE), Lang.getString(Lang.SETTINGS_SUB_TITLE_CHECKUPDATE)));
-        list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_WEBSIDE), Lang.getString(Lang.SETTINGS_SUB_TITLE_WEBSIDE)));
+        list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_WEBSIDE), PROJECT_URL));
         list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_VERSION), BuildConfig.VERSION_NAME));
         mListAdapter = new PreferenceAdapter(list);
         listView.setAdapter(mListAdapter);

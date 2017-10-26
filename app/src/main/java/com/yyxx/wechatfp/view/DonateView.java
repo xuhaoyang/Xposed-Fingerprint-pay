@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.yyxx.wechatfp.Constant;
 import com.yyxx.wechatfp.Lang;
@@ -80,9 +81,13 @@ public class DonateView extends DialogFrameLayout implements AdapterView.OnItemC
         PreferenceAdapter.Data data = mListAdapter.getItem(position);
         final Context context = getContext();
         if (Lang.getString(Lang.SETTINGS_TITLE_ALIPAY).equals(data.title)) {
-            DonateUtil.openAlipayPayPage(context);
+            if (!DonateUtil.openAlipayPayPage(context)) {
+                Toast.makeText(context, Lang.getString(Lang.TOAST_GOTO_DONATE_PAGE_FAIL_ALIPAY), Toast.LENGTH_LONG).show();
+            }
         } else if (Lang.getString(Lang.SETTINGS_TITLE_WECHAT).equals(data.title)) {
-            DonateUtil.openWeChatPay(context);
+            if (!DonateUtil.openWeChatPay(context)) {
+                Toast.makeText(context, Lang.getString(Lang.TOAST_GOTO_DONATE_PAGE_FAIL_WECHAT), Toast.LENGTH_LONG).show();
+            }
         }
     }
 }
