@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.graphics.Bitmap;
+import android.os.UserHandle;
+import android.os.UserManager;
 import android.support.annotation.Keep;
 import android.text.TextUtils;
 import android.view.MotionEvent;
@@ -57,6 +59,7 @@ public class XposedWeChatPlugin {
     private TextView mPayTitleTextView, mPasswordTextView;
     private FingerprintIdentify mFingerprintIdentify;
     private Activity mCurrentActivity;
+    private boolean mMockCurrentUser = false;
 
     @Keep
     public void main(final Context context, final XC_LoadPackage.LoadPackageParam lpparam) {
@@ -72,7 +75,17 @@ public class XposedWeChatPlugin {
                 L.d("当前版本:" + versionName + "." + versionCode + "不支持");
                 return;
             }
-
+            //for multi user
+            if (!isCurrentUserOwner(context)) {
+                XposedHelpers.findAndHookMethod(UserHandle.class, "myUserId", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (mMockCurrentUser) {
+                            param.setResult(0);
+                        }
+                    }
+                });
+            }
             XposedHelpers.findAndHookMethod(Activity.class, "onResume", new XC_MethodHook() {
                 @TargetApi(21)
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
@@ -147,6 +160,7 @@ public class XposedWeChatPlugin {
                             mInputEditText.setVisibility(View.VISIBLE);
                             mKeyboard.setVisibility(View.VISIBLE);
                             mFingerprintIdentify.cancelIdentify();
+                            mMockCurrentUser = false;
                             mPayTitleTextView.setText(Lang.getString(Lang.WECHAT_PAYVIEW_PASSWORD_TITLE));
                             if (switchFpPwdTextView != null) {
                                 switchFpPwdTextView.setText(Lang.getString(Lang.WECHAT_PAYVIEW_FINGERPRINT_SWITCH_TEXT));
@@ -188,6 +202,7 @@ public class XposedWeChatPlugin {
                     L.d("PayView dismiss");
                     if (Config.from(context).isOn()) {
                         mFingerprintIdentify.cancelIdentify();
+                        mMockCurrentUser = false;
                     }
                 }
             });
@@ -268,8 +283,9 @@ public class XposedWeChatPlugin {
         }
     }
 
-    public void initFingerPrintLock(Context context) {
-        mFingerprintIdentify = new FingerprintIdentify(context);
+    public synchronized void initFingerPrintLock(Context context) {
+        mMockCurrentUser = true;
+        mFingerprintIdentify = new FingerprintIdentify(context, exception -> L.e("fingerprint", exception));
         if (mFingerprintIdentify.isFingerprintEnable()) {
             mFingerprintIdentify.startIdentify(3, new BaseFingerprint.FingerprintIdentifyListener() {
                 @Override
@@ -278,6 +294,7 @@ public class XposedWeChatPlugin {
                     Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_MATCH), Toast.LENGTH_SHORT).show();
                     L.d("指纹识别成功");
                     onSuccessUnlock(context);
+                    mMockCurrentUser = false;
                 }
 
                 @Override
@@ -285,6 +302,7 @@ public class XposedWeChatPlugin {
                     // 指纹不匹配，并返回可用剩余次数并自动继续验证
                     L.d("指纹识别失败，还可尝试" + String.valueOf(availableTimes) + "次");
                     Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_NOT_MATCH), Toast.LENGTH_SHORT).show();
+                    mMockCurrentUser = false;
                 }
 
                 @Override
@@ -293,6 +311,7 @@ public class XposedWeChatPlugin {
                     // isDeviceLocked 表示指纹硬件是否被暂时锁定
                     L.d("多次尝试错误，请确认指纹");
                     Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_RETRY_ENDED), Toast.LENGTH_SHORT).show();
+                    mMockCurrentUser = false;
                 }
 
                 @Override
@@ -300,11 +319,13 @@ public class XposedWeChatPlugin {
                     // 第一次调用startIdentify失败，因为设备被暂时锁定
                     L.d("系统限制，重启后必须验证密码后才能使用指纹验证");
                     Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_UNLOCK_REBOOT), Toast.LENGTH_SHORT).show();
+                    mMockCurrentUser = false;
                 }
             });
         } else {
             L.d("系统指纹功能未启用");
             Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_NOT_ENABLE), Toast.LENGTH_SHORT).show();
+            mMockCurrentUser = false;
         }
     }
 
@@ -316,5 +337,16 @@ public class XposedWeChatPlugin {
             return;
         }
         mInputEditText.setText(pwd);
+    }
+
+
+    public boolean isCurrentUserOwner(Context context) {
+        try {
+            Method getUserHandle = UserManager.class.getMethod("getUserHandle");
+            int userHandle = (Integer) getUserHandle.invoke(context.getSystemService(Context.USER_SERVICE));
+            return userHandle == 0;
+        } catch (Exception ex) {
+            return false;
+        }
     }
 }
