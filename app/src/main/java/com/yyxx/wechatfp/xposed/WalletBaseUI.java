@@ -89,8 +89,6 @@ public class WalletBaseUI implements IXposedHookZygoteInit, IXposedHookLoadPacka
                     return;
                 }
                 param.setResult(PackageManager.PERMISSION_GRANTED);
-
-                L.d("Granted permission MANAGE_USERS");
             }
         });
     }
