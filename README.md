@@ -15,12 +15,13 @@
 | [6.5.16-1101](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.4.0/WeChat-6.5.16-1101.apk) |      |    |
 | [6.5.16-1120](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.3.0/WeChat-6.5.16-1120.apk) |      |    |
 
-以下软件经测试过测试, 可以正常调用支付宝、微信:\
+以下软件经过测试, 可以正常调用支付宝、微信:\
 猫眼\
 美团外卖\
 京东\
 去哪儿\
-饿了么
+饿了么\
+网易严选
 
 注意: 由于支付宝、淘宝的代码编写方式的改变, 可以适配很多版本, 如有新版本没适配 请提ISSUES
 
@@ -43,6 +44,11 @@
 4. 下载并安装淘宝: [Taobao-6.11.0-161.apk](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.1.0/Taobao-6.11.0-161.apk)
 5. 启用插件, 输入密码
 6. 重启手机,Enjoy.
+
+详细教程:
+1. [支付宝](https://github.com/eritpchy/Xposed-Fingerprint-pay/tree/master/doc/Alipay)
+1. [淘宝](https://github.com/eritpchy/Xposed-Fingerprint-pay/tree/master/doc/Taobao)
+1. [微信](https://github.com/eritpchy/Xposed-Fingerprint-pay/tree/master/doc/WeChat)
 
 百度云下载地址:
 链接: https://pan.baidu.com/s/1eSq0QNw 密码: fbrg
