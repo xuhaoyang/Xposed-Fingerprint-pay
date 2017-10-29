@@ -2,20 +2,25 @@ package com.yyxx.wechatfp.xposed.plugin;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.support.annotation.Keep;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,19 +32,18 @@ import com.yyxx.wechatfp.Constant;
 import com.yyxx.wechatfp.Lang;
 import com.yyxx.wechatfp.network.updateCheck.UpdateFactory;
 import com.yyxx.wechatfp.util.Config;
+import com.yyxx.wechatfp.util.DpUtil;
 import com.yyxx.wechatfp.util.ImageUtil;
+import com.yyxx.wechatfp.util.StyleUtil;
 import com.yyxx.wechatfp.util.Task;
 import com.yyxx.wechatfp.util.Umeng;
 import com.yyxx.wechatfp.util.ViewUtil;
 import com.yyxx.wechatfp.util.log.L;
 import com.yyxx.wechatfp.view.SettingsView;
-import com.yyxx.wechatfp.xposed.ObfuscationHelper;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
@@ -52,11 +56,6 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class XposedWeChatPlugin {
 
-    private EditText mInputEditText;
-    private RelativeLayout mPasswordLayout;
-    private ImageView mFingerprintImageView;
-    private RelativeLayout mFingerPrintLayout;
-    private TextView mPayTitleTextView, mPasswordTextView;
     private FingerprintIdentify mFingerprintIdentify;
     private Activity mCurrentActivity;
     private boolean mMockCurrentUser = false;
@@ -66,15 +65,6 @@ public class XposedWeChatPlugin {
         L.d("Xposed plugin init version: " + BuildConfig.VERSION_NAME);
         try {
             Umeng.init(context);
-            PackageInfo packageInfo = context.getPackageManager().getPackageInfo(Constant.PACKAGE_NAME_WECHAT, 0);
-            int versionCode = packageInfo.versionCode;
-            String versionName = packageInfo.versionName;
-            boolean isVersionSupported = ObfuscationHelper.init(versionCode, versionName, lpparam);
-            if (!isVersionSupported) {
-                Toast.makeText(context, "当前版本:" + versionName + "." + versionCode + "不支持", Toast.LENGTH_LONG).show();
-                L.d("当前版本:" + versionName + "." + versionCode + "不支持");
-                return;
-            }
             //for multi user
             if (!isCurrentUserOwner(context)) {
                 XposedHelpers.findAndHookMethod(UserHandle.class, "myUserId", new XC_MethodHook() {
@@ -90,37 +80,52 @@ public class XposedWeChatPlugin {
                 @TargetApi(21)
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     boolean firstStartUp = mCurrentActivity == null;
-                    mCurrentActivity = (Activity) param.thisObject;
-                    L.d("Activity onResume =", mCurrentActivity);
+                    Activity activity = (Activity) param.thisObject;
+                    L.d("Activity onResume =", activity);
+                    mCurrentActivity = activity;
                     if (firstStartUp) {
-                        Task.onMain(6000L, () -> UpdateFactory.doUpdateCheck(mCurrentActivity));
+                        Task.onMain(6000L, () -> UpdateFactory.doUpdateCheck(activity));
+                    }
+                    final String activityClzName = activity.getClass().getName();
+                    if (activityClzName.contains("com.tencent.mm.plugin.setting.ui.setting.SettingsUI")) {
+                        Task.onMain(100, () -> doSettingsMenuInject(activity));
                     }
                 }
             });
 
-            XposedHelpers.findAndHookConstructor(ObfuscationHelper.MM_Classes.PayView, Context.class, new XC_MethodHook() {
+            XposedHelpers.findAndHookMethod(Dialog.class, "show", new XC_MethodHook() {
                 @TargetApi(21)
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    L.d("PayView Constructor");
+                    if (!"com.tencent.mm.plugin.wallet_core.ui.l".equals(param.thisObject.getClass().getName())) {
+                        return;
+                    }
+                    L.d("PayDialog Constructor", param.thisObject);
                     if (Config.from(context).isOn()) {
-                        mPasswordLayout = (RelativeLayout) XposedHelpers.getObjectField(param.thisObject, ObfuscationHelper.MM_Fields.PaypwdView);
-                        Context context = mPasswordLayout.getContext();
+                        ViewGroup rootView = (ViewGroup) ((Dialog) param.thisObject).getWindow().getDecorView();
+                        Context context = rootView.getContext();
+                        PayDialog payDialogView = PayDialog.findFrom(rootView);
+                        L.d(payDialogView);
+                        if (payDialogView == null) {
+                            notifyCurrentVersionUnSupport(context);
+                            return;
+                        }
 
-                        mInputEditText = (EditText) XposedHelpers.getObjectField(mPasswordLayout, ObfuscationHelper.MM_Fields.PaypwdEditText);
-                        L.d("密码输入框:" + mInputEditText.getClass().getName());
-                        mPayTitleTextView = (TextView) XposedHelpers.getObjectField(param.thisObject, ObfuscationHelper.MM_Fields.PayTitle);
-                        final View mKeyboard = (View) XposedHelpers.getObjectField(param.thisObject, ObfuscationHelper.MM_Fields.PayInputView);
-                        L.d("密码键盘:" + mKeyboard.getClass().getName());
-                        mFingerPrintLayout = new RelativeLayout(context);
+                        ViewGroup passwordLayout = payDialogView.passwordLayout;
+                        EditText mInputEditText = payDialogView.inputEditText;
+                        View keyboardView = payDialogView.keyboardView;
+                        TextView usePasswordText = payDialogView.usePasswordText;
+                        TextView titleTextView = payDialogView.titleTextView;
+
+                        RelativeLayout fingerPrintLayout = new RelativeLayout(context);
                         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
                         layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
-                        mFingerPrintLayout.setLayoutParams(layoutParams);
-                        mFingerprintImageView = new ImageView(context);
+                        fingerPrintLayout.setLayoutParams(layoutParams);
+                        ImageView fingerprintImageView = new ImageView(context);
 
                         try {
                             final Bitmap bitmap = ImageUtil.base64ToBitmap(Constant.ICON_FINGER_PRINT_WECHAT_BASE64);
-                            mFingerprintImageView.setImageBitmap(bitmap);
-                            mFingerprintImageView.getViewTreeObserver().addOnWindowAttachListener(new ViewTreeObserver.OnWindowAttachListener() {
+                            fingerprintImageView.setImageBitmap(bitmap);
+                            fingerprintImageView.getViewTreeObserver().addOnWindowAttachListener(new ViewTreeObserver.OnWindowAttachListener() {
                                 @Override
                                 public void onWindowAttached() {
 
@@ -128,7 +133,7 @@ public class XposedWeChatPlugin {
 
                                 @Override
                                 public void onWindowDetached() {
-                                    mFingerprintImageView.getViewTreeObserver().removeOnWindowAttachListener(this);
+                                    fingerprintImageView.getViewTreeObserver().removeOnWindowAttachListener(this);
                                     try {
                                         bitmap.recycle();
                                     } catch (Exception e) {
@@ -138,38 +143,49 @@ public class XposedWeChatPlugin {
                         } catch (OutOfMemoryError e) {
                             L.d(e);
                         }
-                        mFingerPrintLayout.addView(mFingerprintImageView);
+                        fingerPrintLayout.addView(fingerprintImageView);
 
-                        TextView switchFpPwdTextView = (TextView) ViewUtil.findViewByText(mPasswordLayout.getRootView(),
-                                Lang.getString(Lang.WECHAT_PAYVIEW_FINGERPRINT_SWITCH_TEXT),
-                                Lang.getString(Lang.WECHAT_PAYVIEW_PASSWORD_SWITCH_TEXT));
 
                         final Runnable switchToFingerprintRunnable = ()-> {
                             mInputEditText.setVisibility(View.GONE);
-                            mKeyboard.setVisibility(View.GONE);
-                            mPasswordLayout.addView(mFingerPrintLayout);
-                            initFingerPrintLock(context);
-                            mPayTitleTextView.setText(Lang.getString(Lang.WECHAT_PAYVIEW_FINGERPRINT_TITLE));
-                            if (switchFpPwdTextView != null) {
-                                switchFpPwdTextView.setText(Lang.getString(Lang.WECHAT_PAYVIEW_PASSWORD_SWITCH_TEXT));
+                            keyboardView.setVisibility(View.GONE);
+                            passwordLayout.addView(fingerPrintLayout);
+
+                            initFingerPrintLock(context, ()-> {
+                                //SUCCESS UNLOCK
+                                Config config = Config.from(context);
+                                String pwd = config.getPassword();
+                                if (TextUtils.isEmpty(pwd)) {
+                                    Toast.makeText(context, Lang.getString(Lang.TOAST_PASSWORD_NOT_SET_WECHAT), Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                                mInputEditText.setText(pwd);
+                            });
+                            if (titleTextView != null) {
+                                titleTextView.setText(Lang.getString(Lang.WECHAT_PAYVIEW_FINGERPRINT_TITLE));
+                            }
+                            if (usePasswordText != null) {
+                                usePasswordText.setText(Lang.getString(Lang.WECHAT_PAYVIEW_PASSWORD_SWITCH_TEXT));
                             }
                         };
 
                         final Runnable switchToPasswordRunnable = ()-> {
-                            mPasswordLayout.removeView(mFingerPrintLayout);
+                            passwordLayout.removeView(fingerPrintLayout);
                             mInputEditText.setVisibility(View.VISIBLE);
-                            mKeyboard.setVisibility(View.VISIBLE);
+                            keyboardView.setVisibility(View.VISIBLE);
                             mFingerprintIdentify.cancelIdentify();
                             mMockCurrentUser = false;
-                            mPayTitleTextView.setText(Lang.getString(Lang.WECHAT_PAYVIEW_PASSWORD_TITLE));
-                            if (switchFpPwdTextView != null) {
-                                switchFpPwdTextView.setText(Lang.getString(Lang.WECHAT_PAYVIEW_FINGERPRINT_SWITCH_TEXT));
+                            if (titleTextView != null) {
+                                titleTextView.setText(Lang.getString(Lang.WECHAT_PAYVIEW_PASSWORD_TITLE));
+                            }
+                            if (usePasswordText != null) {
+                                usePasswordText.setText(Lang.getString(Lang.WECHAT_PAYVIEW_FINGERPRINT_SWITCH_TEXT));
                             }
                         };
 
-                        if (switchFpPwdTextView != null) {
-                            Task.onMain(()-> switchFpPwdTextView.setVisibility(View.VISIBLE));
-                            switchFpPwdTextView.setOnTouchListener((view, motionEvent) -> {
+                        if (usePasswordText != null) {
+                            Task.onMain(()-> usePasswordText.setVisibility(View.VISIBLE));
+                            usePasswordText.setOnTouchListener((view, motionEvent) -> {
                                 try {
                                     if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                                         if (mInputEditText.getVisibility() == View.GONE) {
@@ -185,97 +201,23 @@ public class XposedWeChatPlugin {
                             });
                         }
 
-                        mFingerprintImageView.setOnClickListener(view -> switchToPasswordRunnable.run());
-                        mPasswordTextView = (TextView) XposedHelpers.getObjectField(param.thisObject, ObfuscationHelper.MM_Fields.Passwd_Text);
-                        mPasswordTextView.setVisibility(View.VISIBLE);
-                        mPasswordTextView.setOnClickListener(view -> switchToPasswordRunnable.run());
+                        fingerprintImageView.setOnClickListener(view -> switchToPasswordRunnable.run());
                         switchToFingerprintRunnable.run();
-                    } else {
-
                     }
                 }
             });
 
-            XposedHelpers.findAndHookMethod(ObfuscationHelper.MM_Classes.PayView, "dismiss", new XC_MethodHook() {
+            XposedHelpers.findAndHookMethod(Dialog.class, "dismiss", new XC_MethodHook() {
                 @TargetApi(21)
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    L.d("PayView dismiss");
+                    if (!"com.tencent.mm.plugin.wallet_core.ui.l".equals(param.thisObject.getClass().getName())) {
+                        return;
+                    }
+                    L.d("PayDialog dismiss");
                     if (Config.from(context).isOn()) {
                         mFingerprintIdentify.cancelIdentify();
                         mMockCurrentUser = false;
                     }
-                }
-            });
-
-            final Class<?> className = ObfuscationHelper.MM_Classes.PreferenceAdapter;
-            XposedHelpers.findAndHookMethod(className, "getView", int.class, View.class, ViewGroup.class, new XC_MethodHook() {
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    View view = (View) param.getResult();
-                    if (view == null) {
-                        return;
-                    }
-                    int position = (int) param.args[0];
-                    BaseAdapter baseAdapter = (BaseAdapter) param.thisObject;
-                    Object item = baseAdapter.getItem(position);
-                    if(String.valueOf(item).contains(Lang.getString(Lang.APP_SETTINGS_NAME))) {
-                        view.setOnClickListener(view1 -> view1.post(() -> {
-                            try {
-                                Activity activity = mCurrentActivity;
-                                if (activity == null || activity.isDestroyed()) {
-                                    return;
-                                }
-                                SettingsView settingsView = new SettingsView(activity);
-                                settingsView.showInDialog();
-                            } catch (Exception | Error e) {
-                                L.e(e);
-                            }
-                        }));
-                        L.d(item);
-                    }
-                }
-            });
-
-            XposedHelpers.findAndHookMethod(className, "notifyDataSetChanged", new XC_MethodHook() {
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-
-                    Field vpQField = className.getDeclaredField(ObfuscationHelper.MM_Fields.PreferenceAdapter_vpQ);
-                    vpQField.setAccessible(true);
-                    HashMap<String, Object> vpQ = (HashMap<String, Object>) vpQField.get(param.thisObject);
-
-                    if (!vpQ.toString().contains(Lang.getString(Lang.WECHAT_GENERAL))) {
-                        return;
-                    }
-                    Field vpPField = className.getDeclaredField(ObfuscationHelper.MM_Fields.PreferenceAdapter_vpP);
-                    vpPField.setAccessible(true);
-                    LinkedList<String> vpP = (LinkedList<String>) vpPField.get(param.thisObject);
-
-                    String key = BuildConfig.APPLICATION_ID;
-                    if (vpP.contains(key)) {
-                        return;
-                    }
-
-                    Class<?> preferenceClz = XposedHelpers.findClass("com.tencent.mm.ui.base.preference.Preference", lpparam.classLoader);
-                    Constructor<?> preferenceCon = preferenceClz.getConstructor(Context.class);
-                    preferenceCon.setAccessible(true);
-                    Object preference = preferenceCon.newInstance(context);
-
-                    Method setTitleMethod = preferenceClz.getDeclaredMethod("setTitle", CharSequence.class);
-                    setTitleMethod.setAccessible(true);
-                    setTitleMethod.invoke(preference, Lang.getString(Lang.APP_SETTINGS_NAME));
-
-                    Method setSummaryMethod = preferenceClz.getDeclaredMethod("setSummary", CharSequence.class);
-                    setSummaryMethod.setAccessible(true);
-                    setSummaryMethod.invoke(preference, BuildConfig.VERSION_NAME);
-
-                    vpP.add(0, key);
-                    vpQ.put(key, preference);
-                }
-
-                @TargetApi(21)
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-
                 }
             });
         } catch (Throwable l) {
@@ -283,7 +225,60 @@ public class XposedWeChatPlugin {
         }
     }
 
-    public synchronized void initFingerPrintLock(Context context) {
+    private void doSettingsMenuInject(final Activity activity) {
+        ListView itemView = (ListView)ViewUtil.findViewByName(activity, "android", "list");
+        if (ViewUtil.findViewByText(itemView, Lang.getString(Lang.APP_SETTINGS_NAME)) != null) {
+            return;
+        }
+
+        LinearLayout settingsItemRootLLayout = new LinearLayout(activity);
+        settingsItemRootLLayout.setOrientation(LinearLayout.VERTICAL);
+        settingsItemRootLLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        settingsItemRootLLayout.setPadding(0, DpUtil.dip2px(activity, 20), 0, 0);
+
+        LinearLayout settingsItemLinearLayout = new LinearLayout(activity);
+        settingsItemLinearLayout.setOrientation(LinearLayout.VERTICAL);
+
+        settingsItemLinearLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+
+        LinearLayout itemHlinearLayout = new LinearLayout(activity);
+        itemHlinearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        itemHlinearLayout.setWeightSum(1);
+        itemHlinearLayout.setBackground(ViewUtil.genBackgroundDefaultDrawable(Color.WHITE));
+        itemHlinearLayout.setGravity(Gravity.CENTER_VERTICAL);
+        itemHlinearLayout.setClickable(true);
+        itemHlinearLayout.setOnClickListener(view -> new SettingsView(activity).showInDialog());
+
+        int defHPadding = DpUtil.dip2px(activity, 15);
+
+        TextView itemNameText = new TextView(activity);
+        itemNameText.setTextColor(0xFF353535);
+        itemNameText.setText(Lang.getString(Lang.APP_SETTINGS_NAME));
+        itemNameText.setGravity(Gravity.CENTER_VERTICAL);
+        itemNameText.setPadding(DpUtil.dip2px(activity, 14), 0, 0, 0);
+        itemNameText.setTextSize(StyleUtil.TEXT_SIZE_BIG);
+
+        TextView itemSummerText = new TextView(activity);
+        StyleUtil.apply(itemSummerText);
+        itemSummerText.setText(BuildConfig.VERSION_NAME);
+        itemSummerText.setGravity(Gravity.CENTER_VERTICAL);
+        itemSummerText.setPadding(0, 0, defHPadding, 0);
+        itemSummerText.setTextColor(0xFF999999);
+
+
+        itemHlinearLayout.addView(itemNameText, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
+        itemHlinearLayout.addView(itemSummerText, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        settingsItemLinearLayout.addView(itemHlinearLayout, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, DpUtil.dip2px(activity, 50)));
+
+        settingsItemRootLLayout.addView(settingsItemLinearLayout);
+
+        itemView.addHeaderView(settingsItemRootLLayout);
+
+    }
+
+    public synchronized void initFingerPrintLock(Context context, Runnable onSuccessUnlockRunnable) {
         mMockCurrentUser = true;
         mFingerprintIdentify = new FingerprintIdentify(context, exception -> L.e("fingerprint", exception));
         if (mFingerprintIdentify.isFingerprintEnable()) {
@@ -293,7 +288,7 @@ public class XposedWeChatPlugin {
                     // 验证成功，自动结束指纹识别
                     Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_MATCH), Toast.LENGTH_SHORT).show();
                     L.d("指纹识别成功");
-                    onSuccessUnlock(context);
+                    onSuccessUnlockRunnable.run();
                     mMockCurrentUser = false;
                 }
 
@@ -329,16 +324,6 @@ public class XposedWeChatPlugin {
         }
     }
 
-    private void onSuccessUnlock(Context context) {
-        Config config = Config.from(context);
-        String pwd = config.getPassword();
-        if (TextUtils.isEmpty(pwd)) {
-            Toast.makeText(context, Lang.getString(Lang.TOAST_PASSWORD_NOT_SET_WECHAT), Toast.LENGTH_SHORT).show();
-            return;
-        }
-        mInputEditText.setText(pwd);
-    }
-
 
     public boolean isCurrentUserOwner(Context context) {
         try {
@@ -348,5 +333,130 @@ public class XposedWeChatPlugin {
         } catch (Exception ex) {
             return false;
         }
+    }
+
+    private static class PayDialog {
+
+        private ViewGroup passwordLayout;
+        private EditText inputEditText;
+        private View keyboardView;
+        @Nullable
+        private TextView usePasswordText;
+        @Nullable
+        private TextView titleTextView;
+
+
+
+        @Nullable
+        public static PayDialog findFrom(ViewGroup rootView) {
+            try {
+                PayDialog payDialog = new PayDialog();
+
+                List<View> childViews = new ArrayList<>();
+                ViewUtil.getChildViews(rootView, childViews);
+                for (View view : childViews) {
+                    if (view == null) {
+                        continue;
+                    }
+                    if (view.getClass().getName().endsWith(".EditHintPasswdView")) {
+                        L.d("mPasswordLayout:" + view);
+                        if (view instanceof ViewGroup) {
+                            payDialog.passwordLayout = (ViewGroup)view;
+                        }
+                    } else if (view.getClass().getName().endsWith(".TenpaySecureEditText")) {
+                        L.d("密码输入框:" + view);
+                        if (view instanceof EditText) {
+                            payDialog.inputEditText = (EditText)view;
+                        }
+                    } else if (view.getClass().getName().endsWith(".MyKeyboardWindow")) {
+                        L.d("密码键盘:" + view);
+                        if (view.getParent() != null) {
+                            payDialog.keyboardView = (View)view.getParent();
+                        }
+                    }
+                }
+
+                if (payDialog.passwordLayout == null) {
+                    doUnSupportVersionUpload(rootView.getContext(), "[passwordLayout NOT FOUND]  " + viewsDesc(childViews));
+                    return null;
+                }
+
+                if (payDialog.inputEditText == null) {
+                    doUnSupportVersionUpload(rootView.getContext(), "[inputEditText NOT FOUND]  " + viewsDesc(childViews));
+                    return null;
+                }
+
+                if (payDialog.keyboardView == null) {
+                    doUnSupportVersionUpload(rootView.getContext(), "[keyboardView NOT FOUND]  " + viewsDesc(childViews));
+                    return null;
+                }
+
+                payDialog.usePasswordText = (TextView)ViewUtil.findViewByText(rootView,
+                        Lang.getString(Lang.WECHAT_PAYVIEW_FINGERPRINT_SWITCH_TEXT),
+                        Lang.getString(Lang.WECHAT_PAYVIEW_PASSWORD_SWITCH_TEXT));
+                if (payDialog.usePasswordText == null) {
+                    doUnSupportVersionUpload(rootView.getContext(), "[usePasswordText NOT FOUND]  " + viewsDesc(childViews));
+                }
+
+                payDialog.titleTextView = (TextView)ViewUtil.findViewByText(rootView,
+                        Lang.getString(Lang.WECHAT_PAYVIEW_FINGERPRINT_TITLE),
+                        Lang.getString(Lang.WECHAT_PAYVIEW_PASSWORD_TITLE));
+
+                return payDialog;
+            } catch (Exception e) {
+                L.e(e);
+            }
+            return null;
+        }
+
+        @Override
+        public String toString() {
+            return "PayDialog{" +
+                    "passwordLayout=" + passwordLayout +
+                    ", inputEditText=" + inputEditText +
+                    ", keyboardView=" + keyboardView +
+                    ", usePasswordText=" + usePasswordText +
+                    ", titleTextView=" + titleTextView +
+                    '}';
+        }
+    }
+
+    private static String viewsDesc(List<View> childView) {
+        StringBuffer stringBuffer = new StringBuffer();
+        for (View view: childView) {
+            stringBuffer.append(ViewUtil.getViewInfo(view)).append("\n");
+        }
+        return stringBuffer.toString();
+    }
+
+    private static void doUnSupportVersionUpload(Context context, String message) {
+        try {
+            PackageInfo packageInfo = context.getPackageManager().getPackageInfo(Constant.PACKAGE_NAME_WECHAT, 0);
+            int versionCode = packageInfo.versionCode;
+            String versionName = packageInfo.versionName;
+
+            StringBuffer stringBuffer = new StringBuffer();
+            stringBuffer.append("WeChat un support: versionName:").append(versionName)
+                    .append(" versionCode:").append(versionCode)
+                    .append(" viewInfos:").append(message);
+
+            L.e(stringBuffer);
+        } catch (Exception e) {
+            L.e(e);
+        }
+    }
+
+    private static void notifyCurrentVersionUnSupport(final Context context) {
+        Task.onMain(()->{
+            try {
+                PackageInfo packageInfo = context.getPackageManager().getPackageInfo(Constant.PACKAGE_NAME_WECHAT, 0);
+                int versionCode = packageInfo.versionCode;
+                String versionName = packageInfo.versionName;
+                Toast.makeText(context, "当前版本:" + versionName + "." + versionCode + "不支持", Toast.LENGTH_LONG).show();
+                L.d("当前版本:" + versionName + "." + versionCode + "不支持");
+            } catch (Exception e) {
+                L.e(e);
+            }
+        });
     }
 }

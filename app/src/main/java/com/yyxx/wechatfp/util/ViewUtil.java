@@ -155,7 +155,7 @@ public class ViewUtil {
         return null;
     }
 
-    private static String getViewInfo(View view) {
+    public static String getViewInfo(View view) {
         StringBuffer stringBuffer = new StringBuffer();
         stringBuffer.append(String.valueOf(view));
         if (view instanceof TextView) {
@@ -202,7 +202,7 @@ public class ViewUtil {
         }
     }
 
-    public static void getChildViews(ViewGroup parent, int id,List<View> outList) {
+    public static void getChildViews(ViewGroup parent, int id, List<View> outList) {
         for (int i = parent.getChildCount() - 1; i >= 0; i--) {
             final View child = parent.getChildAt(i);
             if (child == null) {
@@ -213,6 +213,20 @@ public class ViewUtil {
             }
             if (child instanceof ViewGroup) {
                 getChildViews((ViewGroup) child, id, outList);
+            } else {
+            }
+        }
+    }
+
+    public static void getChildViews(ViewGroup parent, List<View> outList) {
+        for (int i = parent.getChildCount() - 1; i >= 0; i--) {
+            final View child = parent.getChildAt(i);
+            if (child == null) {
+                continue;
+            }
+                outList.add(child);
+            if (child instanceof ViewGroup) {
+                getChildViews((ViewGroup) child, outList);
             } else {
             }
         }
