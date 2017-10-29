@@ -428,7 +428,9 @@ public class XposedWeChatPlugin {
                 payDialog.titleTextView = (TextView)ViewUtil.findViewByText(rootView,
                         Lang.getString(Lang.WECHAT_PAYVIEW_FINGERPRINT_TITLE),
                         Lang.getString(Lang.WECHAT_PAYVIEW_PASSWORD_TITLE));
-
+                if (payDialog.titleTextView == null) {
+                    doUnSupportVersionUpload(rootView.getContext(), "[titleTextView NOT FOUND]  " + viewsDesc(childViews));
+                }
                 return payDialog;
             } catch (Exception e) {
                 L.e(e);
