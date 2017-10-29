@@ -14,6 +14,7 @@
 | [6.5.13-1100](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/1.4.1/WeChat-6.5.13-1100.apk) |      |    |
 | [6.5.16-1101](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.4.0/WeChat-6.5.16-1101.apk) |      |    |
 | [6.5.16-1120](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.3.0/WeChat-6.5.16-1120.apk) |      |    |
+|  或最新版 |      |    |
 
 以下软件经过测试, 可以正常调用支付宝、微信:\
 猫眼\
@@ -23,7 +24,7 @@
 饿了么\
 网易严选
 
-注意: 由于支付宝、淘宝的代码编写方式的改变, 可以适配很多版本, 如有新版本没适配 请提ISSUES
+注意: 由于支付宝、淘宝和微信的代码编写方式的改变, 可以适配很多版本, 如有新版本没适配 请提ISSUES
 
 
 感谢原作者 dss16694/WechatFp , 这么给力的项目
