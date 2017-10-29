@@ -7,11 +7,13 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.support.annotation.Keep;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -266,6 +268,31 @@ public class XposedWeChatPlugin {
         itemSummerText.setPadding(0, 0, defHPadding, 0);
         itemSummerText.setTextColor(0xFF999999);
 
+        //try use WeChat style
+        try {
+            View generalView = ViewUtil.findViewByText(itemView, "通用", "一般", "General");
+            L.d("generalView", generalView);
+            if (generalView instanceof TextView) {
+                TextView generalTextView = (TextView) generalView;
+                float scale = itemNameText.getTextSize() / generalTextView.getTextSize();
+                itemNameText.setTextSize(TypedValue.COMPLEX_UNIT_PX, generalTextView.getTextSize());
+
+                itemSummerText.setTextSize(TypedValue.COMPLEX_UNIT_PX, itemSummerText.getTextSize() / scale);
+                View generalItemView = (View) generalView.getParent().getParent().getParent().getParent().getParent().getParent();
+                if (generalItemView != null) {
+                    Drawable background = generalItemView.getBackground();
+                    if (background != null) {
+                        Drawable.ConstantState constantState = background.getConstantState();
+                        if (constantState != null) {
+                            itemHlinearLayout.setBackground(constantState.newDrawable());
+                        }
+                    }
+                }
+                itemNameText.setTextColor(generalTextView.getCurrentTextColor());
+            }
+        } catch (Exception e) {
+            L.e(e);
+        }
 
         itemHlinearLayout.addView(itemNameText, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
         itemHlinearLayout.addView(itemSummerText, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));

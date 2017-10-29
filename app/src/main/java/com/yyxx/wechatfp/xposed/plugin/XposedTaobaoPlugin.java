@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Keep;
 import android.text.TextUtils;
+import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.View;
@@ -69,6 +70,19 @@ public class XposedTaobaoPlugin {
             String versionName = packageInfo.versionName;
             L.d("app info: versionCode:" + versionCode + " versionName:" + versionName);
 
+            XposedHelpers.findAndHookMethod(Activity.class, "onResume", new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    final Activity activity = (Activity) param.thisObject;
+                    final String activityClzName = activity.getClass().getName();
+                    if (BuildConfig.DEBUG) {
+                        L.d("activity", activity, "clz", activityClzName);
+                    }
+                    if (activityClzName.contains(".TaobaoSettingActivity")) {
+                        Task.onMain(100, () -> doSettingsMenuInject(activity));
+                    }
+                }
+            });
             XposedHelpers.findAndHookMethod(Activity.class, "onCreate", Bundle.class, new XC_MethodHook() {
 
                 @TargetApi(21)
@@ -79,9 +93,7 @@ public class XposedTaobaoPlugin {
                         L.d("activity", activity, "clz", activityClzName);
                     }
                     mCurrentActivity = activity;
-                    if (activityClzName.contains(".TaobaoSettingActivity")) {
-                        Task.onMain(10, () -> doSettingsMenuInject(activity));
-                    } else if (activityClzName.contains(".FlyBirdWindowActivity")) {
+                   if (activityClzName.contains(".FlyBirdWindowActivity")) {
                         L.d("found");
                         final Config config = Config.from(activity);
                         if (!config.isOn()) {
@@ -290,6 +302,9 @@ public class XposedTaobaoPlugin {
     }
 
     private void doSettingsMenuInject(final Activity activity) {
+        if (ViewUtil.findViewByText(activity.getWindow().getDecorView(), Lang.getString(Lang.APP_SETTINGS_NAME)) != null) {
+            return;
+        }
         View itemView = ViewUtil.findViewByName(activity, activity.getPackageName(), "v_setting_page_item");
 
         LinearLayout linearLayout = (LinearLayout) itemView.getParent();
@@ -305,8 +320,13 @@ public class XposedTaobaoPlugin {
 
         linearLayout.removeAllViews();
 
+        LinearLayout lineTopCon = new LinearLayout(activity);
+        lineTopCon.setPadding(DpUtil.dip2px(activity, 12), 0, 0, 0);
+        lineTopCon.setBackgroundColor(Color.WHITE);
+
         View lineTopView = new View(activity);
         lineTopView.setBackgroundColor(0xFFDFDFDF);
+        lineTopCon.addView(lineTopView, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1));
 
         LinearLayout itemHlinearLayout = new LinearLayout(activity);
         itemHlinearLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -316,10 +336,11 @@ public class XposedTaobaoPlugin {
         itemHlinearLayout.setClickable(true);
         itemHlinearLayout.setOnClickListener(view -> new SettingsView(activity).showInDialog());
 
-        int defHPadding = DpUtil.dip2px(activity, 15);
 
         TextView itemNameText = new TextView(activity);
-        StyleUtil.apply(itemNameText);
+
+        int defHPadding = DpUtil.dip2px(activity, 13);
+        itemNameText.setTextColor(0xFF051B28);
         itemNameText.setText(Lang.getString(Lang.APP_SETTINGS_NAME));
         itemNameText.setGravity(Gravity.CENTER_VERTICAL);
         itemNameText.setPadding(defHPadding, 0, 0, 0);
@@ -330,7 +351,22 @@ public class XposedTaobaoPlugin {
         itemSummerText.setText(BuildConfig.VERSION_NAME);
         itemSummerText.setGravity(Gravity.CENTER_VERTICAL);
         itemSummerText.setPadding(0, 0, defHPadding, 0);
-        itemSummerText.setTextColor(0xFF888888);
+        itemSummerText.setTextColor(0xFF999999);
+
+        //try use Taobao style
+        try {
+            View generalView = ViewUtil.findViewByText(activity.getWindow().getDecorView(), "通用", "General");
+            L.d("generalView", generalView);
+            if (generalView instanceof TextView) {
+                TextView generalTextView = (TextView) generalView;
+                float scale = itemNameText.getTextSize() / generalTextView.getTextSize();
+                itemNameText.setTextSize(TypedValue.COMPLEX_UNIT_PX, generalTextView.getTextSize());
+                itemSummerText.setTextSize(TypedValue.COMPLEX_UNIT_PX, itemSummerText.getTextSize() / scale);
+                itemNameText.setTextColor(generalTextView.getCurrentTextColor());
+            }
+        } catch (Exception e) {
+            L.e(e);
+        }
 
         itemHlinearLayout.addView(itemNameText, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
         itemHlinearLayout.addView(itemSummerText, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -338,10 +374,10 @@ public class XposedTaobaoPlugin {
         View lineBottomView = new View(activity);
         lineBottomView.setBackgroundColor(0xFFDFDFDF);
 
-        linearLayout.addView(lineTopView, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1));
-        linearLayout.addView(itemHlinearLayout, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, DpUtil.dip2px(activity, 50)));
+        linearLayout.addView(lineTopCon, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        linearLayout.addView(itemHlinearLayout, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, DpUtil.dip2px(activity, 44)));
         LinearLayout.LayoutParams lineParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1);
-        lineParams.bottomMargin = DpUtil.dip2px(activity, 20);
+        lineParams.bottomMargin = DpUtil.dip2px(activity, 10);
         linearLayout.addView(lineBottomView, lineParams);
 
         for (int i = 0; i < childViewCount; i++) {

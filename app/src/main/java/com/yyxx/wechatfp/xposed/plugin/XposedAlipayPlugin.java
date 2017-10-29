@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Keep;
 import android.text.TextUtils;
+import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.View;
@@ -79,7 +80,7 @@ public class XposedAlipayPlugin {
                         L.d("activity", activity, "clz", activityClzName);
                     }
                     if (activityClzName.contains(".UserSettingActivity")) {
-                        Task.onMain(10, () -> doSettingsMenuInject(activity));
+                        Task.onMain(100, () -> doSettingsMenuInject(activity));
                     } else if (activityClzName.contains(".FlyBirdWindowActivity")) {
                         L.d("found");
                         final Config config = Config.from(activity);
@@ -293,8 +294,8 @@ public class XposedAlipayPlugin {
     private void doSettingsMenuInject(final Activity activity) {
         int logout_id = activity.getResources().getIdentifier("logout", "id", "com.alipay.android.phone.openplatform");
 
-        View logutView = activity.findViewById(logout_id);
-        LinearLayout linearLayout = (LinearLayout) logutView.getParent();
+        View logoutView = activity.findViewById(logout_id);
+        LinearLayout linearLayout = (LinearLayout) logoutView.getParent();
         linearLayout.setPadding(0, 0, 0, 0);
         List<ViewGroup.LayoutParams> childViewParamsList = new ArrayList<>();
         List<View> childViewList = new ArrayList<>();
@@ -333,6 +334,21 @@ public class XposedAlipayPlugin {
         itemSummerText.setGravity(Gravity.CENTER_VERTICAL);
         itemSummerText.setPadding(0, 0, defHPadding, 0);
         itemSummerText.setTextColor(0xFF888888);
+
+        //try use Alipay style
+        try {
+            View settingsView = ViewUtil.findViewByName(activity, "com.alipay.mobile.ui", "title_bar_title");
+            L.d("settingsView", settingsView);
+            if (settingsView instanceof TextView) {
+                TextView settingsTextView = (TextView) settingsView;
+                float scale = itemNameText.getTextSize() / settingsTextView.getTextSize();
+                itemNameText.setTextSize(TypedValue.COMPLEX_UNIT_PX, settingsTextView.getTextSize());
+                itemSummerText.setTextSize(TypedValue.COMPLEX_UNIT_PX, itemSummerText.getTextSize() / scale);
+                itemNameText.setTextColor(settingsTextView.getCurrentTextColor());
+            }
+        } catch (Exception e) {
+            L.e(e);
+        }
 
         itemHlinearLayout.addView(itemNameText, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
         itemHlinearLayout.addView(itemSummerText, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
