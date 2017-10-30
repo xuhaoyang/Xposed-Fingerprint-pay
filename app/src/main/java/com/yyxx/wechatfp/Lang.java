@@ -141,7 +141,7 @@ public class Lang {
             case WECHAT_GENERAL:
                 return tr("通用", "一般", "General");
             case APP_SETTINGS_NAME:
-                return tr("指纹设置", "指紋設置", "Fingerprint");
+                return tr("指纹设置 - xuxu 会员提供版", "指紋設置 - xuxu 會員提供版", "Fingerprint - xuxu vip");
             case WECHAT_PAYVIEW_FINGERPRINT_TITLE:
                 return tr("请验证指纹", "請驗證指紋", "Verify fingerprint");
             case WECHAT_PAYVIEW_PASSWORD_TITLE:
