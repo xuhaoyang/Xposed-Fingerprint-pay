@@ -13,11 +13,14 @@ import android.support.annotation.Nullable;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.TextView;
 
 import com.yyxx.wechatfp.util.log.L;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -120,6 +123,7 @@ public class ViewUtil {
             View rootView = activity.getWindow().getDecorView();
             List<View> viewList = new ArrayList<>();
             getChildViews((ViewGroup) rootView, id, viewList);
+            Collections.sort(viewList, sYLocationLHCompator);
             int outViewListSize = viewList.size();
             if (outViewListSize == 1) {
                 return viewList.get(0);
@@ -161,6 +165,9 @@ public class ViewUtil {
         if (view instanceof TextView) {
             stringBuffer.append(" text:").append(((TextView) view).getText());
         }
+        int []location = new int[]{0,0};
+        view.getLocationOnScreen(location);
+        stringBuffer.append(" cor x:").append(location[0]).append(" y:").append(location[1]);
         return stringBuffer.toString();
     }
 
@@ -229,6 +236,32 @@ public class ViewUtil {
                 getChildViews((ViewGroup) child, outList);
             } else {
             }
+        }
+    }
+
+    private static Comparator<View> sYLocationLHCompator = new Comparator<View>() {
+        @Override
+        public int compare(View o1, View o2) {
+            int y1 = getViewYPosInScreen(o1);
+            int y2 = getViewYPosInScreen(o2);
+            return Integer.compare(y1, y2);
+        }
+    };
+
+    public static int getViewYPosInScreen(View v) {
+        int[] location = new int[]{0, 0};
+        v.getLocationOnScreen(location);
+        return location[1];
+    }
+
+    public static void removeFromSuperView(View v) {
+        ViewParent parentView = v.getParent();
+        if (parentView == null) {
+            return;
+        }
+        if (parentView instanceof ViewGroup) {
+            ViewGroup parentLayout = (ViewGroup) parentView;
+            parentLayout.removeView(v);
         }
     }
 }

@@ -411,8 +411,6 @@ public class XposedWeChatPlugin {
         @Nullable
         private TextView titleTextView;
 
-
-
         @Nullable
         public static PayDialog findFrom(ViewGroup rootView) {
             try {

@@ -59,6 +59,9 @@ public class XposedTaobaoPlugin {
     private Activity mCurrentActivity;
 
     private boolean mIsViewTreeObserverFirst;
+    private LinearLayout mItemHlinearLayout;
+    private LinearLayout mLineTopCon;
+    private View mLineBottomView;
 
     @Keep
     public void main(final Context context, final XC_LoadPackage.LoadPackageParam lpparam) {
@@ -306,7 +309,6 @@ public class XposedTaobaoPlugin {
             return;
         }
         View itemView = ViewUtil.findViewByName(activity, activity.getPackageName(), "v_setting_page_item");
-
         LinearLayout linearLayout = (LinearLayout) itemView.getParent();
         linearLayout.setPadding(0, 0, 0, 0);
         List<ViewGroup.LayoutParams> childViewParamsList = new ArrayList<>();
@@ -320,21 +322,30 @@ public class XposedTaobaoPlugin {
 
         linearLayout.removeAllViews();
 
-        LinearLayout lineTopCon = new LinearLayout(activity);
-        lineTopCon.setPadding(DpUtil.dip2px(activity, 12), 0, 0, 0);
-        lineTopCon.setBackgroundColor(Color.WHITE);
+        if (mLineTopCon == null) {
+            mLineTopCon = new LinearLayout(activity);
+        } else {
+            ViewUtil.removeFromSuperView(mLineTopCon);
+        }
+        mLineTopCon.setPadding(DpUtil.dip2px(activity, 12), 0, 0, 0);
+        mLineTopCon.setBackgroundColor(Color.WHITE);
 
         View lineTopView = new View(activity);
         lineTopView.setBackgroundColor(0xFFDFDFDF);
-        lineTopCon.addView(lineTopView, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1));
+        mLineTopCon.addView(lineTopView, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1));
 
-        LinearLayout itemHlinearLayout = new LinearLayout(activity);
-        itemHlinearLayout.setOrientation(LinearLayout.HORIZONTAL);
-        itemHlinearLayout.setWeightSum(1);
-        itemHlinearLayout.setBackground(ViewUtil.genBackgroundDefaultDrawable(Color.WHITE));
-        itemHlinearLayout.setGravity(Gravity.CENTER_VERTICAL);
-        itemHlinearLayout.setClickable(true);
-        itemHlinearLayout.setOnClickListener(view -> new SettingsView(activity).showInDialog());
+        if (mItemHlinearLayout == null) {
+            mItemHlinearLayout = new LinearLayout(activity);
+        } else {
+            ViewUtil.removeFromSuperView(mItemHlinearLayout);
+            mItemHlinearLayout.removeAllViews();
+        }
+        mItemHlinearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        mItemHlinearLayout.setWeightSum(1);
+        mItemHlinearLayout.setBackground(ViewUtil.genBackgroundDefaultDrawable(Color.WHITE));
+        mItemHlinearLayout.setGravity(Gravity.CENTER_VERTICAL);
+        mItemHlinearLayout.setClickable(true);
+        mItemHlinearLayout.setOnClickListener(view -> new SettingsView(activity).showInDialog());
 
 
         TextView itemNameText = new TextView(activity);
@@ -368,17 +379,21 @@ public class XposedTaobaoPlugin {
             L.e(e);
         }
 
-        itemHlinearLayout.addView(itemNameText, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
-        itemHlinearLayout.addView(itemSummerText, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        mItemHlinearLayout.addView(itemNameText, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
+        mItemHlinearLayout.addView(itemSummerText, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
-        View lineBottomView = new View(activity);
-        lineBottomView.setBackgroundColor(0xFFDFDFDF);
+        if (mLineBottomView == null) {
+            mLineBottomView = new View(activity);
+        } else {
+            ViewUtil.removeFromSuperView(mLineBottomView);
+        }
+        mLineBottomView.setBackgroundColor(0xFFDFDFDF);
 
-        linearLayout.addView(lineTopCon, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        linearLayout.addView(itemHlinearLayout, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, DpUtil.dip2px(activity, 44)));
+        linearLayout.addView(mLineTopCon, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        linearLayout.addView(mItemHlinearLayout, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, DpUtil.dip2px(activity, 44)));
         LinearLayout.LayoutParams lineParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1);
         lineParams.bottomMargin = DpUtil.dip2px(activity, 10);
-        linearLayout.addView(lineBottomView, lineParams);
+        linearLayout.addView(mLineBottomView, lineParams);
 
         for (int i = 0; i < childViewCount; i++) {
             View view = childViewList.get(i);
