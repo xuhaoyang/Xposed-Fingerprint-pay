@@ -22,8 +22,6 @@ import com.yyxx.wechatfp.util.log.L;
 
 public class WebActivity extends AppCompatActivity {
 
-    public static final String TAG = WebActivity.class.getName();
-
     public static void openUrl(Context context, String url) {
         try {
             Intent intent = new Intent(context, WebActivity.class);

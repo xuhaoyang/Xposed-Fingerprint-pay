@@ -39,7 +39,7 @@ public class L {
     public static void e(Object... arg) {
         final String log = arg2string(arg);
         if (log != null) {
-            sILog.error(LOG_TAG + getTraceTag(), log);
+            sILog.error("tag:" + LOG_TAG + " ver:" + BuildConfig.VERSION_NAME + " " + getTraceTag(), log);
         }
     }
 

@@ -19,6 +19,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -27,6 +28,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.samsung.android.sdk.SsdkUnsupportedException;
 import com.wei.android.lib.fingerprintidentify.FingerprintIdentify;
 import com.wei.android.lib.fingerprintidentify.base.BaseFingerprint;
 import com.yyxx.wechatfp.BuildConfig;
@@ -43,6 +45,7 @@ import com.yyxx.wechatfp.util.ViewUtil;
 import com.yyxx.wechatfp.util.log.L;
 import com.yyxx.wechatfp.view.SettingsView;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -229,13 +232,14 @@ public class XposedWeChatPlugin {
 
     private void doSettingsMenuInject(final Activity activity) {
         ListView itemView = (ListView)ViewUtil.findViewByName(activity, "android", "list");
-        if (ViewUtil.findViewByText(itemView, Lang.getString(Lang.APP_SETTINGS_NAME)) != null) {
+        if (ViewUtil.findViewByText(itemView, Lang.getString(Lang.APP_SETTINGS_NAME)) != null
+                || isHeaderViewExistsFallback(itemView)) {
             return;
         }
 
         LinearLayout settingsItemRootLLayout = new LinearLayout(activity);
         settingsItemRootLLayout.setOrientation(LinearLayout.VERTICAL);
-        settingsItemRootLLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        settingsItemRootLLayout.setLayoutParams(new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         settingsItemRootLLayout.setPadding(0, DpUtil.dip2px(activity, 20), 0, 0);
 
         LinearLayout settingsItemLinearLayout = new LinearLayout(activity);
@@ -300,14 +304,49 @@ public class XposedWeChatPlugin {
         settingsItemLinearLayout.addView(itemHlinearLayout, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, DpUtil.dip2px(activity, 50)));
 
         settingsItemRootLLayout.addView(settingsItemLinearLayout);
+        settingsItemRootLLayout.setTag(BuildConfig.APPLICATION_ID);
 
         itemView.addHeaderView(settingsItemRootLLayout);
 
     }
 
+    private boolean isHeaderViewExistsFallback(ListView listView) {
+        if (listView == null) {
+            return false;
+        }
+        if (listView.getHeaderViewsCount() <= 0) {
+            return false;
+        }
+        try {
+            Field mHeaderViewInfosField = ListView.class.getDeclaredField("mHeaderViewInfos");
+            mHeaderViewInfosField.setAccessible(true);
+            ArrayList<ListView.FixedViewInfo> mHeaderViewInfos = (ArrayList<ListView.FixedViewInfo>) mHeaderViewInfosField.get(listView);
+            if (mHeaderViewInfos != null) {
+                for (ListView.FixedViewInfo viewInfo : mHeaderViewInfos) {
+                    if (viewInfo.view == null) {
+                        continue;
+                    }
+                    Object tag = viewInfo.view.getTag();
+                    if (BuildConfig.APPLICATION_ID.equals(tag)) {
+                        L.d("found plugin settings headerView");
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            L.e(e);
+        }
+        return false;
+    }
+
     public synchronized void initFingerPrintLock(Context context, Runnable onSuccessUnlockRunnable) {
         mMockCurrentUser = true;
-        mFingerprintIdentify = new FingerprintIdentify(context, exception -> L.e("fingerprint", exception));
+        mFingerprintIdentify = new FingerprintIdentify(context, exception -> {
+            if (exception instanceof SsdkUnsupportedException) {
+                return;
+            }
+            L.e("fingerprint", exception);
+        });
         if (mFingerprintIdentify.isFingerprintEnable()) {
             mFingerprintIdentify.startIdentify(3, new BaseFingerprint.FingerprintIdentifyListener() {
                 @Override
