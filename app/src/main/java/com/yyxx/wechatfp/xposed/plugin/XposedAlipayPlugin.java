@@ -31,6 +31,7 @@ import com.yyxx.wechatfp.util.DpUtil;
 import com.yyxx.wechatfp.util.ImageUtil;
 import com.yyxx.wechatfp.util.StyleUtil;
 import com.yyxx.wechatfp.util.Task;
+import com.yyxx.wechatfp.util.Tools;
 import com.yyxx.wechatfp.util.Umeng;
 import com.yyxx.wechatfp.util.ViewUtil;
 import com.yyxx.wechatfp.util.log.L;
@@ -425,25 +426,44 @@ public class XposedAlipayPlugin {
     }
 
     private boolean tryInputGenericPassword(Activity activity, String password) {
-        ViewGroup rootView = (ViewGroup) activity.getWindow().getDecorView();
-        EditText pwdEditText = findPasswordEditText(rootView);
+
+        EditText pwdEditText = findPasswordEditText(activity);
         L.d("pwdEditText", pwdEditText);
+        if (pwdEditText == null) {
+            ViewGroup rootView = (ViewGroup) activity.getWindow().getDecorView();
+            List<View> outList = new ArrayList<>();
+            ViewUtil.getChildViews(rootView, outList);
+            Tools.doUnSupportVersionUpload(rootView.getContext(), "[Alipay pwdEditText NOT FOUND]  " + ViewUtil.viewsDesc(outList));
+        }
+        View confirmPwdBtn = findConfirmPasswordBtn(activity);
+        L.d("confirmPwdBtn", confirmPwdBtn);
+        if (confirmPwdBtn == null) {
+            ViewGroup rootView = (ViewGroup) activity.getWindow().getDecorView();
+            List<View> outList = new ArrayList<>();
+            ViewUtil.getChildViews(rootView, outList);
+            Tools.doUnSupportVersionUpload(rootView.getContext(), "[Alipay confirmPwdBtn NOT FOUND]  " + ViewUtil.viewsDesc(outList));
+            return false;
+        }
         if (pwdEditText == null) {
             return false;
         }
-        View confirmPwdBtn = findConfirmPasswordBtn(rootView);
-        L.d("confirmPwdBtn", confirmPwdBtn);
-        if (confirmPwdBtn == null) {
-            return false;
-        }
         pwdEditText.setText(password);
-        ((View)confirmPwdBtn.getParent()).performClick();
+        confirmPwdBtn.performClick();
         return true;
     }
 
-    private EditText findPasswordEditText(ViewGroup viewGroup) {
+    private EditText findPasswordEditText(Activity activity) {
+        View pwdEditText = ViewUtil.findViewByName(activity, "com.alipay.android.phone.safepaybase", "input_et_password");;
+        L.d("pwdEditText1", pwdEditText);
+        if (pwdEditText instanceof EditText) {
+            if (!pwdEditText.isShown()) {
+                return null;
+            }
+            return (EditText) pwdEditText;
+        }
+        ViewGroup rootView = (ViewGroup) activity.getWindow().getDecorView();
         List<View> outList = new ArrayList<>();
-        ViewUtil.getChildViews(viewGroup, "", outList);
+        ViewUtil.getChildViews(rootView, "", outList);
         for (View view : outList) {
             if (view instanceof EditText) {
                 if (view.getId() != -1) {
@@ -458,12 +478,23 @@ public class XposedAlipayPlugin {
         return null;
     }
 
-    private View findConfirmPasswordBtn(ViewGroup viewGroup) {
-
+    private View findConfirmPasswordBtn(Activity activity) {
+        View okView =  ViewUtil.findViewByName(activity, "com.alipay.android.phone.safepaybase", "button_ok");
+        L.d("okView", okView);
+        if (okView != null) {
+            if (!okView.isShown()) {
+                return null;
+            }
+            return okView;
+        }
+        ViewGroup rootView = (ViewGroup) activity.getWindow().getDecorView();
         List<View> outList = new ArrayList<>();
-        ViewUtil.getChildViews(viewGroup, "付款", outList);
+        ViewUtil.getChildViews(rootView, "付款", outList);
         if (outList.isEmpty()) {
-            ViewUtil.getChildViews(viewGroup, "Pay", outList);
+            ViewUtil.getChildViews(rootView, "Pay", outList);
+        }
+        if (outList.isEmpty()) {
+            ViewUtil.getChildViews(rootView, "确定", outList);
         }
         for (View view : outList) {
             if (view.getId() != -1) {
@@ -472,7 +503,7 @@ public class XposedAlipayPlugin {
             if (!view.isShown()) {
                 continue;
             }
-            return view;
+            return (View) view.getParent();
         }
         return null;
     }

@@ -31,6 +31,7 @@ import com.yyxx.wechatfp.util.DpUtil;
 import com.yyxx.wechatfp.util.ImageUtil;
 import com.yyxx.wechatfp.util.StyleUtil;
 import com.yyxx.wechatfp.util.Task;
+import com.yyxx.wechatfp.util.Tools;
 import com.yyxx.wechatfp.util.Umeng;
 import com.yyxx.wechatfp.util.ViewUtil;
 import com.yyxx.wechatfp.util.log.L;
@@ -461,11 +462,19 @@ public class XposedTaobaoPlugin {
         EditText pwdEditText = findPasswordEditText(activity);
         L.d("pwdEditText", pwdEditText);
         if (pwdEditText == null) {
-            return false;
+            List<View> outList = new ArrayList<>();
+            ViewUtil.getChildViews((ViewGroup) activity.getWindow().getDecorView(), outList);
+            Tools.doUnSupportVersionUpload(activity, "[Taobao confirmPwdBtn NOT FOUND]  " + ViewUtil.viewsDesc(outList));
         }
         View confirmPwdBtn = findConfirmPasswordBtn(activity);
         L.d("confirmPwdBtn", confirmPwdBtn);
         if (confirmPwdBtn == null) {
+            List<View> outList = new ArrayList<>();
+            ViewUtil.getChildViews((ViewGroup) activity.getWindow().getDecorView(), outList);
+            Tools.doUnSupportVersionUpload(activity, "[Taobao confirmPwdBtn NOT FOUND]  " + ViewUtil.viewsDesc(outList));
+            return false;
+        }
+        if (pwdEditText == null) {
             return false;
         }
         pwdEditText.setText(password);

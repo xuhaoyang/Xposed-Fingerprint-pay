@@ -40,6 +40,7 @@ import com.yyxx.wechatfp.util.DpUtil;
 import com.yyxx.wechatfp.util.ImageUtil;
 import com.yyxx.wechatfp.util.StyleUtil;
 import com.yyxx.wechatfp.util.Task;
+import com.yyxx.wechatfp.util.Tools;
 import com.yyxx.wechatfp.util.Umeng;
 import com.yyxx.wechatfp.util.ViewUtil;
 import com.yyxx.wechatfp.util.log.L;
@@ -441,32 +442,34 @@ public class XposedWeChatPlugin {
                 }
 
                 if (payDialog.passwordLayout == null) {
-                    doUnSupportVersionUpload(rootView.getContext(), "[passwordLayout NOT FOUND]  " + viewsDesc(childViews));
+                    Tools.doUnSupportVersionUpload(rootView.getContext(), "[WeChat passwordLayout NOT FOUND]  " + ViewUtil.viewsDesc(childViews));
                     return null;
                 }
 
                 if (payDialog.inputEditText == null) {
-                    doUnSupportVersionUpload(rootView.getContext(), "[inputEditText NOT FOUND]  " + viewsDesc(childViews));
+                    Tools.doUnSupportVersionUpload(rootView.getContext(), "[WeChat inputEditText NOT FOUND]  " + ViewUtil.viewsDesc(childViews));
                     return null;
                 }
 
                 if (payDialog.keyboardView == null) {
-                    doUnSupportVersionUpload(rootView.getContext(), "[keyboardView NOT FOUND]  " + viewsDesc(childViews));
+                    Tools.doUnSupportVersionUpload(rootView.getContext(), "[WeChat keyboardView NOT FOUND]  " + ViewUtil.viewsDesc(childViews));
                     return null;
                 }
 
                 payDialog.usePasswordText = (TextView)ViewUtil.findViewByText(rootView,
-                        Lang.getString(Lang.WECHAT_PAYVIEW_FINGERPRINT_SWITCH_TEXT),
-                        Lang.getString(Lang.WECHAT_PAYVIEW_PASSWORD_SWITCH_TEXT));
+                        "使用密码", "使用密碼", "Password",
+                        "使用指纹", "使用指紋", "Fingerprint");
+                L.d("payDialog.usePasswordText", payDialog.usePasswordText); // 6.5.16 app:id/dh0
                 if (payDialog.usePasswordText == null) {
-                    doUnSupportVersionUpload(rootView.getContext(), "[usePasswordText NOT FOUND]  " + viewsDesc(childViews));
+                    Tools.doUnSupportVersionUpload(rootView.getContext(), "[WeChat usePasswordText NOT FOUND]  " + ViewUtil.viewsDesc(childViews));
                 }
 
                 payDialog.titleTextView = (TextView)ViewUtil.findViewByText(rootView,
-                        Lang.getString(Lang.WECHAT_PAYVIEW_FINGERPRINT_TITLE),
-                        Lang.getString(Lang.WECHAT_PAYVIEW_PASSWORD_TITLE));
+                        "请验证指纹", "請驗證指紋", "Verify fingerprint",
+                        "请输入支付密码", "請輸入付款密碼", "Enter payment password");
+                L.d("payDialog.titleTextView", payDialog.titleTextView); // 6.5.16 app:id/dgz
                 if (payDialog.titleTextView == null) {
-                    doUnSupportVersionUpload(rootView.getContext(), "[titleTextView NOT FOUND]  " + viewsDesc(childViews));
+                    Tools.doUnSupportVersionUpload(rootView.getContext(), "[WeChat titleTextView NOT FOUND]  " + ViewUtil.viewsDesc(childViews));
                 }
                 return payDialog;
             } catch (Exception e) {
@@ -484,31 +487,6 @@ public class XposedWeChatPlugin {
                     ", usePasswordText=" + usePasswordText +
                     ", titleTextView=" + titleTextView +
                     '}';
-        }
-    }
-
-    private static String viewsDesc(List<View> childView) {
-        StringBuffer stringBuffer = new StringBuffer();
-        for (View view: childView) {
-            stringBuffer.append(ViewUtil.getViewInfo(view)).append("\n");
-        }
-        return stringBuffer.toString();
-    }
-
-    private static void doUnSupportVersionUpload(Context context, String message) {
-        try {
-            PackageInfo packageInfo = context.getPackageManager().getPackageInfo(Constant.PACKAGE_NAME_WECHAT, 0);
-            int versionCode = packageInfo.versionCode;
-            String versionName = packageInfo.versionName;
-
-            StringBuffer stringBuffer = new StringBuffer();
-            stringBuffer.append("WeChat un support: versionName:").append(versionName)
-                    .append(" versionCode:").append(versionCode)
-                    .append(" viewInfos:").append(message);
-
-            L.e(stringBuffer);
-        } catch (Exception e) {
-            L.e(e);
         }
     }
 

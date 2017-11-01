@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Fingerprint pay xuxu vip</string>
+    <string name="app_description">Enable fingerprint pay for WeChat, Alipay, Taobao</string>
 </resources>
