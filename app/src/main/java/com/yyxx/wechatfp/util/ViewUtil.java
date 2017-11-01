@@ -264,4 +264,12 @@ public class ViewUtil {
             parentLayout.removeView(v);
         }
     }
+
+    public static String viewsDesc(List<View> childView) {
+        StringBuffer stringBuffer = new StringBuffer();
+        for (View view: childView) {
+            stringBuffer.append(ViewUtil.getViewInfo(view)).append("\n");
+        }
+        return stringBuffer.toString();
+    }
 }
