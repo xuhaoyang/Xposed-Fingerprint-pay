@@ -33,7 +33,7 @@ public class WalletBaseUI implements IXposedHookZygoteInit, IXposedHookLoadPacka
 
     @Override
     public void handleLoadPackage(final LoadPackageParam lpparam) throws Throwable {
-        if (lpparam.packageName.equals(PACKAGE_NAME_WECHAT)) {
+        if (PACKAGE_NAME_WECHAT.equals(lpparam.packageName)) {
             L.d("loaded: [" + lpparam.packageName + "]" + " version:" + BuildConfig.VERSION_NAME);
             XposedHelpers.findAndHookMethod(Application.class, "onCreate", new XC_MethodHook() {
                 @TargetApi(21)
@@ -43,7 +43,7 @@ public class WalletBaseUI implements IXposedHookZygoteInit, IXposedHookLoadPacka
                     XposedPluginLoader.load(XposedWeChatPlugin.class, context, lpparam);
                 }
             });
-        } else if (lpparam.packageName.equals(PACKAGE_NAME_ALIPAY)) {
+        } else if (PACKAGE_NAME_ALIPAY.equals(lpparam.packageName)) {
             L.d("loaded: [" + lpparam.packageName + "]" + " version:" + BuildConfig.VERSION_NAME);
             XposedHelpers.findAndHookMethod(Application.class, "onCreate", new XC_MethodHook() {
                 private boolean mCalled = false;
@@ -57,7 +57,7 @@ public class WalletBaseUI implements IXposedHookZygoteInit, IXposedHookLoadPacka
                     }
                 }
             });
-        } else if (lpparam.packageName.equals(PACKAGE_NAME_TAOBAO)) {
+        } else if (PACKAGE_NAME_TAOBAO.equals(lpparam.packageName)) {
             L.d("loaded: [" + lpparam.packageName + "]" + " version:" + BuildConfig.VERSION_NAME);
             XposedHelpers.findAndHookMethod(Application.class, "onCreate", new XC_MethodHook() {
                 //受Atlas影响Application onCreate入口只需执行一次即可
@@ -78,18 +78,20 @@ public class WalletBaseUI implements IXposedHookZygoteInit, IXposedHookLoadPacka
             });
         }
         //for multi user
-        XposedHelpers.findAndHookMethod(ActivityManager.class, "checkComponentPermission", String.class, int.class, int.class, boolean.class, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                String permission = (String) param.args[0];
-                if (TextUtils.isEmpty(permission)) {
-                    return;
+        if ("android".equals(lpparam.processName) || PACKAGE_NAME_WECHAT.equals(lpparam.packageName)) {
+            XposedHelpers.findAndHookMethod(ActivityManager.class, "checkComponentPermission", String.class, int.class, int.class, boolean.class, new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    String permission = (String) param.args[0];
+                    if (TextUtils.isEmpty(permission)) {
+                        return;
+                    }
+                    if (!permission.contains("MANAGE_USERS")) {
+                        return;
+                    }
+                    param.setResult(PackageManager.PERMISSION_GRANTED);
                 }
-                if (!permission.contains("MANAGE_USERS")) {
-                    return;
-                }
-                param.setResult(PackageManager.PERMISSION_GRANTED);
-            }
-        });
+            });
+        }
     }
 }
