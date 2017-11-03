@@ -22,7 +22,8 @@
 京东\
 去哪儿\
 饿了么\
-网易严选
+网易严选\
+一淘
 
 注意: 由于支付宝、淘宝和微信的代码编写方式的改变, 可以适配很多版本, 如有新版本没适配 请提ISSUES
 
@@ -39,7 +40,7 @@
  
 
 使用步骤:
-1. 下载并安装插件: [WeChatFp-2.5.0-release.apk](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.5.0/WeChatFp-2.5.0-release.apk)
+1. 下载并安装插件: [WeChatFp-2.6.0-release.apk](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.6.0/WeChatFp-2.6.0-release.apk)
 2. 下载并安装微信: [WeChat-6.5.16-1120.apk](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.3.0/WeChat-6.5.16-1120.apk)
 3. 下载并安装支付宝: [Alipay-10.1.0.090418-114.apk](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.0.0/Alipay-10.1.0.090418-114.apk)
 4. 下载并安装淘宝: [Taobao-6.11.0-161.apk](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.1.0/Taobao-6.11.0-161.apk)
@@ -58,7 +59,8 @@
 1. 以上提供的安装包均为 支付宝/微信/淘宝官方提供的安装包, 没有任何添加修改, 提供安装包只为方便找到指定适配过的安装包.
 2. 本软件的网络功能仅限检查自己软件更新功能, 如不放心, 欢迎REVIEW代码.
 3. 支付宝、淘宝可沿用市场中的最新版.
-4. 不支持QQ, 别问我为什么, 反正就是不支持!
+4. 自2.6.0版本开始微信也可沿用市场最新版.
+5. 不支持QQ, 别问我为什么, 反正就是不支持!
 
 ![qq](https://github.com/eritpchy/Xposed-Fingerprint-pay/raw/master/doc/qqGroup.png)
 
