@@ -257,20 +257,39 @@ public class XposedAlipayPlugin {
                     return;
                 }
 
+                Runnable onCompleteRunnable = () -> {
+                    AlertDialog dialog = mFingerPrintAlertDialog;
+                    if (dialog != null) {
+                        dialog.dismiss();
+                    }
+                };
+
                 if (!tryInputGenericPassword(activity, pwd)) {
+                    boolean tryAgain = false;
                     try {
                         inputDigitPassword(activity, pwd);
                     } catch (NullPointerException e) {
-                        Toast.makeText(context, Lang.getString(Lang.TOAST_PASSWORD_AUTO_ENTER_FAIL), Toast.LENGTH_LONG).show();
+                        tryAgain = true;
                     } catch (Exception e) {
                         Toast.makeText(context, Lang.getString(Lang.TOAST_PASSWORD_AUTO_ENTER_FAIL), Toast.LENGTH_LONG).show();
                         L.e(e);
                     }
+                    if (tryAgain) {
+                        Task.onMain(1000, ()-> {
+                            try {
+                                inputDigitPassword(activity, pwd);
+                            } catch (NullPointerException e) {
+                                Toast.makeText(context, Lang.getString(Lang.TOAST_PASSWORD_AUTO_ENTER_FAIL), Toast.LENGTH_LONG).show();
+                            } catch (Exception e) {
+                                Toast.makeText(context, Lang.getString(Lang.TOAST_PASSWORD_AUTO_ENTER_FAIL), Toast.LENGTH_LONG).show();
+                                L.e(e);
+                            }
+                            onCompleteRunnable.run();
+                        });
+                        return;
+                    }
                 }
-                AlertDialog dialog = mFingerPrintAlertDialog;
-                if (dialog != null) {
-                    dialog.dismiss();
-                }
+                onCompleteRunnable.run();
             });
 
             AlertDialog dialog = new AlertDialog.Builder(new ContextThemeWrapper(context, android.R.style.Theme_Holo_Light_Dialog_MinWidth)).setView(rootVLinearLayout).setOnDismissListener(dialogInterface -> {
