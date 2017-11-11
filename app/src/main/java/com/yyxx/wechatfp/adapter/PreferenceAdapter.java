@@ -1,6 +1,7 @@
 package com.yyxx.wechatfp.adapter;
 
 import android.content.Context;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 
 import com.yyxx.wechatfp.util.DpUtil;
 import com.yyxx.wechatfp.util.StyleUtil;
+import com.yyxx.wechatfp.util.ViewUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,6 +69,7 @@ public class PreferenceAdapter extends BaseAdapter {
 
         public ViewHolder(Context context) {
             itemView = new LinearLayout(context);
+            itemView.setBackground(ViewUtil.genBackgroundDefaultDrawable());
             itemView.setOrientation(LinearLayout.VERTICAL);
 
             LinearLayout rootHorizontalLayout = new LinearLayout(context);
@@ -88,7 +91,7 @@ public class PreferenceAdapter extends BaseAdapter {
             subTitleText = new TextView(context);
             StyleUtil.apply(subTitleText);
             subTitleText.setTextColor(TEXT_COLOR_SECONDARY);
-            subTitleText.setTextSize(TEXT_SIZE_SMALL);
+            subTitleText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXT_SIZE_SMALL);
             subTitleText.setPadding(0, defTextVPadding, 0, defTextVPadding + defHPadding);
 
 

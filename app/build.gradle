@@ -10,8 +10,8 @@ android {
         applicationId "com.yyxx.wechatfp"
         minSdkVersion 14
         targetSdkVersion 26
-        versionCode 13
-        versionName "2.6.0"
+        versionCode 14
+        versionName "3.0.0"
         buildConfigField "String", "APP_PRODUCT_NAME", "\"WeChatFp\""
     }
 
@@ -122,11 +122,32 @@ task debugTaobao(dependsOn: ["installDebug", stopTaobao]) {
     }
 }
 
+task stopQQ {
+    doLast {
+        println "Stop QQ..."
+        exec {
+            executable = ADB_PATH
+            args = ['shell', "am force-stop com.tencent.mobileqq"]
+        }
+    }
+}
+
+task debugQQ(dependsOn: ["installDebug", stopQQ]) {
+    doLast {
+        println "Start QQ..."
+        exec {
+            executable = ADB_PATH
+            args = ['shell', "am start -n com.tencent.mobileqq/.activity.SplashActivity"]
+        }
+
+    }
+}
+
 dependencies {
     implementation 'com.android.support:support-v4:26.0.2'
     implementation 'com.wei.android.lib:fingerprintidentify:1.2.1'
-    implementation 'com.google.code.gson:gson:2.8.1'
-    implementation 'com.squareup.okhttp3:okhttp:3.8.1'
+    implementation 'com.google.code.gson:gson:2.8.2'
+    implementation 'com.squareup.okhttp3:okhttp:3.9.0'
     implementation 'com.umeng.analytics:analytics:6.1.2'
     provided 'de.robv.android.xposed:api:53'
 }

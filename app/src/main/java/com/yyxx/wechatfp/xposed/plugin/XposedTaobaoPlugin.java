@@ -26,6 +26,7 @@ import com.wei.android.lib.fingerprintidentify.FingerprintIdentify;
 import com.wei.android.lib.fingerprintidentify.base.BaseFingerprint;
 import com.yyxx.wechatfp.BuildConfig;
 import com.yyxx.wechatfp.Lang;
+import com.yyxx.wechatfp.network.updateCheck.UpdateFactory;
 import com.yyxx.wechatfp.util.Config;
 import com.yyxx.wechatfp.util.DpUtil;
 import com.yyxx.wechatfp.util.ImageUtil;
@@ -63,6 +64,7 @@ public class XposedTaobaoPlugin {
     private LinearLayout mItemHlinearLayout;
     private LinearLayout mLineTopCon;
     private View mLineBottomView;
+    private boolean isFirstStartup = true;
 
     @Keep
     public void main(final Context context, final XC_LoadPackage.LoadPackageParam lpparam) {
@@ -84,6 +86,11 @@ public class XposedTaobaoPlugin {
                     }
                     if (activityClzName.contains(".TaobaoSettingActivity")) {
                         Task.onMain(100, () -> doSettingsMenuInject(activity));
+                    } else if (activityClzName.contains(".welcome.Welcome")) {
+                        if (isFirstStartup) {
+                            isFirstStartup = false;
+                            Task.onMain(6000, () -> UpdateFactory.doUpdateCheck(activity));
+                        }
                     }
                 }
             });
@@ -375,7 +382,7 @@ public class XposedTaobaoPlugin {
         itemNameText.setText(Lang.getString(Lang.APP_SETTINGS_NAME));
         itemNameText.setGravity(Gravity.CENTER_VERTICAL);
         itemNameText.setPadding(defHPadding, 0, 0, 0);
-        itemNameText.setTextSize(StyleUtil.TEXT_SIZE_BIG);
+        itemNameText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, StyleUtil.TEXT_SIZE_BIG);
 
         TextView itemSummerText = new TextView(activity);
         StyleUtil.apply(itemSummerText);

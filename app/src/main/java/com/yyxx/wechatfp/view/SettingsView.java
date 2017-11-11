@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -64,7 +65,7 @@ public class SettingsView extends DialogFrameLayout implements AdapterView.OnIte
         lineView.setBackgroundColor(Color.TRANSPARENT);
 
         TextView settingsTitle = new TextView(context);
-        settingsTitle.setTextSize(TEXT_SIZE_BIG);
+        settingsTitle.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXT_SIZE_BIG);
         settingsTitle.setText(Lang.getString(Lang.APP_SETTINGS_NAME) + " " + BuildConfig.VERSION_NAME);
         settingsTitle.setTextColor(Color.WHITE);
         settingsTitle.setTypeface(null, Typeface.BOLD);
@@ -82,6 +83,9 @@ public class SettingsView extends DialogFrameLayout implements AdapterView.OnIte
         if (context.getPackageName().equals(Constant.PACKAGE_NAME_WECHAT)) {
             mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_SWITCH), Lang.getString(Lang.SETTINGS_SUB_TITLE_SWITCH_WECHAT), true, Config.from(context).isOn()));
             mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_PASSWORD), Lang.getString(Lang.SETTINGS_SUB_TITLE_PASSWORD_WECHAT)));
+        } else if (context.getPackageName().equals(Constant.PACKAGE_NAME_QQ)) {
+            mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_SWITCH), Lang.getString(Lang.SETTINGS_SUB_TITLE_SWITCH_QQ), true, Config.from(context).isOn()));
+            mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_PASSWORD), Lang.getString(Lang.SETTINGS_SUB_TITLE_PASSWORD_QQ)));
         } else {
             mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_SWITCH), Lang.getString(Lang.SETTINGS_SUB_TITLE_SWITCH_ALIPAY), true, Config.from(context).isOn()));
             mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_PASSWORD), Lang.getString(Lang.SETTINGS_SUB_TITLE_PASSWORD_ALIPAY)));
@@ -128,7 +132,7 @@ public class SettingsView extends DialogFrameLayout implements AdapterView.OnIte
                     return;
                 }
                 config.setPassword(inputText);
-            }).showInDialog(true);
+            }).showInDialog();
         } else if (Lang.getString(Lang.SETTINGS_TITLE_CHECKUPDATE).equals(data.title)) {
             UpdateFactory.doUpdateCheck(context, false, true);
         } else if (Lang.getString(Lang.SETTINGS_TITLE_DONATE).equals(data.title)) {

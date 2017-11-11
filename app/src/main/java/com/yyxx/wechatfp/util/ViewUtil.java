@@ -10,6 +10,7 @@ import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -168,6 +169,10 @@ public class ViewUtil {
         int []location = new int[]{0,0};
         view.getLocationOnScreen(location);
         stringBuffer.append(" cor x:").append(location[0]).append(" y:").append(location[1]);
+        CharSequence desc = view.getContentDescription();
+        if (!TextUtils.isEmpty(desc)) {
+            stringBuffer.append(" desc:").append(desc);
+        }
         return stringBuffer.toString();
     }
 

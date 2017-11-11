@@ -346,7 +346,7 @@ public class XposedAlipayPlugin {
         itemNameText.setText(Lang.getString(Lang.APP_SETTINGS_NAME));
         itemNameText.setGravity(Gravity.CENTER_VERTICAL);
         itemNameText.setPadding(defHPadding, 0, 0, 0);
-        itemNameText.setTextSize(StyleUtil.TEXT_SIZE_BIG);
+        itemNameText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, StyleUtil.TEXT_SIZE_BIG);
 
         TextView itemSummerText = new TextView(activity);
         StyleUtil.apply(itemSummerText);

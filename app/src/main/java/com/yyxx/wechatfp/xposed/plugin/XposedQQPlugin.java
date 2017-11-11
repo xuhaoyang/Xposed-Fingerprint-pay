@@ -1,0 +1,594 @@
+package com.yyxx.wechatfp.xposed.plugin;
+
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.os.UserHandle;
+import android.support.annotation.Keep;
+import android.support.annotation.Nullable;
+import android.text.TextUtils;
+import android.util.TypedValue;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.wei.android.lib.fingerprintidentify.FingerprintIdentify;
+import com.wei.android.lib.fingerprintidentify.base.BaseFingerprint;
+import com.yyxx.wechatfp.BuildConfig;
+import com.yyxx.wechatfp.Lang;
+import com.yyxx.wechatfp.network.updateCheck.UpdateFactory;
+import com.yyxx.wechatfp.util.Config;
+import com.yyxx.wechatfp.util.DpUtil;
+import com.yyxx.wechatfp.util.ImageUtil;
+import com.yyxx.wechatfp.util.StyleUtil;
+import com.yyxx.wechatfp.util.Task;
+import com.yyxx.wechatfp.util.Tools;
+import com.yyxx.wechatfp.util.Umeng;
+import com.yyxx.wechatfp.util.ViewUtil;
+import com.yyxx.wechatfp.util.log.L;
+import com.yyxx.wechatfp.view.SettingsView;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import de.robv.android.xposed.XC_MethodHook;
+import de.robv.android.xposed.XposedBridge;
+import de.robv.android.xposed.XposedHelpers;
+import de.robv.android.xposed.callbacks.XC_LoadPackage;
+
+import static com.yyxx.wechatfp.Constant.ICON_FINGER_PRINT_ALIPAY_BASE64;
+
+/**
+ * Created by Jason on 2017/9/8.
+ */
+
+public class XposedQQPlugin {
+
+
+    private static final String FINGER_PRINT_IMAGE_TAG = "FINGER_PRINT_IMAGE";
+
+    private FingerprintIdentify mFingerprintIdentify;
+    private LinearLayout mMenuItemLLayout;
+    private boolean isFirstStartup = true;
+    private boolean mMockCurrentUser = false;
+    private Activity mCurrentPayActivity;
+    private boolean mFingerprintScanStateReady = false;
+
+    @Keep
+    public void main(final Context context, final XC_LoadPackage.LoadPackageParam lpparam) {
+        L.d("Xposed plugin init version: " + BuildConfig.VERSION_NAME);
+        try {
+            /**
+             * FIX java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.Object java.lang.ref.WeakReference.get()' on a null object reference
+             *     at com.tencent.mqq.shared_file_accessor.n.<init>(Unknown Source)
+             *     at com.tencent.mqq.shared_file_accessor.SharedPreferencesProxyManager.getProxy(Unknown Source)
+             *     at com.tencent.common.app.BaseApplicationImpl.getSharedPreferences(ProGuard:474)
+             *     at com.tencent.common.app.QFixApplicationImpl.getSharedPreferences(ProGuard:247)
+             *     at com.umeng.analytics.pro.ba.a(PreferenceWrapper.java:24)
+             *     at com.umeng.analytics.pro.cc.f(StoreHelper.java:127)
+             *     at com.umeng.analytics.AnalyticsConfig.getVerticalType(AnalyticsConfig.java:133)
+             */
+            Task.onMain(1000, ()-> {
+                Umeng.init(context);
+            });
+            final PackageInfo packageInfo = context.getPackageManager().getPackageInfo(lpparam.packageName, 0);
+            final int versionCode = packageInfo.versionCode;
+            String versionName = packageInfo.versionName;
+            L.d("app info: versionCode:" + versionCode + " versionName:" + versionName);
+
+
+            //for multi user
+            if (!Tools.isCurrentUserOwner(context)) {
+                XposedHelpers.findAndHookMethod(UserHandle.class, "myUserId", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (mMockCurrentUser) {
+                            param.setResult(0);
+                        }
+                    }
+                });
+            }
+            XposedHelpers.findAndHookMethod(Activity.class, "onCreate", Bundle.class, new XC_MethodHook() {
+
+                @TargetApi(21)
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    final Activity activity = (Activity) param.thisObject;
+                    final String activityClzName = activity.getClass().getName();
+                    if (BuildConfig.DEBUG) {
+                        L.d("activity", activity, "clz", activityClzName);
+                    }
+
+                    if (activityClzName.contains(".QQSettingSettingActivity")) {
+                        Task.onMain(100, () -> doSettingsMenuInject(activity));
+                    } else if (activityClzName.contains(".SplashActivity")) {
+                        if (isFirstStartup) {
+                            isFirstStartup = false;
+                            Task.onMain(6000, () -> UpdateFactory.doUpdateCheck(activity));
+                        }
+                    }
+                }
+            });
+
+            XposedHelpers.findAndHookMethod(Activity.class, "onResume", new XC_MethodHook() {
+
+                @TargetApi(21)
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    final Activity activity = (Activity) param.thisObject;
+                    final String activityClzName = activity.getClass().getName();
+                    if (BuildConfig.DEBUG) {
+                        L.d("activity", activity, "clz", activityClzName);
+                    }
+                    if (activityClzName.contains(".QWalletPluginProxyActivity")) {
+                        L.d("found");
+                        if (!Config.from(activity).isOn()) {
+                            return;
+                        }
+
+                        qqKeyboardFlashBugfixer(activity);
+                        qqTitleBugfixer(activity);
+                        initPayActivity(activity, 10, 100);
+                    }
+                }
+            });
+            XposedHelpers.findAndHookMethod(Activity.class, "onPause", new XC_MethodHook() {
+
+                @TargetApi(21)
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    final Activity activity = (Activity) param.thisObject;
+                    final String activityClzName = activity.getClass().getName();
+                    if (BuildConfig.DEBUG) {
+                        L.d("activity", activity, "clz", activityClzName);
+                    }
+                    if (activityClzName.contains(".QWalletPluginProxyActivity")) {
+                        if (activity == mCurrentPayActivity) {
+                            L.d("found");
+                            mCurrentPayActivity = null;
+                            cancelFingerprintIdentify();
+                        }
+                    }
+                }
+            });
+        } catch (Throwable l) {
+            XposedBridge.log(l);
+        }
+    }
+
+
+    private void initPayActivity(Activity activity, int retryDelay, int retryCountdown) {
+        Context context = activity;
+        ViewGroup rootView = (ViewGroup) activity.getWindow().getDecorView();
+
+        PayDialog payDialog = PayDialog.findFrom(rootView);
+        if (payDialog == null) {
+            if (retryCountdown > 0) {
+                Task.onMain(retryDelay, () -> {
+                    initPayActivity(activity, retryDelay, retryCountdown - 1);
+                });
+            }
+            return;
+        }
+
+        ViewGroup editCon = (ViewGroup) payDialog.inputEditText.getParent().getParent();
+        ImageView fingerprintImageView = prepareFingerprintView(context);
+
+        Runnable switchToPwdRunnable = () -> {
+            if (activity != mCurrentPayActivity) {
+                return;
+            }
+            if (editCon.getVisibility() != View.VISIBLE) {
+                editCon.setVisibility(View.VISIBLE);
+            }
+            if (payDialog.keyboardView.getVisibility() != View.VISIBLE) {
+                payDialog.keyboardView.setVisibility(View.VISIBLE);
+            }
+            if (fingerprintImageView.getVisibility() != View.GONE) {
+                fingerprintImageView.setVisibility(View.GONE);
+            }
+            payDialog.titleTextView.setText(Lang.getString(Lang.QQ_PAYVIEW_PASSWORD_TITLE));
+            if (payDialog.usePasswordText != null) {
+                payDialog.usePasswordText.setText(Lang.getString(Lang.QQ_PAYVIEW_FINGERPRINT_SWITCH_TEXT));
+            }
+            cancelFingerprintIdentify();
+        };
+
+        Runnable switchToFingerprintRunnable = () -> {
+            if (activity != mCurrentPayActivity) {
+                return;
+            }
+            if (editCon.getVisibility() != View.GONE) {
+                editCon.setVisibility(View.GONE);
+            }
+            if (payDialog.keyboardView.getVisibility() != View.INVISIBLE) {
+                payDialog.keyboardView.setVisibility(View.INVISIBLE);
+            }
+            if (fingerprintImageView.getVisibility() != View.VISIBLE) {
+                fingerprintImageView.setVisibility(View.VISIBLE);
+            }
+            payDialog.titleTextView.setText(Lang.getString(Lang.QQ_PAYVIEW_FINGERPRINT_TITLE));
+            if (payDialog.usePasswordText != null) {
+                payDialog.usePasswordText.setText(Lang.getString(Lang.QQ_PAYVIEW_PASSWORD_SWITCH_TEXT));
+            }
+            resumeFingerprintIdentify();
+        };
+
+        fingerprintImageView.setOnClickListener(v -> {
+            switchToPwdRunnable.run();
+        });
+
+        if (payDialog.usePasswordText != null) {
+            payDialog.usePasswordText.setOnClickListener(v -> {
+                if (Lang.getString(Lang.QQ_PAYVIEW_PASSWORD_SWITCH_TEXT).equals(payDialog.usePasswordText.getText())) {
+                    switchToPwdRunnable.run();
+                } else {
+                    switchToFingerprintRunnable.run();
+                }
+            });
+            payDialog.usePasswordText.setVisibility(View.VISIBLE);
+        }
+
+
+        ViewGroup viewGroup = ((ViewGroup)(editCon.getParent()));
+        removeAllFingerprintImageView(viewGroup);
+        viewGroup.addView(fingerprintImageView);
+
+        mCurrentPayActivity = activity;
+        initFingerPrintLock(context, () -> { // success
+            Config config = Config.from(context);
+            String pwd = config.getPassword();
+            if (TextUtils.isEmpty(pwd)) {
+                Toast.makeText(context, Lang.getString(Lang.TOAST_PASSWORD_NOT_SET_QQ), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            payDialog.inputEditText.setText(pwd);
+        }, () -> { //fail
+            switchToPwdRunnable.run();
+        });
+
+        switchToFingerprintRunnable.run();
+        for (int i = 10; i < 500; i += 20) {
+            Task.onMain(i, switchToFingerprintRunnable);
+        }
+    }
+
+    private void removeAllFingerprintImageView(ViewGroup viewGroup) {
+        List<View> pendingRemoveList = new ArrayList<>();
+
+        int childCount = viewGroup.getChildCount();
+        for (int i = 0 ;i < childCount ; i++) {
+            View view = viewGroup.getChildAt(i);
+            if (FINGER_PRINT_IMAGE_TAG.equals(view.getTag())) {
+                pendingRemoveList.add(view);
+            }
+        }
+
+        for (View view : pendingRemoveList) {
+            ViewUtil.removeFromSuperView(view);
+        }
+    }
+
+    private ImageView prepareFingerprintView(Context context) {
+
+        ImageView imageView = new ImageView(context);
+        imageView.setTag(FINGER_PRINT_IMAGE_TAG);
+        Bitmap bitmap = null;
+        try {
+            bitmap = ImageUtil.base64ToBitmap(ICON_FINGER_PRINT_ALIPAY_BASE64);
+            imageView.setImageBitmap(bitmap);
+        } catch (OutOfMemoryError e) {
+        }
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(DpUtil.dip2px(context, 40), DpUtil.dip2px(context, 40));
+        params.gravity = Gravity.CENTER;
+        imageView.setLayoutParams(params);
+
+        final Bitmap bitmapFinal = bitmap;
+        imageView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+            @Override
+            public void onViewAttachedToWindow(View v) {
+            }
+
+            @Override
+            public void onViewDetachedFromWindow(View v) {
+                try {
+                    if (bitmapFinal != null) {
+                        bitmapFinal.recycle();
+                    }
+                } catch (Exception e) {
+                    L.e(e);
+                }
+                cancelFingerprintIdentify();
+                L.d("onViewDetachedFromWindow");
+            }
+        });
+        return imageView;
+    }
+
+
+
+    public void initFingerPrintLock(final Context context, final Runnable onSuccessUnlockCallback, final Runnable onFailureUnlockCallback) {
+        L.d("initFingerPrintLock");
+        cancelFingerprintIdentify();
+        mMockCurrentUser = true;
+        FingerprintIdentify fingerprintIdentify = new FingerprintIdentify(context);
+        if (fingerprintIdentify.isFingerprintEnable()) {
+            mFingerprintScanStateReady = true;
+            fingerprintIdentify.startIdentify(3, new BaseFingerprint.FingerprintIdentifyListener() {
+                @Override
+                public void onSucceed() {
+                    // 验证成功，自动结束指纹识别
+                    Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_MATCH), Toast.LENGTH_SHORT).show();
+                    L.d("指纹识别成功");
+                    onSuccessUnlockCallback.run();
+                    mMockCurrentUser = false;
+                }
+
+                @Override
+                public void onNotMatch(int availableTimes) {
+                    // 指纹不匹配，并返回可用剩余次数并自动继续验证
+                    L.d("指纹识别失败，还可尝试" + String.valueOf(availableTimes) + "次");
+                    Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_NOT_MATCH), Toast.LENGTH_SHORT).show();
+                    mMockCurrentUser = false;
+                }
+
+                @Override
+                public void onFailed(boolean isDeviceLocked) {
+                    // 错误次数达到上限或者API报错停止了验证，自动结束指纹识别
+                    // isDeviceLocked 表示指纹硬件是否被暂时锁定
+                    if (mFingerprintScanStateReady) {
+                        Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_RETRY_ENDED), Toast.LENGTH_SHORT).show();
+                    }
+                    L.d("多次尝试错误，请使用密码输入");
+                    onFailureUnlockCallback.run();
+                    mMockCurrentUser = false;
+                }
+
+                @Override
+                public void onStartFailedByDeviceLocked() {
+                    // 第一次调用startIdentify失败，因为设备被暂时锁定
+                    L.d("系统限制，重启后必须验证密码后才能使用指纹验证");
+                    Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_UNLOCK_REBOOT), Toast.LENGTH_SHORT).show();
+                    onFailureUnlockCallback.run();
+                    mMockCurrentUser = false;
+                }
+            });
+        } else {
+            L.d("系统指纹功能未启用");
+            Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_NOT_ENABLE), Toast.LENGTH_SHORT).show();
+            mMockCurrentUser = false;
+            mFingerprintScanStateReady = false;
+        }
+        mFingerprintIdentify = fingerprintIdentify;
+    }
+
+    private void cancelFingerprintIdentify() {
+        if (!mFingerprintScanStateReady) {
+            return;
+        }
+        L.d("cancelFingerprintIdentify");
+        mFingerprintScanStateReady = false;
+        FingerprintIdentify fingerprintIdentify = mFingerprintIdentify;
+        if (fingerprintIdentify != null) {
+            fingerprintIdentify.cancelIdentify();
+        }
+        mMockCurrentUser = false;
+    }
+
+    private void resumeFingerprintIdentify() {
+        if (mFingerprintScanStateReady) {
+            return;
+        }
+        L.d("resumeFingerprintIdentify");
+        FingerprintIdentify fingerprintIdentify = mFingerprintIdentify;
+        if (fingerprintIdentify != null) {
+            mMockCurrentUser = true;
+            fingerprintIdentify.resumeIdentify();
+            mFingerprintScanStateReady = true;
+        }
+    }
+
+    private void doSettingsMenuInject(final Activity activity) {
+        Context context = activity;
+        ViewGroup rootView = (ViewGroup) activity.getWindow().getDecorView();
+        View itemView = ViewUtil.findViewByText(rootView, "帐号管理");
+        LinearLayout linearLayout = (LinearLayout) itemView.getParent().getParent().getParent();
+        linearLayout.setPadding(0, 0, 0, 0);
+        List<ViewGroup.LayoutParams> childViewParamsList = new ArrayList<>();
+        List<View> childViewList = new ArrayList<>();
+        int childViewCount = linearLayout.getChildCount();
+        for (int i = 0; i < childViewCount; i++) {
+            View view = linearLayout.getChildAt(i);
+            childViewList.add(view);
+            childViewParamsList.add(view.getLayoutParams());
+        }
+
+        linearLayout.removeAllViews();
+
+        View lineTopView = new View(activity);
+        lineTopView.setBackgroundColor(0xFFDFDFDF);
+
+        LinearLayout itemHlinearLayout = new LinearLayout(activity);
+        itemHlinearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        itemHlinearLayout.setWeightSum(1);
+        itemHlinearLayout.setBackground(ViewUtil.genBackgroundDefaultDrawable(Color.WHITE));
+        itemHlinearLayout.setGravity(Gravity.CENTER_VERTICAL);
+        itemHlinearLayout.setClickable(true);
+        itemHlinearLayout.setOnClickListener(view -> new SettingsView(activity).showInDialog());
+
+        int defHPadding = DpUtil.dip2px(activity, 15);
+
+        TextView itemNameText = new TextView(activity);
+        StyleUtil.apply(itemNameText);
+        itemNameText.setText(Lang.getString(Lang.APP_SETTINGS_NAME));
+        itemNameText.setGravity(Gravity.CENTER_VERTICAL);
+        itemNameText.setPadding(defHPadding, 0, 0, 0);
+        itemNameText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, StyleUtil.TEXT_SIZE_BIG);
+
+        TextView itemSummerText = new TextView(activity);
+        StyleUtil.apply(itemSummerText);
+        itemSummerText.setText(BuildConfig.VERSION_NAME);
+        itemSummerText.setGravity(Gravity.CENTER_VERTICAL);
+        itemSummerText.setPadding(0, 0, defHPadding, 0);
+        itemSummerText.setTextColor(0xFF888888);
+
+        //try use QQ style
+        try {
+            View settingsView = itemView;
+            if (settingsView instanceof TextView) {
+                TextView settingsTextView = (TextView) settingsView;
+                float scale = itemNameText.getTextSize() / settingsTextView.getTextSize();
+                itemNameText.setTextSize(TypedValue.COMPLEX_UNIT_PX, settingsTextView.getTextSize());
+                itemSummerText.setTextSize(TypedValue.COMPLEX_UNIT_PX, itemSummerText.getTextSize() / scale);
+                itemNameText.setTextColor(settingsTextView.getCurrentTextColor());
+            }
+        } catch (Exception e) {
+            L.e(e);
+        }
+
+        itemHlinearLayout.addView(itemNameText, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
+        itemHlinearLayout.addView(itemSummerText, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        View lineBottomView = new View(activity);
+        lineBottomView.setBackgroundColor(0xFFDFDFDF);
+
+        LinearLayout menuItemLLayout = mMenuItemLLayout;
+        if (menuItemLLayout == null) {
+            menuItemLLayout = new LinearLayout(context);
+            mMenuItemLLayout = menuItemLLayout;
+        } else {
+            ViewUtil.removeFromSuperView(menuItemLLayout);
+            menuItemLLayout.removeAllViews();
+        }
+
+        menuItemLLayout.setOrientation(LinearLayout.VERTICAL);
+
+        menuItemLLayout.addView(lineTopView, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1));
+        menuItemLLayout.addView(itemHlinearLayout, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, DpUtil.dip2px(activity, 45)));
+        LinearLayout.LayoutParams lineParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1);
+        lineParams.bottomMargin = DpUtil.dip2px(activity, 20);
+        menuItemLLayout.addView(lineBottomView, lineParams);
+
+        linearLayout.addView(menuItemLLayout, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        for (int i = 0; i < childViewCount; i++) {
+            View view = childViewList.get(i);
+            if (view == menuItemLLayout) {
+                continue;
+            }
+            ViewGroup.LayoutParams params = childViewParamsList.get(i);
+            linearLayout.addView(view, params);
+        }
+    }
+
+    private void qqTitleBugfixer(Activity activity) {
+        View titleView = ViewUtil.findViewByName(activity, "android", "title");
+        ViewGroup contentView = (ViewGroup) ViewUtil.findViewByName(activity, "android", "content");
+        if (titleView != null && contentView != null){
+
+            activity.getWindow().getDecorView().getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+                if (contentView.getChildCount() > 0) {
+                    View firstChild = contentView.getChildAt(0);
+                    Drawable backgroundDrawable;
+                    if (firstChild != null && (backgroundDrawable = firstChild.getBackground()) instanceof ColorDrawable) {
+                        titleView.setBackgroundColor(((ColorDrawable) backgroundDrawable).getColor());
+                    } else {
+                        titleView.setBackgroundColor(0x66000000);
+                    }
+                }
+                if (titleView instanceof TextView) {
+                    ((TextView) titleView).setText("");
+                }
+            });
+        }
+    }
+
+    private void qqKeyboardFlashBugfixer(Activity activity) {
+        View rootView = activity.getWindow().getDecorView();
+        rootView.setAlpha(0);
+        Task.onMain(100, () -> rootView.animate().alpha(1).start());
+    }
+
+
+    private static class PayDialog {
+
+        private EditText inputEditText;
+        private View keyboardView;
+        @Nullable
+        private TextView usePasswordText;
+        private TextView titleTextView;
+
+        @Nullable
+        public static PayDialog findFrom(ViewGroup rootView) {
+            try {
+                PayDialog payDialog = new PayDialog();
+
+                List<View> childViews = new ArrayList<>();
+                ViewUtil.getChildViews(rootView, childViews);
+                for (View view : childViews) {
+                    if (view == null) {
+                        continue;
+                    }
+                    if (view instanceof EditText && "支付密码输入框".equals(view.getContentDescription())) {
+                        if (view.isShown()) {
+                            payDialog.inputEditText = (EditText)view;
+                        }
+                    } else if (view.getClass().getName().endsWith(".MyKeyboardWindow")) {
+                        L.d("密码键盘:" + view);
+                        if (view.getParent() != null) {
+                            payDialog.keyboardView = view;
+                        }
+                    }
+                    if (payDialog.inputEditText != null && payDialog.keyboardView != null) {
+                        break;
+                    }
+                }
+
+                if (payDialog.inputEditText == null) {
+                    L.d("inputEditText not found");
+                    return null;
+                }
+
+                if (payDialog.keyboardView == null) {
+                    L.d("keyboardView not found");
+                    return null;
+                }
+
+                payDialog.usePasswordText = (TextView)ViewUtil.findViewByText(rootView,
+                        "使用密码", "使用密碼", "Password",
+                        "使用指纹", "使用指紋", "Fingerprint");
+                if (payDialog.usePasswordText == null) {
+                    L.d("usePasswordText not found");
+                }
+
+                payDialog.titleTextView = (TextView)ViewUtil.findViewByText(rootView,
+                        "请验证指纹", "請驗證指紋", "Verify fingerprint",
+                        "请输入支付密码", "請輸入付款密碼", "Enter payment password");
+                if (payDialog.titleTextView == null) {
+                    L.d("titleTextView not found");
+                    return null;
+                }
+                return payDialog;
+            } catch (Exception e) {
+                L.e(e);
+            }
+            return null;
+        }
+
+        @Override
+        public String toString() {
+            return "PayDialog{" +
+                    "inputEditText=" + inputEditText +
+                    ", keyboardView=" + keyboardView +
+                    ", titleTextView=" + titleTextView +
+                    '}';
+        }
+    }
+}

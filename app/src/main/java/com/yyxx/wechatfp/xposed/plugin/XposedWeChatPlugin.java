@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.UserHandle;
-import android.os.UserManager;
 import android.support.annotation.Keep;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -47,7 +46,6 @@ import com.yyxx.wechatfp.util.log.L;
 import com.yyxx.wechatfp.view.SettingsView;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,7 +70,7 @@ public class XposedWeChatPlugin {
         try {
             Umeng.init(context);
             //for multi user
-            if (!isCurrentUserOwner(context)) {
+            if (!Tools.isCurrentUserOwner(context)) {
                 XposedHelpers.findAndHookMethod(UserHandle.class, "myUserId", new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -264,7 +262,7 @@ public class XposedWeChatPlugin {
         itemNameText.setText(Lang.getString(Lang.APP_SETTINGS_NAME));
         itemNameText.setGravity(Gravity.CENTER_VERTICAL);
         itemNameText.setPadding(DpUtil.dip2px(activity, 14), 0, 0, 0);
-        itemNameText.setTextSize(StyleUtil.TEXT_SIZE_BIG);
+        itemNameText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, StyleUtil.TEXT_SIZE_BIG);
 
         TextView itemSummerText = new TextView(activity);
         StyleUtil.apply(itemSummerText);
@@ -388,17 +386,6 @@ public class XposedWeChatPlugin {
             L.d("系统指纹功能未启用");
             Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_NOT_ENABLE), Toast.LENGTH_SHORT).show();
             mMockCurrentUser = false;
-        }
-    }
-
-
-    public boolean isCurrentUserOwner(Context context) {
-        try {
-            Method getUserHandle = UserManager.class.getMethod("getUserHandle");
-            int userHandle = (Integer) getUserHandle.invoke(context.getSystemService(Context.USER_SERVICE));
-            return userHandle == 0;
-        } catch (Exception ex) {
-            return false;
         }
     }
 

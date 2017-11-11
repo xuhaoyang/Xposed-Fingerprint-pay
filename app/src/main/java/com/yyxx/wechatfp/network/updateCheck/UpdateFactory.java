@@ -1,6 +1,5 @@
 package com.yyxx.wechatfp.network.updateCheck;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.text.TextUtils;
 import android.widget.Toast;
@@ -11,6 +10,7 @@ import com.yyxx.wechatfp.network.updateCheck.github.GithubUpdateChecker;
 import com.yyxx.wechatfp.util.Config;
 import com.yyxx.wechatfp.util.UrlUtil;
 import com.yyxx.wechatfp.util.log.L;
+import com.yyxx.wechatfp.view.UpdateInfoView;
 
 /**
  * Created by Jason on 2017/9/10.
@@ -50,15 +50,12 @@ public class UpdateFactory {
                             return;
                         }
                     }
-                    AlertDialog.Builder builder = new AlertDialog.Builder(context).setTitle(Lang.getString(Lang.FOUND_NEW_VERSION) + version);
-                    builder.setMessage(content);
-                    builder.setNeutralButton(Lang.getString(Lang.SKIP_THIS_VERSION), (dialogInterface, i) -> Config.from(context).setSkipVersion(version));
-                    builder.setNegativeButton(Lang.getString(Lang.CANCEL), (dialogInterface, i) -> {
-
-                    });
-                    builder.setPositiveButton(Lang.getString(Lang.GOTO_UPDATE_PAGE), (dialogInterface, i) -> UrlUtil.openUrl(context, pageUrl));
-
-                    builder.show();
+                    UpdateInfoView updateInfoView = new UpdateInfoView(context);
+                    updateInfoView.setTitle(Lang.getString(Lang.FOUND_NEW_VERSION) + version);
+                    updateInfoView.setContent(content);
+                    updateInfoView.withOnNeutralButtonClickListener((dialogInterface, i) -> Config.from(context).setSkipVersion(version));
+                    updateInfoView.withOnPositiveButtonClickListener((dialogInterface, i) -> UrlUtil.openUrl(context, pageUrl));
+                    updateInfoView.showInDialog();
                 }
             }).doUpdateCheck();
         } catch (Exception | Error e) {

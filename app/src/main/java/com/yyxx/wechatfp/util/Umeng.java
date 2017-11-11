@@ -15,7 +15,11 @@ public class Umeng {
 
     public static void init(Context context) {
         sContext = context;
-        MobclickAgent.startWithConfigure(new MobclickAgent.UMAnalyticsConfig(context, "59b68c81f5ade45de90004f7", "UM"));
+        try {
+            MobclickAgent.startWithConfigure(new MobclickAgent.UMAnalyticsConfig(context.getApplicationContext(), "59b68c81f5ade45de90004f7", "UM"));
+        } catch (Exception e) {
+            L.e(e);
+        }
     }
 
     public static void reportError(String message) {
