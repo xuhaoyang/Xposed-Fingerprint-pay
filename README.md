@@ -8,7 +8,7 @@
 
 | 微信                                       |                   支付宝                    |                                       淘宝 |                                     腾讯QQ |
 | ---------------------------------------- | :--------------------------------------: | ---------------------------------------: | ---------------------------------------: |
-| 6.5.8                                    | [10.1.0.090418-114](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.0.0/Alipay-10.1.0.090418-114.apk) | [6.11.0-161](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.1.0/Taobao-6.11.0-161.apk) | [QQ-7.2.5-744](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.7.0/QQ-7.2.5-744.apk) |
+| 6.5.8                                    | [10.1.0.090418-114](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.0.0/Alipay-10.1.0.090418-114.apk) | [6.11.0-161](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.1.0/Taobao-6.11.0-161.apk) | [QQ-7.2.5-744](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/3.0.0/QQ-7.2.5-744.apk) |
 | [6.5.10-1080](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/1.3/weixin6510.apk) |                   或最新版                   |                                     或最新版 |                                     或最新版 |
 | 6.5.13-1081                              |                                          |                                          |                                          |
 | [6.5.13-1100](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/1.4.1/WeChat-6.5.13-1100.apk) |                                          |                                          |                                          |
@@ -38,11 +38,11 @@
 
 
 使用步骤:
-1. 下载并安装插件: [WeChatFp-2.7.0-release.apk](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.7.0/WeChatFp-2.7.0-release.apk)
+1. 下载并安装插件: [WeChatFp-3.0.0-release.apk](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/3.0.0/WeChatFp-3.0.0-release.apk)
 2. 下载并安装微信: [WeChat-6.5.16-1120.apk](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.3.0/WeChat-6.5.16-1120.apk)
 3. 下载并安装支付宝: [Alipay-10.1.0.090418-114.apk](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.0.0/Alipay-10.1.0.090418-114.apk)
 4. 下载并安装淘宝: [Taobao-6.11.0-161.apk](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.1.0/Taobao-6.11.0-161.apk)
-5. 下载并安装QQ: [QQ-7.2.5-744.apk](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.7.0/QQ-7.2.5-744.apk)
+5. 下载并安装QQ: [QQ-7.2.5-744.apk](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/3.0.0/QQ-7.2.5-744.apk)
 6. 启用插件, 输入密码
 7. 关闭手机
 8. 打开手机，Enjoy.
