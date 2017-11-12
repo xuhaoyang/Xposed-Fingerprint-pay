@@ -90,6 +90,7 @@ public class Lang {
     public static final int TOAST_GOTO_DONATE_PAGE_FAIL_ALIPAY = 0x01000014;
     public static final int TOAST_GOTO_DONATE_PAGE_FAIL_WECHAT = 0x01000015;
     public static final int TOAST_GOTO_DONATE_PAGE_FAIL_QQ = 0x01000016;
+    public static final int TOAST_NEED_QQ_7_2_5 = 0x01000017;
 
     private static final int TEMPLATE = 0xFFFFFFFF;
 
@@ -218,6 +219,8 @@ public class Lang {
                 return tr("调用微信捐赠页失败, 您可以手动转账捐赠哦, 帐号: " + Constant.AUTHOR_WECHAT, "調用微信捐贈頁失敗, 您可以手動轉賬捐贈哦, 帳號: " + Constant.AUTHOR_WECHAT, "Can't jump to WeChat donate page, You can do it manually by transfer to account: " + Constant.AUTHOR_WECHAT);
             case TOAST_GOTO_DONATE_PAGE_FAIL_QQ:
                 return tr("调用QQ捐赠页失败, 您可以手动转账捐赠哦, 帐号: " + Constant.AUTHOR_QQ, "調用QQ捐贈頁失敗, 您可以手動轉賬捐贈哦, 帳號: " + Constant.AUTHOR_QQ, "Can't jump to QQ donate page, You can do it manually by transfer to account: " + Constant.AUTHOR_QQ);
+            case TOAST_NEED_QQ_7_2_5:
+                return tr("您的QQ版本过低, 不支持指纹功能, 请升级至7.2.5以上的版本", "您的QQ版本過低, 不支持指紋功能, 請升級至7.2.5以上的版本", "Your QQ version is too low, does not support the fingerprint function, please upgrade to version 7.2.5 and above");
             case TEMPLATE:
                 return tr("", "", "");
         }

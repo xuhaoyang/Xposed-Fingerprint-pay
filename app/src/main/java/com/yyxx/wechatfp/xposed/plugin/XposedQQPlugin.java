@@ -32,6 +32,7 @@ import com.yyxx.wechatfp.util.Config;
 import com.yyxx.wechatfp.util.DpUtil;
 import com.yyxx.wechatfp.util.ImageUtil;
 import com.yyxx.wechatfp.util.KeyboardUtils;
+import com.yyxx.wechatfp.util.PermissionUtils;
 import com.yyxx.wechatfp.util.StyleUtil;
 import com.yyxx.wechatfp.util.Task;
 import com.yyxx.wechatfp.util.Tools;
@@ -404,8 +405,13 @@ public class XposedQQPlugin {
                 }
             });
         } else {
-            L.d("系统指纹功能未启用");
-            Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_NOT_ENABLE), Toast.LENGTH_SHORT).show();
+            if (PermissionUtils.hasFingerprintPermission(context)) {
+                L.d("系统指纹功能未启用");
+                Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_NOT_ENABLE), Toast.LENGTH_LONG).show();
+            } else {
+                L.d("QQ 版本过低");
+                Toast.makeText(context, Lang.getString(Lang.TOAST_NEED_QQ_7_2_5), Toast.LENGTH_LONG).show();
+            }
             mMockCurrentUser = false;
             mFingerprintScanStateReady = false;
         }
