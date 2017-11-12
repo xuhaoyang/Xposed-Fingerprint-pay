@@ -520,11 +520,11 @@ public class XposedQQPlugin {
         }
 
         menuItemLLayout.setOrientation(LinearLayout.VERTICAL);
-
-        menuItemLLayout.addView(lineTopView, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1));
-        menuItemLLayout.addView(itemHlinearLayout, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, DpUtil.dip2px(activity, 45)));
         LinearLayout.LayoutParams lineParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1);
-        lineParams.bottomMargin = DpUtil.dip2px(activity, 20);
+        lineParams.topMargin = DpUtil.dip2px(activity, 20);
+        menuItemLLayout.addView(lineTopView, lineParams);
+        menuItemLLayout.addView(itemHlinearLayout, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, DpUtil.dip2px(activity, 45)));
+        lineParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1);
         menuItemLLayout.addView(lineBottomView, lineParams);
 
         linearLayout.addView(menuItemLLayout, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
