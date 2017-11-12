@@ -474,7 +474,7 @@ public class XposedQQPlugin {
         itemHlinearLayout.setClickable(true);
         itemHlinearLayout.setOnClickListener(view -> new SettingsView(activity).showInDialog());
 
-        int defHPadding = DpUtil.dip2px(activity, 15);
+        int defHPadding = DpUtil.dip2px(activity, 12);
 
         TextView itemNameText = new TextView(activity);
         StyleUtil.apply(itemNameText);
