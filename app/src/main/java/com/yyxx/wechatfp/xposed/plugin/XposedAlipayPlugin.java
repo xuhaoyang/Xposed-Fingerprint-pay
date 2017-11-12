@@ -31,9 +31,9 @@ import com.yyxx.wechatfp.util.DpUtil;
 import com.yyxx.wechatfp.util.ImageUtil;
 import com.yyxx.wechatfp.util.StyleUtil;
 import com.yyxx.wechatfp.util.Task;
-import com.yyxx.wechatfp.util.Tools;
 import com.yyxx.wechatfp.util.Umeng;
 import com.yyxx.wechatfp.util.ViewUtil;
+import com.yyxx.wechatfp.util.bugfixer.xposed.XposedLogNPEBugFixer;
 import com.yyxx.wechatfp.util.log.L;
 import com.yyxx.wechatfp.view.SettingsView;
 
@@ -65,6 +65,7 @@ public class XposedAlipayPlugin {
         L.d("Xposed plugin init version: " + BuildConfig.VERSION_NAME);
         try {
             Umeng.init(context);
+            XposedLogNPEBugFixer.fix();
             final PackageInfo packageInfo = context.getPackageManager().getPackageInfo(lpparam.packageName, 0);
             final int versionCode = packageInfo.versionCode;
             String versionName = packageInfo.versionName;
@@ -449,21 +450,11 @@ public class XposedAlipayPlugin {
         EditText pwdEditText = findPasswordEditText(activity);
         L.d("pwdEditText", pwdEditText);
         if (pwdEditText == null) {
-            ViewGroup rootView = (ViewGroup) activity.getWindow().getDecorView();
-            List<View> outList = new ArrayList<>();
-            ViewUtil.getChildViews(rootView, outList);
-            Tools.doUnSupportVersionUpload(rootView.getContext(), "[Alipay pwdEditText NOT FOUND]  " + ViewUtil.viewsDesc(outList));
+            return false;
         }
         View confirmPwdBtn = findConfirmPasswordBtn(activity);
         L.d("confirmPwdBtn", confirmPwdBtn);
         if (confirmPwdBtn == null) {
-            ViewGroup rootView = (ViewGroup) activity.getWindow().getDecorView();
-            List<View> outList = new ArrayList<>();
-            ViewUtil.getChildViews(rootView, outList);
-            Tools.doUnSupportVersionUpload(rootView.getContext(), "[Alipay confirmPwdBtn NOT FOUND]  " + ViewUtil.viewsDesc(outList));
-            return false;
-        }
-        if (pwdEditText == null) {
             return false;
         }
         pwdEditText.setText(password);

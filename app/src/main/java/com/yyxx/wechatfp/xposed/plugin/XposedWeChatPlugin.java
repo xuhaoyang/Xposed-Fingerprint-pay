@@ -42,6 +42,7 @@ import com.yyxx.wechatfp.util.Task;
 import com.yyxx.wechatfp.util.Tools;
 import com.yyxx.wechatfp.util.Umeng;
 import com.yyxx.wechatfp.util.ViewUtil;
+import com.yyxx.wechatfp.util.bugfixer.xposed.XposedLogNPEBugFixer;
 import com.yyxx.wechatfp.util.log.L;
 import com.yyxx.wechatfp.view.SettingsView;
 
@@ -69,6 +70,7 @@ public class XposedWeChatPlugin {
         L.d("Xposed plugin init version: " + BuildConfig.VERSION_NAME);
         try {
             Umeng.init(context);
+            XposedLogNPEBugFixer.fix();
             //for multi user
             if (!Tools.isCurrentUserOwner(context)) {
                 XposedHelpers.findAndHookMethod(UserHandle.class, "myUserId", new XC_MethodHook() {

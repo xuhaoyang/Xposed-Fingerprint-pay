@@ -19,6 +19,7 @@ import com.yyxx.wechatfp.network.updateCheck.UpdateFactory;
 import com.yyxx.wechatfp.util.Task;
 import com.yyxx.wechatfp.util.Umeng;
 import com.yyxx.wechatfp.util.UrlUtil;
+import com.yyxx.wechatfp.util.bugfixer.TagManagerBugFixer;
 import com.yyxx.wechatfp.view.DonateView;
 
 import java.util.ArrayList;
@@ -55,6 +56,7 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
         listView.setAdapter(mListAdapter);
         listView.setOnItemClickListener(this);
         Task.onMain(1000L, () -> UpdateFactory.doUpdateCheck(HomeActivity.this));
+        TagManagerBugFixer.fix();
     }
 
     @Override
