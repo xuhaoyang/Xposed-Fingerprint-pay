@@ -53,7 +53,10 @@ public class UpdateFactory {
                     UpdateInfoView updateInfoView = new UpdateInfoView(context);
                     updateInfoView.setTitle(Lang.getString(Lang.FOUND_NEW_VERSION) + version);
                     updateInfoView.setContent(content);
-                    updateInfoView.withOnNeutralButtonClickListener((dialogInterface, i) -> Config.from(context).setSkipVersion(version));
+                    updateInfoView.withOnNeutralButtonClickListener((dialogInterface, i) -> {
+                        Config.from(context).setSkipVersion(version);
+                        dialogInterface.dismiss();
+                    });
                     updateInfoView.withOnPositiveButtonClickListener((dialogInterface, i) -> UrlUtil.openUrl(context, pageUrl));
                     updateInfoView.showInDialog();
                 }
