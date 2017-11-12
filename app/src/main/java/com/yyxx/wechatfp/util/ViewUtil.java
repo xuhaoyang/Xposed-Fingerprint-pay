@@ -10,11 +10,35 @@ import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.AppCompatImageView;
+import android.support.v7.widget.ButtonBarLayout;
+import android.support.v7.widget.ListViewCompat;
+import android.support.v7.widget.SwitchCompat;
 import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.widget.CheckBox;
+import android.widget.CheckedTextView;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.GridLayout;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.QuickContactBadge;
+import android.widget.RadioButton;
+import android.widget.RatingBar;
+import android.widget.RelativeLayout;
+import android.widget.SeekBar;
+import android.widget.Space;
+import android.widget.Spinner;
+import android.widget.Switch;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.yyxx.wechatfp.util.log.L;
@@ -160,10 +184,78 @@ public class ViewUtil {
         return null;
     }
 
+    private static Class sRecycleViewClz;
+
+    private static String getViewBaseDesc(View view) {
+        if (sRecycleViewClz == null) {
+            try {
+                sRecycleViewClz = Class.forName("android.support.v7.widget.RecyclerView");
+            } catch (ClassNotFoundException e) {
+            }
+        }
+
+        if (view instanceof FrameLayout) {
+            return FrameLayout.class.getName();
+        } else if (view instanceof RatingBar) {
+            return RatingBar.class.getName();
+        } else if (view instanceof SeekBar) {
+            return SeekBar.class.getName();
+        } else if (view instanceof TableLayout) {
+            return TableLayout.class.getName();
+        } else if (view instanceof ButtonBarLayout) {
+            return ButtonBarLayout.class.getName();
+        } else if (view instanceof TableRow) {
+            return TableRow.class.getName();
+        } else if (view instanceof LinearLayout) {
+            return LinearLayout.class.getName();
+        } else if (view instanceof RelativeLayout) {
+            return RelativeLayout.class.getName();
+        } else if (view instanceof GridLayout) {
+            return GridLayout.class.getName();
+        } else if (view instanceof CheckBox) {
+            return CheckBox.class.getName();
+        } else if (view instanceof RadioButton) {
+            return RadioButton.class.getName();
+        } else if (view instanceof CheckedTextView) {
+            return CheckedTextView.class.getName();
+        } else if (view instanceof Spinner) {
+            return Spinner.class.getName();
+        } else if (view instanceof ProgressBar) {
+            return ProgressBar.class.getName();
+        } else if (view instanceof QuickContactBadge) {
+            return QuickContactBadge.class.getName();
+        } else if (view instanceof SwitchCompat) {
+            return SwitchCompat.class.getName();
+        } else if (view instanceof Switch) {
+            return Switch.class.getName();
+        } else if (view instanceof Space) {
+            return Space.class.getName();
+        } else if (view instanceof TextView) {
+            return TextView.class.getName();
+        } else if (view instanceof AppCompatImageView) {
+            return AppCompatImageView.class.getName();
+        } else if (view instanceof ImageView) {
+            return ImageView.class.getName();
+        } else if (view instanceof ListViewCompat) {
+            return ListViewCompat.class.getName();
+        } else if (view instanceof ListView) {
+            return ListView.class.getName();
+        } else if (view instanceof GridView) {
+            return ListView.class.getName();
+        } else if (sRecycleViewClz != null && view.getClass().isAssignableFrom(sRecycleViewClz)) {
+            return sRecycleViewClz.getName();
+        }
+        return view.getClass().getName();
+    }
+
     public static String getViewInfo(View view) {
         StringBuffer stringBuffer = new StringBuffer();
         stringBuffer.append(String.valueOf(view));
-        if (view instanceof TextView) {
+        stringBuffer.append(" type:").append(getViewBaseDesc(view));
+        stringBuffer.append(" clz:").append(view.getClass().getName());
+        if (view instanceof EditText) {
+            stringBuffer.append(" text:").append(((EditText) view).getText()).append(" hint:").append(((EditText) view).getHint());
+        } else if (view instanceof TextView) {
             stringBuffer.append(" text:").append(((TextView) view).getText());
         }
         int []location = new int[]{0,0};
@@ -173,7 +265,16 @@ public class ViewUtil {
         if (!TextUtils.isEmpty(desc)) {
             stringBuffer.append(" desc:").append(desc);
         }
+        stringBuffer.append(" tag:").append(view.getTag());
         return stringBuffer.toString();
+    }
+
+    public static void recursiveLoopChildren(View view) {
+        if (view instanceof ViewGroup) {
+            recursiveLoopChildren((ViewGroup) view);
+        } else {
+            L.d("Empty view");
+        }
     }
 
     public static void recursiveLoopChildren(ViewGroup parent) {
@@ -186,7 +287,7 @@ public class ViewUtil {
             } else {
                 if (child != null) {
                     try {
-                        L.d("view", getViewInfo(child), child.getTag());
+                        L.d("view", getViewInfo(child));
                     } catch (Exception e) {
 
                     }
@@ -202,7 +303,13 @@ public class ViewUtil {
             if (child == null) {
                 continue;
             }
-            if (child instanceof TextView) {
+            if (child instanceof EditText) {
+                if (text.equals(String.valueOf(((TextView) child).getText()))) {
+                    outList.add(child);
+                } else if (text.equals(String.valueOf(((EditText) child).getHint()))) {
+                    outList.add(child);
+                }
+            } else if (child instanceof TextView) {
                 if (text.equals(String.valueOf(((TextView) child).getText()))) {
                     outList.add(child);
                 }

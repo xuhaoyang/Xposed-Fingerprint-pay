@@ -31,6 +31,7 @@ import com.yyxx.wechatfp.network.updateCheck.UpdateFactory;
 import com.yyxx.wechatfp.util.Config;
 import com.yyxx.wechatfp.util.DpUtil;
 import com.yyxx.wechatfp.util.ImageUtil;
+import com.yyxx.wechatfp.util.KeyboardUtils;
 import com.yyxx.wechatfp.util.StyleUtil;
 import com.yyxx.wechatfp.util.Task;
 import com.yyxx.wechatfp.util.Tools;
@@ -41,6 +42,7 @@ import com.yyxx.wechatfp.view.SettingsView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.WeakHashMap;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
@@ -56,7 +58,10 @@ import static com.yyxx.wechatfp.Constant.ICON_FINGER_PRINT_ALIPAY_BASE64;
 public class XposedQQPlugin {
 
 
-    private static final String FINGER_PRINT_IMAGE_TAG = "FINGER_PRINT_IMAGE";
+    private static final String TAG_FINGER_PRINT_IMAGE = "FINGER_PRINT_IMAGE";
+    private static final String TAG_PASSWORD_EDITTEXT = "TAG_PASSWORD_EDITTEXT";
+    private static final String TAG_ACTIVITY_PAY = "TAG_ACTIVITY_PAY";
+    private static final String TAG_ACTIVITY_FIRST_RESUME = "TAG_ACTIVITY_FIRST_RESUME";
 
     private FingerprintIdentify mFingerprintIdentify;
     private LinearLayout mMenuItemLLayout;
@@ -64,6 +69,9 @@ public class XposedQQPlugin {
     private boolean mMockCurrentUser = false;
     private Activity mCurrentPayActivity;
     private boolean mFingerprintScanStateReady = false;
+    private WeakHashMap<Activity, String> mActivityPayMap = new WeakHashMap<>();
+    private WeakHashMap<Activity, String> mActivityResumeMap = new WeakHashMap<>();
+    private WeakHashMap<Activity, PayDialog> mActivityPayDialogMap = new WeakHashMap<>();
 
     @Keep
     public void main(final Context context, final XC_LoadPackage.LoadPackageParam lpparam) {
@@ -134,8 +142,12 @@ public class XposedQQPlugin {
                         if (!Config.from(activity).isOn()) {
                             return;
                         }
-
-                        qqKeyboardFlashBugfixer(activity);
+                        if (isActivityFirstResume(activity)) {
+                            markActivityResumed(activity);
+                            qqKeyboardFlashBugfixer(activity);
+                        } else if (isPayActivity(activity)) {
+                            qqKeyboardFlashBugfixer(activity);
+                        }
                         qqTitleBugfixer(activity);
                         initPayActivity(activity, 10, 100);
                     }
@@ -169,8 +181,12 @@ public class XposedQQPlugin {
         Context context = activity;
         ViewGroup rootView = (ViewGroup) activity.getWindow().getDecorView();
 
-        PayDialog payDialog = PayDialog.findFrom(rootView);
-        if (payDialog == null) {
+        PayDialog _payDialog = mActivityPayDialogMap.get(activity);
+        if (_payDialog == null) {
+            _payDialog = PayDialog.findFrom(rootView);
+            mActivityPayDialogMap.put(activity, _payDialog);
+        }
+        if (_payDialog == null) {
             if (retryCountdown > 0) {
                 Task.onMain(retryDelay, () -> {
                     initPayActivity(activity, retryDelay, retryCountdown - 1);
@@ -178,8 +194,10 @@ public class XposedQQPlugin {
             }
             return;
         }
-
-        ViewGroup editCon = (ViewGroup) payDialog.inputEditText.getParent().getParent();
+        PayDialog payDialog = _payDialog;
+        boolean longPassword = payDialog.isLongPassword();
+        ViewGroup editCon = longPassword ? (ViewGroup) payDialog.inputEditText.getParent().getParent().getParent()
+                : (ViewGroup) payDialog.inputEditText.getParent().getParent();
         ImageView fingerprintImageView = prepareFingerprintView(context);
 
         Runnable switchToPwdRunnable = () -> {
@@ -189,8 +207,13 @@ public class XposedQQPlugin {
             if (editCon.getVisibility() != View.VISIBLE) {
                 editCon.setVisibility(View.VISIBLE);
             }
-            if (payDialog.keyboardView.getVisibility() != View.VISIBLE) {
-                payDialog.keyboardView.setVisibility(View.VISIBLE);
+            if (longPassword) {
+                KeyboardUtils.switchIme(payDialog.inputEditText, true);
+                payDialog.inputEditText.requestFocus();
+            } else {
+                if (payDialog.keyboardView.getVisibility() != View.VISIBLE) {
+                    payDialog.keyboardView.setVisibility(View.VISIBLE);
+                }
             }
             if (fingerprintImageView.getVisibility() != View.GONE) {
                 fingerprintImageView.setVisibility(View.GONE);
@@ -198,6 +221,11 @@ public class XposedQQPlugin {
             payDialog.titleTextView.setText(Lang.getString(Lang.QQ_PAYVIEW_PASSWORD_TITLE));
             if (payDialog.usePasswordText != null) {
                 payDialog.usePasswordText.setText(Lang.getString(Lang.QQ_PAYVIEW_FINGERPRINT_SWITCH_TEXT));
+            }
+            if (payDialog.okButton != null) {
+                if (payDialog.okButton.getVisibility() != View.VISIBLE) {
+                    payDialog.okButton.setVisibility(View.VISIBLE);
+                }
             }
             cancelFingerprintIdentify();
         };
@@ -209,8 +237,13 @@ public class XposedQQPlugin {
             if (editCon.getVisibility() != View.GONE) {
                 editCon.setVisibility(View.GONE);
             }
-            if (payDialog.keyboardView.getVisibility() != View.INVISIBLE) {
-                payDialog.keyboardView.setVisibility(View.INVISIBLE);
+            if (longPassword) {
+                KeyboardUtils.switchIme(payDialog.inputEditText, false);
+                payDialog.inputEditText.clearFocus();
+            } else {
+                if (payDialog.keyboardView.getVisibility() != View.INVISIBLE) {
+                    payDialog.keyboardView.setVisibility(View.INVISIBLE);
+                }
             }
             if (fingerprintImageView.getVisibility() != View.VISIBLE) {
                 fingerprintImageView.setVisibility(View.VISIBLE);
@@ -218,6 +251,11 @@ public class XposedQQPlugin {
             payDialog.titleTextView.setText(Lang.getString(Lang.QQ_PAYVIEW_FINGERPRINT_TITLE));
             if (payDialog.usePasswordText != null) {
                 payDialog.usePasswordText.setText(Lang.getString(Lang.QQ_PAYVIEW_PASSWORD_SWITCH_TEXT));
+            }
+            if (payDialog.okButton != null) {
+                if (payDialog.okButton.getVisibility() != View.GONE) {
+                    payDialog.okButton.setVisibility(View.GONE);
+                }
             }
             resumeFingerprintIdentify();
         };
@@ -251,10 +289,14 @@ public class XposedQQPlugin {
                 return;
             }
             payDialog.inputEditText.setText(pwd);
+            if (longPassword) {
+                payDialog.okButton.performClick();
+            }
         }, () -> { //fail
             switchToPwdRunnable.run();
         });
 
+        markAsPayActivity(activity);
         switchToFingerprintRunnable.run();
         for (int i = 10; i < 500; i += 20) {
             Task.onMain(i, switchToFingerprintRunnable);
@@ -267,7 +309,7 @@ public class XposedQQPlugin {
         int childCount = viewGroup.getChildCount();
         for (int i = 0 ;i < childCount ; i++) {
             View view = viewGroup.getChildAt(i);
-            if (FINGER_PRINT_IMAGE_TAG.equals(view.getTag())) {
+            if (TAG_FINGER_PRINT_IMAGE.equals(view.getTag())) {
                 pendingRemoveList.add(view);
             }
         }
@@ -280,7 +322,7 @@ public class XposedQQPlugin {
     private ImageView prepareFingerprintView(Context context) {
 
         ImageView imageView = new ImageView(context);
-        imageView.setTag(FINGER_PRINT_IMAGE_TAG);
+        imageView.setTag(TAG_FINGER_PRINT_IMAGE);
         Bitmap bitmap = null;
         try {
             bitmap = ImageUtil.base64ToBitmap(ICON_FINGER_PRINT_ALIPAY_BASE64);
@@ -513,9 +555,24 @@ public class XposedQQPlugin {
     private void qqKeyboardFlashBugfixer(Activity activity) {
         View rootView = activity.getWindow().getDecorView();
         rootView.setAlpha(0);
-        Task.onMain(100, () -> rootView.animate().alpha(1).start());
+        Task.onMain(200, () -> rootView.animate().alpha(1).start());
     }
 
+    private void markAsPayActivity(Activity activity) {
+        mActivityPayMap.put(activity, TAG_ACTIVITY_PAY);
+    }
+
+    private boolean isPayActivity(Activity activity) {
+        return TAG_ACTIVITY_PAY.equals(mActivityPayMap.get(activity));
+    }
+
+    private void markActivityResumed(Activity activity) {
+        mActivityResumeMap.put(activity, TAG_ACTIVITY_FIRST_RESUME);
+    }
+
+    private boolean isActivityFirstResume(Activity activity) {
+        return !TAG_ACTIVITY_FIRST_RESUME.equals(mActivityResumeMap.get(activity));
+    }
 
     private static class PayDialog {
 
@@ -524,6 +581,9 @@ public class XposedQQPlugin {
         @Nullable
         private TextView usePasswordText;
         private TextView titleTextView;
+        //长密码不为空
+        @Nullable
+        private View okButton;
 
         @Nullable
         public static PayDialog findFrom(ViewGroup rootView) {
@@ -532,15 +592,28 @@ public class XposedQQPlugin {
 
                 List<View> childViews = new ArrayList<>();
                 ViewUtil.getChildViews(rootView, childViews);
+                payDialog.okButton = ViewUtil.findViewByText(rootView, "立即支付", "立即验证");
+                boolean longPassword = payDialog.isLongPassword();
                 for (View view : childViews) {
                     if (view == null) {
                         continue;
                     }
-                    if (view instanceof EditText && "支付密码输入框".equals(view.getContentDescription())) {
-                        if (view.isShown()) {
-                            payDialog.inputEditText = (EditText)view;
+                    if (longPassword) {
+                        if (view instanceof EditText && "输入财付通支付密码".equals(((EditText) view).getHint())) {
+                            if (view.isShown() || TAG_PASSWORD_EDITTEXT.equals(view.getTag())) {
+                                payDialog.inputEditText = (EditText)view;
+                                view.setTag(TAG_PASSWORD_EDITTEXT);
+                            }
                         }
-                    } else if (view.getClass().getName().endsWith(".MyKeyboardWindow")) {
+                    } else {
+                        if (view instanceof EditText && "支付密码输入框".equals(view.getContentDescription())) {
+                            if (view.isShown() || TAG_PASSWORD_EDITTEXT.equals(view.getTag())) {
+                                payDialog.inputEditText = (EditText)view;
+                                view.setTag(TAG_PASSWORD_EDITTEXT);
+                            }
+                        }
+                    }
+                    if (view.getClass().getName().endsWith(".MyKeyboardWindow")) {
                         L.d("密码键盘:" + view);
                         if (view.getParent() != null) {
                             payDialog.keyboardView = view;
@@ -589,6 +662,10 @@ public class XposedQQPlugin {
                     ", keyboardView=" + keyboardView +
                     ", titleTextView=" + titleTextView +
                     '}';
+        }
+
+        public boolean isLongPassword() {
+            return okButton != null && okButton.isShown();
         }
     }
 }

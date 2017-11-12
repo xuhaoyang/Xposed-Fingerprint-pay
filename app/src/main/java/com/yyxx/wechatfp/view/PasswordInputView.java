@@ -55,7 +55,9 @@ public class PasswordInputView extends DialogFrameLayout {
         mInputView.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
         String packageName = context.getPackageName();
         if (Constant.PACKAGE_NAME_ALIPAY.equals(packageName)
-                || Constant.PACKAGE_NAME_TAOBAO.equals(packageName)) {
+                || Constant.PACKAGE_NAME_TAOBAO.equals(packageName)
+                || Constant.PACKAGE_NAME_QQ.equals(packageName)
+                ) {
             mInputView.setInputType(InputType.TYPE_CLASS_TEXT
                     | InputType.TYPE_TEXT_VARIATION_PASSWORD
             );
