@@ -337,13 +337,29 @@ public class ViewUtil {
         }
     }
 
+    public static void getChildViewsByType(ViewGroup parent, String type, List<View> outList) {
+        for (int i = parent.getChildCount() - 1; i >= 0; i--) {
+            final View child = parent.getChildAt(i);
+            if (child == null) {
+                continue;
+            }
+            if (child.getClass().getName().contains(type)) {
+                outList.add(child);
+            }
+            if (child instanceof ViewGroup) {
+                getChildViewsByType((ViewGroup) child, type, outList);
+            } else {
+            }
+        }
+    }
+
     public static void getChildViews(ViewGroup parent, List<View> outList) {
         for (int i = parent.getChildCount() - 1; i >= 0; i--) {
             final View child = parent.getChildAt(i);
             if (child == null) {
                 continue;
             }
-                outList.add(child);
+            outList.add(child);
             if (child instanceof ViewGroup) {
                 getChildViews((ViewGroup) child, outList);
             } else {
@@ -383,5 +399,22 @@ public class ViewUtil {
             stringBuffer.append(ViewUtil.getViewInfo(view)).append("\n");
         }
         return stringBuffer.toString();
+    }
+
+    /**
+     *
+     * @param viewGroup
+     * @param childView
+     * @return found >= 0, not found -1
+     */
+    public static int findChildViewPosition(ViewGroup viewGroup, View childView) {
+        int childViewCount = viewGroup.getChildCount();
+        for (int i = 0; i < childViewCount; i++) {
+            View view = viewGroup.getChildAt(i);
+            if (view == childView) {
+                return i;
+            }
+        }
+        return -1;
     }
 }
