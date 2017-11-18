@@ -132,7 +132,7 @@ public class SettingsView extends DialogFrameLayout implements AdapterView.OnIte
                         mListAdapter.notifyDataSetChanged();
                     }).showInDialog();
             } else {
-                if (checkPasswordAndNofify(context)) {
+                if (data.selectionState || checkPasswordAndNofify(context)) {
                     config.setOn(false);
                     data.selectionState = !data.selectionState;
                     mListAdapter.notifyDataSetChanged();
