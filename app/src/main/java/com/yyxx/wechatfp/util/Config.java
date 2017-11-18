@@ -70,11 +70,16 @@ public class Config {
 
     public void setSkipVersion(String version) {
         mCache.sharedPreferences.edit().putString("skip_version", version).apply();
+        mCache.mainAppSharedPreferences.edit().putString("skip_version", version).apply();
     }
 
     @Nullable
     public String getSkipVersion() {
-        return mCache.sharedPreferences.getString("skip_version", null);
+        String skipVersion = mCache.mainAppSharedPreferences.getString("skip_version", null);
+        if (TextUtils.isEmpty(skipVersion)) {
+            skipVersion = mCache.sharedPreferences.getString("skip_version", null);
+        }
+        return skipVersion;
     }
 
     public void setLicenseAgree(boolean agree) {
