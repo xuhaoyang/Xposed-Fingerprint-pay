@@ -90,7 +90,7 @@ public class Config {
     public boolean getLicenseAgree() {
         boolean agree = mCache.mainAppSharedPreferences.getBoolean("license_agree", false);
         if (!agree) {
-            mCache.sharedPreferences.getBoolean("license_agree", false);
+            agree = mCache.sharedPreferences.getBoolean("license_agree", false);
         }
         return agree;
     }
