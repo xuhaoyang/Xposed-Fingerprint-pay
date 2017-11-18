@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.yyxx.wechatfp.Constant.HELP_URL_ALIPAY;
+import static com.yyxx.wechatfp.Constant.HELP_URL_FAQ;
 import static com.yyxx.wechatfp.Constant.HELP_URL_QQ;
 import static com.yyxx.wechatfp.Constant.HELP_URL_TAOBAO;
 import static com.yyxx.wechatfp.Constant.HELP_URL_WECHAT;
@@ -47,6 +48,7 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
         list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_HELP_ALIPAY), Lang.getString(Lang.SETTINGS_SUB_TITLE_HELP_ALIPAY)));
         list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_HELP_TAOBAO), Lang.getString(Lang.SETTINGS_SUB_TITLE_HELP_TAOBAO)));
         list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_HELP_QQ), Lang.getString(Lang.SETTINGS_SUB_TITLE_HELP_QQ)));
+        list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_HELP_FAQ), Lang.getString(Lang.SETTINGS_SUB_TITLE_HELP_FAQ)));
         list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_QQ_GROUP), Lang.getString(Lang.SETTINGS_SUB_TITLE_QQ_GROUP)));
         list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_CHECKUPDATE), Lang.getString(Lang.SETTINGS_SUB_TITLE_CHECKUPDATE)));
         list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_WEBSIDE), PROJECT_URL));
@@ -73,6 +75,8 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
             WebActivity.openUrl(this, HELP_URL_TAOBAO);
         } else if (Lang.getString(Lang.SETTINGS_TITLE_HELP_QQ).equals(data.title)) {
             WebActivity.openUrl(this, HELP_URL_QQ);
+        } else if (Lang.getString(Lang.SETTINGS_TITLE_HELP_FAQ).equals(data.title)) {
+            WebActivity.openUrl(this, HELP_URL_FAQ);
         } else if (Lang.getString(Lang.SETTINGS_TITLE_QQ_GROUP).equals(data.title)) {
             joinQQGroup();
         } else if (Lang.getString(Lang.SETTINGS_TITLE_DONATE).equals(data.title)) {

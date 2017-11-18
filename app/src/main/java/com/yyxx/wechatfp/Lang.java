@@ -33,6 +33,7 @@ public class Lang {
     public static final int SETTINGS_TITLE_HELP_TAOBAO = 0x00000003;
     public static final int SETTINGS_TITLE_HELP_QQ = 0x00000103;
     public static final int SETTINGS_TITLE_QQ_GROUP = 0x00000203;
+    public static final int SETTINGS_TITLE_HELP_FAQ = 0x00000303;
     public static final int SETTINGS_TITLE_CHECKUPDATE = 0x00000004;
     public static final int SETTINGS_TITLE_WEBSIDE = 0x00000005;
     public static final int SETTINGS_TITLE_VERSION = 0x00000006;
@@ -41,6 +42,7 @@ public class Lang {
     public static final int SETTINGS_SUB_TITLE_HELP_TAOBAO = 0x00000009;
     public static final int SETTINGS_SUB_TITLE_HELP_QQ = 0x00000109;
     public static final int SETTINGS_SUB_TITLE_QQ_GROUP = 0x00000209;
+    public static final int SETTINGS_SUB_TITLE_HELP_FAQ = 0x00000309;
     public static final int SETTINGS_SUB_TITLE_CHECKUPDATE = 0x00000010;
     public static final int SETTINGS_SUB_TITLE_WEBSIDE = 0x00000011;
     public static final int FOUND_NEW_VERSION = 0x00000012;
@@ -106,6 +108,8 @@ public class Lang {
                 return tr("QQ指纹", "QQ指纹", "QQ fingerprint pay");
             case SETTINGS_TITLE_QQ_GROUP:
                 return tr("QQ交流群", "QQ交流群", "QQ Group");
+            case SETTINGS_TITLE_HELP_FAQ:
+                return tr("常见问题", "常見問題", "FAQ");
             case SETTINGS_TITLE_CHECKUPDATE:
                 return tr("检查更新", "檢查更新", "Check for update");
             case SETTINGS_TITLE_WEBSIDE:
@@ -122,6 +126,8 @@ public class Lang {
                 return tr("查看使用教程", "查看使用教程", "Tutorial");
             case SETTINGS_SUB_TITLE_QQ_GROUP:
                 return tr("665167891", "665167891", "665167891");
+            case SETTINGS_SUB_TITLE_HELP_FAQ:
+                return tr("出现问题请看这里", "出現問題請看這裏", "Having a problem?");
             case SETTINGS_SUB_TITLE_CHECKUPDATE:
                 return tr("点击检查软件更新", "點擊檢查软件更新", "Press to begin");
             case SETTINGS_SUB_TITLE_WEBSIDE:

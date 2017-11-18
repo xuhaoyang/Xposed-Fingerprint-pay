@@ -43,6 +43,7 @@ public class WebActivity extends AppCompatActivity {
             WebView webView = new WebView(this);
             if (!TextUtils.isEmpty(url)) {
                 webView.loadUrl(url);
+                webView.getSettings().setJavaScriptEnabled(true);
                 webView.setWebViewClient(new WebViewClient() {
                     @Override
                     public boolean shouldOverrideUrlLoading(WebView view, String url) {
