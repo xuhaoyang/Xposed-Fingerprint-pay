@@ -37,7 +37,7 @@
 4. Android 4.4+(部分三星机型)
 
 
-使用步骤:
+#### 使用步骤:
 1. 下载并安装插件: [WeChatFp-3.1.0-release.apk](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/3.1.0/WeChatFp-3.1.0-release.apk)
 2. 下载并安装微信: [WeChat-6.5.16-1120.apk](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.3.0/WeChat-6.5.16-1120.apk)
 3. 下载并安装支付宝: [Alipay-10.1.0.090418-114.apk](https://github.com/eritpchy/Xposed-Fingerprint-pay/releases/download/2.0.0/Alipay-10.1.0.090418-114.apk)
@@ -47,7 +47,7 @@
 7. 关闭手机
 8. 打开手机，Enjoy.
 
-详细教程:
+#### 详细教程:
 1. [支付宝](https://github.com/eritpchy/Xposed-Fingerprint-pay/tree/master/doc/Alipay)
 2. [淘宝](https://github.com/eritpchy/Xposed-Fingerprint-pay/tree/master/doc/Taobao)
 3. [微信](https://github.com/eritpchy/Xposed-Fingerprint-pay/tree/master/doc/WeChat)
@@ -56,7 +56,7 @@
 百度云下载地址:
 链接: https://pan.baidu.com/s/1eSq0QNw 密码: fbrg
 
-常见问题:
+#### 常见问题:
 1. 部分三星设备(S8, S7e等) 在2.6版本以上 Xposed 需要安装88.2版本, 避免开机卡住
 2. 因Xposed 造成的开机卡住, 可按电源键禁用Xposed (多次振动后重启手机)
 3. 可以解锁手机但提示系统指纹未启用\
@@ -69,7 +69,7 @@
 5. 魅蓝系列5.1系统不支持, 请升级系统至安卓6.0以上, 请不要再问了! 想支持请提供手机!
 
 
-友情提示: 
+#### 友情提示: 
 1. 以上提供的安装包均为 支付宝/微信/淘宝官方提供的安装包, 没有任何添加修改, 提供安装包只为方便找到指定适配过的安装包.
 2. 本软件的网络功能仅限检查自己软件更新功能, 如不放心, 欢迎REVIEW代码.
 3. 支付宝、淘宝和QQ均可沿用市场中的最新版.
@@ -77,4 +77,4 @@
 
 ![qq](https://github.com/eritpchy/Xposed-Fingerprint-pay/raw/master/doc/qqGroup.png)
 
-QQ交流群: [665167891](http://shang.qq.com/wpa/qunwpa?idkey=91c2cd8f14532413701607c364f03f43afa1539a24b96b8907c92f3c018894e5)
+#### QQ交流群: [665167891](http://shang.qq.com/wpa/qunwpa?idkey=91c2cd8f14532413701607c364f03f43afa1539a24b96b8907c92f3c018894e5)
