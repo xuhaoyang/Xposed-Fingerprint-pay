@@ -47,11 +47,11 @@ public class Config {
     }
 
     public boolean isOn() {
-        return mCache.sharedPreferences.getBoolean("switch_on", false);
+        return mCache.sharedPreferences.getBoolean("switch_on1", false);
     }
 
     public void setOn(boolean on) {
-        mCache.sharedPreferences.edit().putBoolean("switch_on", on).apply();
+        mCache.sharedPreferences.edit().putBoolean("switch_on1", on).apply();
     }
 
     @Nullable
