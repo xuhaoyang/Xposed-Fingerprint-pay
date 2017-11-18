@@ -53,7 +53,7 @@ public class LicenseView extends DialogFrameLayout {
             WebView webView = initWebView(context);
             webView.loadUrl(Constant.HELP_URL_LICENSE);
             this.setMinimumHeight(DpUtil.dip2px(context, 200));
-            this.addView(webView, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            this.addView(webView, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             this.addView(mProgressBar, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, DpUtil.dip2px(context, 4)));
         } catch (Exception e) {
             L.e(e);

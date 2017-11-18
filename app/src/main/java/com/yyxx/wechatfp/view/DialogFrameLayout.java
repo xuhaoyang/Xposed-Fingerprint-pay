@@ -268,9 +268,10 @@ public abstract class DialogFrameLayout extends FrameLayout implements DialogInt
 
         LinearLayout rootLLayout = new LinearLayout(context);
         rootLLayout.setOrientation(LinearLayout.VERTICAL);
+        rootLLayout.setWeightSum(1);
         rootLLayout.setBackgroundColor(Color.WHITE);
         rootLLayout.addView(titleView, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        rootLLayout.addView(contentView, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        rootLLayout.addView(contentView, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
         rootLLayout.addView(btnView, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         return rootLLayout;
     }
