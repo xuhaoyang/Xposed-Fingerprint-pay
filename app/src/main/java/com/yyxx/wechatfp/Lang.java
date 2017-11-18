@@ -34,6 +34,7 @@ public class Lang {
     public static final int SETTINGS_TITLE_HELP_QQ = 0x00000103;
     public static final int SETTINGS_TITLE_QQ_GROUP = 0x00000203;
     public static final int SETTINGS_TITLE_HELP_FAQ = 0x00000303;
+    public static final int SETTINGS_TITLE_LICENSE = 0x00000403;
     public static final int SETTINGS_TITLE_CHECKUPDATE = 0x00000004;
     public static final int SETTINGS_TITLE_WEBSIDE = 0x00000005;
     public static final int SETTINGS_TITLE_VERSION = 0x00000006;
@@ -43,6 +44,7 @@ public class Lang {
     public static final int SETTINGS_SUB_TITLE_HELP_QQ = 0x00000109;
     public static final int SETTINGS_SUB_TITLE_QQ_GROUP = 0x00000209;
     public static final int SETTINGS_SUB_TITLE_HELP_FAQ = 0x00000309;
+    public static final int SETTINGS_SUB_TITLE_LICENSE = 0x00000409;
     public static final int SETTINGS_SUB_TITLE_CHECKUPDATE = 0x00000010;
     public static final int SETTINGS_SUB_TITLE_WEBSIDE = 0x00000011;
     public static final int FOUND_NEW_VERSION = 0x00000012;
@@ -75,6 +77,8 @@ public class Lang {
     public static final int QQ_PAYVIEW_FINGERPRINT_TITLE = 0x00000036;
     public static final int QQ_PAYVIEW_PASSWORD_SWITCH_TEXT = 0x00000037;
     public static final int QQ_PAYVIEW_FINGERPRINT_SWITCH_TEXT = 0x00000038;
+    public static final int DISAGREE = 0x00000039;
+    public static final int AGREE = 0x00000040;
 
     public static final int TOAST_GIVE_ME_STAR = 0x01000001;
     public static final int TOAST_CHECKING_UPDATE = 0x01000002;
@@ -88,6 +92,7 @@ public class Lang {
     public static final int TOAST_PASSWORD_NOT_SET_ALIPAY = 0x01000010;
     public static final int TOAST_PASSWORD_NOT_SET_WECHAT = 0x01000011;
     public static final int TOAST_PASSWORD_NOT_SET_QQ = 0x01000012;
+    public static final int TOAST_PASSWORD_NOT_SET_TAOBAO = 0x01000112;
     public static final int TOAST_PASSWORD_AUTO_ENTER_FAIL = 0x01000013;
     public static final int TOAST_GOTO_DONATE_PAGE_FAIL_ALIPAY = 0x01000014;
     public static final int TOAST_GOTO_DONATE_PAGE_FAIL_WECHAT = 0x01000015;
@@ -110,6 +115,8 @@ public class Lang {
                 return tr("QQ交流群", "QQ交流群", "QQ Group");
             case SETTINGS_TITLE_HELP_FAQ:
                 return tr("常见问题", "常見問題", "FAQ");
+            case SETTINGS_TITLE_LICENSE:
+                return tr("许可协议", "許可協議", "License");
             case SETTINGS_TITLE_CHECKUPDATE:
                 return tr("检查更新", "檢查更新", "Check for update");
             case SETTINGS_TITLE_WEBSIDE:
@@ -128,6 +135,8 @@ public class Lang {
                 return tr("665167891", "665167891", "665167891");
             case SETTINGS_SUB_TITLE_HELP_FAQ:
                 return tr("出现问题请看这里", "出現問題請看這裏", "Having a problem?");
+            case SETTINGS_SUB_TITLE_LICENSE:
+                return tr("查看许可协议", "查看許可協議", "Check the License Agreement");
             case SETTINGS_SUB_TITLE_CHECKUPDATE:
                 return tr("点击检查软件更新", "點擊檢查软件更新", "Press to begin");
             case SETTINGS_SUB_TITLE_WEBSIDE:
@@ -192,6 +201,10 @@ public class Lang {
                 return tr("使用密码", "使用密碼", "Password");
             case QQ_PAYVIEW_FINGERPRINT_SWITCH_TEXT:
                 return tr("使用指纹", "使用指紋", "Fingerprint");
+            case DISAGREE:
+                return tr("不同意", "不同意", "Disagree");
+            case AGREE:
+                return tr("同意", "同意", "I agree");
 
             case TOAST_GIVE_ME_STAR:
                 return tr("如果您拥有Github账户, 别忘了给我的项目+个Star噢", "如果您擁有Github賬戶, 別忘了給我的項目+個Star噢", "Give me a star, if you like this project");
@@ -213,6 +226,8 @@ public class Lang {
                 return tr("系统指纹功能未启用", "系統指紋功能未啟用", "Fingerprint verification has been closed by system");
             case TOAST_PASSWORD_NOT_SET_ALIPAY:
                 return tr("未设定支付密码，请前往設置->指紋設置中设定支付宝的支付密码", "未設定支付密碼，請前往設置 -> 指紋設置中設定支付寶的支付密碼", "Payment password not set, please goto Settings -> Fingerprint to enter you payment password");
+            case TOAST_PASSWORD_NOT_SET_TAOBAO:
+                return tr("未设定支付密码，请前往設置->指紋設置中设定淘宝的支付密码", "未設定支付密碼，請前往設置 -> 指紋設置中設定淘寶的支付密碼", "Payment password not set, please goto Settings -> Fingerprint to enter you payment password");
             case TOAST_PASSWORD_NOT_SET_WECHAT:
                 return tr("未设定支付密码，请前往設置->指紋設置中设定微信的支付密码", "未設定支付密碼，請前往設置 -> 指紋設置中設定微信的支付密碼", "Payment password not set, please goto Settings -> Fingerprint to enter you payment password");
             case TOAST_PASSWORD_NOT_SET_QQ:

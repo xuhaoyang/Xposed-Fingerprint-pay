@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.yyxx.wechatfp.BuildConfig;
+import com.yyxx.wechatfp.util.log.L;
 
 import java.util.WeakHashMap;
 
@@ -33,7 +34,14 @@ public class Config {
             SharedPreferences sharedPreferences = context.getSharedPreferences(BuildConfig.APPLICATION_ID + ".settings", Context.MODE_PRIVATE);
             String deviceId = Settings.System.getString(context.getContentResolver(), Settings.System.ANDROID_ID);
             int passwordEncKey = deviceId.hashCode();
-            mCache = new ObjectCache(sharedPreferences, passwordEncKey);
+            SharedPreferences mainAppSharePreference;
+            try {
+                mainAppSharePreference = XPreferenceProvider.getRemoteSharedPreference(context);
+            } catch (Exception e) {
+                mainAppSharePreference = sharedPreferences;
+                L.e(e);
+            }
+            mCache = new ObjectCache(sharedPreferences, mainAppSharePreference, passwordEncKey);
             sConfigCache.put(context, mCache);
         }
     }
@@ -69,12 +77,27 @@ public class Config {
         return mCache.sharedPreferences.getString("skip_version", null);
     }
 
+    public void setLicenseAgree(boolean agree) {
+        mCache.sharedPreferences.edit().putBoolean("license_agree", agree).apply();
+        mCache.mainAppSharedPreferences.edit().putBoolean("license_agree", agree).apply();
+    }
+
+    public boolean getLicenseAgree() {
+        boolean agree = mCache.mainAppSharedPreferences.getBoolean("license_agree", false);
+        if (!agree) {
+            mCache.sharedPreferences.getBoolean("license_agree", false);
+        }
+        return agree;
+    }
+
     private class ObjectCache {
         SharedPreferences sharedPreferences;
+        SharedPreferences mainAppSharedPreferences;
         int passwordEncKey;
 
-        public ObjectCache(SharedPreferences sharedPreferences, int passwordEncKey) {
+        public ObjectCache(SharedPreferences sharedPreferences, SharedPreferences mainAppSharedPreferences,int passwordEncKey) {
             this.sharedPreferences = sharedPreferences;
+            this.mainAppSharedPreferences = mainAppSharedPreferences;
             this.passwordEncKey = passwordEncKey;
         }
     }

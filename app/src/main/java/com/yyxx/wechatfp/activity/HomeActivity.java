@@ -27,6 +27,7 @@ import java.util.List;
 
 import static com.yyxx.wechatfp.Constant.HELP_URL_ALIPAY;
 import static com.yyxx.wechatfp.Constant.HELP_URL_FAQ;
+import static com.yyxx.wechatfp.Constant.HELP_URL_LICENSE;
 import static com.yyxx.wechatfp.Constant.HELP_URL_QQ;
 import static com.yyxx.wechatfp.Constant.HELP_URL_TAOBAO;
 import static com.yyxx.wechatfp.Constant.HELP_URL_WECHAT;
@@ -51,6 +52,7 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
         list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_HELP_FAQ), Lang.getString(Lang.SETTINGS_SUB_TITLE_HELP_FAQ)));
         list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_QQ_GROUP), Lang.getString(Lang.SETTINGS_SUB_TITLE_QQ_GROUP)));
         list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_CHECKUPDATE), Lang.getString(Lang.SETTINGS_SUB_TITLE_CHECKUPDATE)));
+        list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_LICENSE), Lang.getString(Lang.SETTINGS_SUB_TITLE_LICENSE)));
         list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_WEBSIDE), PROJECT_URL));
         list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_DONATE), Lang.getString(Lang.SETTINGS_SUB_TITLE_DONATE)));
         list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_VERSION), BuildConfig.VERSION_NAME));
@@ -83,6 +85,8 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
             new DonateView(this).showInDialog();
         } else if (Lang.getString(Lang.SETTINGS_TITLE_CHECKUPDATE).equals(data.title)) {
             UpdateFactory.doUpdateCheck(this, false, true);
+        } else if (Lang.getString(Lang.SETTINGS_TITLE_LICENSE).equals(data.title)) {
+            WebActivity.openUrl(this, HELP_URL_LICENSE);
         } else if (Lang.getString(Lang.SETTINGS_TITLE_WEBSIDE).equals(data.title)) {
             UrlUtil.openUrl(this, PROJECT_URL);
             Toast.makeText(this, Lang.getString(Lang.TOAST_GIVE_ME_STAR), Toast.LENGTH_LONG).show();

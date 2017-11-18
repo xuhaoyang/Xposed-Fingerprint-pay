@@ -35,6 +35,10 @@
         </activity>
         <activity android:name=".activity.WebActivity"
             android:parentActivityName=".activity.HomeActivity"/>
+        <provider
+         android:name=".util.XPreferenceProvider"
+         android:authorities="com.yyxx.wechatfp.XPreferenceProvider"
+         android:exported="true"/>
     </application>
 
 </manifest>
