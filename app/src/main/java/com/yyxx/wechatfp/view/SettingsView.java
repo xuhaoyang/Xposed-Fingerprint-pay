@@ -133,8 +133,8 @@ public class SettingsView extends DialogFrameLayout implements AdapterView.OnIte
                     }).showInDialog();
             } else {
                 if (data.selectionState || checkPasswordAndNofify(context)) {
-                    config.setOn(false);
                     data.selectionState = !data.selectionState;
+                    config.setOn(data.selectionState);
                     mListAdapter.notifyDataSetChanged();
                 }
             }
