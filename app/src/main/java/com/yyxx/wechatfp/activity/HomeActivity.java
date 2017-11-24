@@ -6,6 +6,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -103,6 +105,22 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onPause() {
         super.onPause();
         Umeng.onPause(this);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.item_settings:
+                SettingsActivity.open(this);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private boolean joinQQGroup() {

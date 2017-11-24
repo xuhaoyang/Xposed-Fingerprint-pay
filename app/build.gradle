@@ -10,8 +10,8 @@ android {
         applicationId "com.yyxx.wechatfp"
         minSdkVersion 14
         targetSdkVersion 26
-        versionCode 16
-        versionName "3.2.0"
+        versionCode 17
+        versionName "3.3.0"
         buildConfigField "String", "APP_PRODUCT_NAME", "\"WeChatFp\""
     }
 
@@ -171,5 +171,6 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:3.9.0'
     implementation 'com.umeng.analytics:analytics:6.1.2'
     implementation 'com.crossbowffs.remotepreferences:remotepreferences:0.5'
+    implementation 'com.github.AndroidDeveloperLB:MaterialPreferenceLibrary:10'
     provided 'de.robv.android.xposed:api:53'
 }

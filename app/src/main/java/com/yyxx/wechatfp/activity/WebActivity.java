@@ -114,7 +114,7 @@ public class WebActivity extends AppCompatActivity {
         return webView;
     }
 
-    private  void handleProgressChanged(int progress) {
+    private void handleProgressChanged(int progress) {
         ProgressBar progressBar = mProgressBar;
         if (progress >= 100) {
             Task.onMain(1000, () -> {
