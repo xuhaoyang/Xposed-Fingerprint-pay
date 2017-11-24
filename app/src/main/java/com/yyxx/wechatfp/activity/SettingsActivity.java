@@ -6,9 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
 
 import com.lb.material_preferences_library.AppCompatPreferenceActivity;
 import com.yyxx.wechatfp.R;
@@ -37,9 +35,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
     }
 
     @Override
-    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-
-        return super.onPreferenceTreeClick(preferenceScreen, preference);
+    protected void onDestroy() {
+        PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
+        super.onDestroy();
     }
 
     @Override
