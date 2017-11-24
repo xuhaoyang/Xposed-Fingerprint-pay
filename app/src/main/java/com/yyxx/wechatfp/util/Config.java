@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.yyxx.wechatfp.BuildConfig;
+import com.yyxx.wechatfp.util.log.L;
 
 import java.util.WeakHashMap;
 
@@ -33,17 +34,24 @@ public class Config {
             SharedPreferences sharedPreferences = context.getSharedPreferences(BuildConfig.APPLICATION_ID + ".settings", Context.MODE_PRIVATE);
             String deviceId = Settings.System.getString(context.getContentResolver(), Settings.System.ANDROID_ID);
             int passwordEncKey = deviceId.hashCode();
-            mCache = new ObjectCache(sharedPreferences, passwordEncKey);
+            SharedPreferences mainAppSharePreference;
+            try {
+                mainAppSharePreference = XPreferenceProvider.getRemoteSharedPreference(context);
+            } catch (Exception e) {
+                mainAppSharePreference = sharedPreferences;
+                L.e(e);
+            }
+            mCache = new ObjectCache(sharedPreferences, mainAppSharePreference, passwordEncKey);
             sConfigCache.put(context, mCache);
         }
     }
 
     public boolean isOn() {
-        return mCache.sharedPreferences.getBoolean("switch_on", false);
+        return mCache.sharedPreferences.getBoolean("switch_on1", false);
     }
 
     public void setOn(boolean on) {
-        mCache.sharedPreferences.edit().putBoolean("switch_on", on).apply();
+        mCache.sharedPreferences.edit().putBoolean("switch_on1", on).apply();
     }
 
     @Nullable
@@ -62,19 +70,39 @@ public class Config {
 
     public void setSkipVersion(String version) {
         mCache.sharedPreferences.edit().putString("skip_version", version).apply();
+        mCache.mainAppSharedPreferences.edit().putString("skip_version", version).apply();
     }
 
     @Nullable
     public String getSkipVersion() {
-        return mCache.sharedPreferences.getString("skip_version", null);
+        String skipVersion = mCache.mainAppSharedPreferences.getString("skip_version", null);
+        if (TextUtils.isEmpty(skipVersion)) {
+            skipVersion = mCache.sharedPreferences.getString("skip_version", null);
+        }
+        return skipVersion;
+    }
+
+    public void setLicenseAgree(boolean agree) {
+        mCache.sharedPreferences.edit().putBoolean("license_agree", agree).apply();
+        mCache.mainAppSharedPreferences.edit().putBoolean("license_agree", agree).apply();
+    }
+
+    public boolean getLicenseAgree() {
+        boolean agree = mCache.mainAppSharedPreferences.getBoolean("license_agree", false);
+        if (!agree) {
+            agree = mCache.sharedPreferences.getBoolean("license_agree", false);
+        }
+        return agree;
     }
 
     private class ObjectCache {
         SharedPreferences sharedPreferences;
+        SharedPreferences mainAppSharedPreferences;
         int passwordEncKey;
 
-        public ObjectCache(SharedPreferences sharedPreferences, int passwordEncKey) {
+        public ObjectCache(SharedPreferences sharedPreferences, SharedPreferences mainAppSharedPreferences,int passwordEncKey) {
             this.sharedPreferences = sharedPreferences;
+            this.mainAppSharedPreferences = mainAppSharedPreferences;
             this.passwordEncKey = passwordEncKey;
         }
     }

@@ -34,6 +34,7 @@ import com.yyxx.wechatfp.util.Task;
 import com.yyxx.wechatfp.util.Tools;
 import com.yyxx.wechatfp.util.Umeng;
 import com.yyxx.wechatfp.util.ViewUtil;
+import com.yyxx.wechatfp.util.bugfixer.xposed.XposedLogNPEBugFixer;
 import com.yyxx.wechatfp.util.log.L;
 import com.yyxx.wechatfp.view.SettingsView;
 
@@ -65,6 +66,7 @@ public class XposedAlipayPlugin {
         L.d("Xposed plugin init version: " + BuildConfig.VERSION_NAME);
         try {
             Umeng.init(context);
+            XposedLogNPEBugFixer.fix();
             final PackageInfo packageInfo = context.getPackageManager().getPackageInfo(lpparam.packageName, 0);
             final int versionCode = packageInfo.versionCode;
             String versionName = packageInfo.versionName;
@@ -257,20 +259,39 @@ public class XposedAlipayPlugin {
                     return;
                 }
 
+                Runnable onCompleteRunnable = () -> {
+                    AlertDialog dialog = mFingerPrintAlertDialog;
+                    if (dialog != null) {
+                        dialog.dismiss();
+                    }
+                };
+
                 if (!tryInputGenericPassword(activity, pwd)) {
+                    boolean tryAgain = false;
                     try {
                         inputDigitPassword(activity, pwd);
                     } catch (NullPointerException e) {
-                        Toast.makeText(context, Lang.getString(Lang.TOAST_PASSWORD_AUTO_ENTER_FAIL), Toast.LENGTH_LONG).show();
+                        tryAgain = true;
                     } catch (Exception e) {
                         Toast.makeText(context, Lang.getString(Lang.TOAST_PASSWORD_AUTO_ENTER_FAIL), Toast.LENGTH_LONG).show();
                         L.e(e);
                     }
+                    if (tryAgain) {
+                        Task.onMain(1000, ()-> {
+                            try {
+                                inputDigitPassword(activity, pwd);
+                            } catch (NullPointerException e) {
+                                Toast.makeText(context, Lang.getString(Lang.TOAST_PASSWORD_AUTO_ENTER_FAIL), Toast.LENGTH_LONG).show();
+                            } catch (Exception e) {
+                                Toast.makeText(context, Lang.getString(Lang.TOAST_PASSWORD_AUTO_ENTER_FAIL), Toast.LENGTH_LONG).show();
+                                L.e(e);
+                            }
+                            onCompleteRunnable.run();
+                        });
+                        return;
+                    }
                 }
-                AlertDialog dialog = mFingerPrintAlertDialog;
-                if (dialog != null) {
-                    dialog.dismiss();
-                }
+                onCompleteRunnable.run();
             });
 
             AlertDialog dialog = new AlertDialog.Builder(new ContextThemeWrapper(context, android.R.style.Theme_Holo_Light_Dialog_MinWidth)).setView(rootVLinearLayout).setOnDismissListener(dialogInterface -> {
@@ -327,7 +348,7 @@ public class XposedAlipayPlugin {
         itemNameText.setText(Lang.getString(Lang.APP_SETTINGS_NAME));
         itemNameText.setGravity(Gravity.CENTER_VERTICAL);
         itemNameText.setPadding(defHPadding, 0, 0, 0);
-        itemNameText.setTextSize(StyleUtil.TEXT_SIZE_BIG);
+        itemNameText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, StyleUtil.TEXT_SIZE_BIG);
 
         TextView itemSummerText = new TextView(activity);
         StyleUtil.apply(itemSummerText);

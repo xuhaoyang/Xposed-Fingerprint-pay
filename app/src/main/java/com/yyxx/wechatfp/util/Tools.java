@@ -2,8 +2,12 @@ package com.yyxx.wechatfp.util;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
+import android.os.Bundle;
+import android.os.UserManager;
 
 import com.yyxx.wechatfp.util.log.L;
+
+import java.lang.reflect.Method;
 
 /**
  * Created by Jason on 2017/11/1.
@@ -26,5 +30,27 @@ public class Tools {
         } catch (Exception e) {
             L.e(e);
         }
+    }
+
+    public static boolean isCurrentUserOwner(Context context) {
+        try {
+            Method getUserHandle = UserManager.class.getMethod("getUserHandle");
+            int userHandle = (Integer) getUserHandle.invoke(context.getSystemService(Context.USER_SERVICE));
+            return userHandle == 0;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    public static String bundle2string(Bundle bundle) {
+        if (bundle == null) {
+            return null;
+        }
+        String string = "Bundle{";
+        for (String key : bundle.keySet()) {
+            string += " " + key + " => " + bundle.get(key) + ";";
+        }
+        string += " }Bundle";
+        return string;
     }
 }

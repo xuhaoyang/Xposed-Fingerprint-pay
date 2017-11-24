@@ -62,6 +62,8 @@ public class DonateView extends DialogFrameLayout implements AdapterView.OnItemC
         mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_ALIPAY), Constant.AUTHOR_ALIPAY));
         if (Constant.PACKAGE_NAME_WECHAT.equals(context.getPackageName())) {
             mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_WECHAT), Constant.AUTHOR_WECHAT));
+        } else if (Constant.PACKAGE_NAME_QQ.equals(context.getPackageName())) {
+            mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_QQ), Constant.AUTHOR_QQ));
         }
         mListAdapter = new PreferenceAdapter(mSettingsDataList);
 
@@ -87,6 +89,10 @@ public class DonateView extends DialogFrameLayout implements AdapterView.OnItemC
         } else if (Lang.getString(Lang.SETTINGS_TITLE_WECHAT).equals(data.title)) {
             if (!DonateUtil.openWeChatPay(context)) {
                 Toast.makeText(context, Lang.getString(Lang.TOAST_GOTO_DONATE_PAGE_FAIL_WECHAT), Toast.LENGTH_LONG).show();
+            }
+        } else if (Lang.getString(Lang.SETTINGS_TITLE_QQ).equals(data.title)) {
+            if (!DonateUtil.openQQPay(context)) {
+                Toast.makeText(context, Lang.getString(Lang.TOAST_GOTO_DONATE_PAGE_FAIL_QQ), Toast.LENGTH_LONG).show();
             }
         }
     }

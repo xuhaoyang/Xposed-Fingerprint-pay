@@ -1,14 +1,13 @@
-package com.yyxx.wechatfp.activity;
+package com.yyxx.wechatfp.view;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
-import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
@@ -18,71 +17,60 @@ import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
+import com.yyxx.wechatfp.Constant;
+import com.yyxx.wechatfp.Lang;
 import com.yyxx.wechatfp.util.DpUtil;
 import com.yyxx.wechatfp.util.Task;
-import com.yyxx.wechatfp.util.Umeng;
 import com.yyxx.wechatfp.util.UrlUtil;
 import com.yyxx.wechatfp.util.log.L;
 
-
-
 /**
- * Created by Jason on 2017/9/10.
+ * Created by Jason on 2017/11/18.
  */
 
-public class WebActivity extends AppCompatActivity {
-
-    public static void openUrl(Context context, String url) {
-        try {
-            Intent intent = new Intent(context, WebActivity.class);
-            intent.putExtra("url", url);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(intent);
-        } catch (Exception e) {
-            L.e(e);
-        }
-    }
+public class LicenseView extends DialogFrameLayout {
 
     private ProgressBar mProgressBar;
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Intent intent = getIntent();
-        String url = intent.getStringExtra("url");
-
-        try {
-            FrameLayout rootFLayout = new FrameLayout(this);
-
-            mProgressBar = initProgressBar();
-            WebView webView = initWebView();
-            if (!TextUtils.isEmpty(url)) {
-                webView.loadUrl(url);
-            }
-            rootFLayout.addView(webView, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-            rootFLayout.addView(mProgressBar, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, DpUtil.dip2px(this, 4)));
-            setContentView(rootFLayout);
-        } catch (RuntimeException e) {
-            //FIX OPPO R9s cant load webview //java.lang.UnsatisfiedLinkError: dlopen failed: "/data/app/com.google.android.webview-1/lib/arm/libwebviewchromium.so" is 32-bit instead of 64-bit
-            UrlUtil.openUrl(getApplicationContext(), url);
-            Task.onMain(100, this::onBackPressed);
-        } catch (Exception | Error e) {
-            //FIX OPPO R9s cant load webview //java.lang.UnsatisfiedLinkError: dlopen failed: "/data/app/com.google.android.webview-1/lib/arm/libwebviewchromium.so" is 32-bit instead of 64-bit
-            UrlUtil.openUrl(getApplicationContext(), url);
-            Task.onMain(100, this::onBackPressed);
-            L.e(e);
-        }
+    public LicenseView(@NonNull Context context) {
+        super(context);
+        init(context);
     }
 
-    private ProgressBar initProgressBar() {
-        ProgressBar progressBar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
+    public LicenseView(@NonNull Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+        init(context);
+    }
+
+    public LicenseView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        init(context);
+    }
+
+    private void init(Context context) {
+        try {
+            mProgressBar = initProgressBar(context);
+            WebView webView = initWebView(context);
+            webView.loadUrl(Constant.HELP_URL_LICENSE);
+            this.setMinimumHeight(DpUtil.dip2px(context, 200));
+            this.addView(webView, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            this.addView(mProgressBar, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, DpUtil.dip2px(context, 4)));
+        } catch (Exception e) {
+            L.e(e);
+        }
+        withNegativeButtonText(Lang.getString(Lang.DISAGREE));
+        withPositiveButtonText(Lang.getString(Lang.AGREE));
+    }
+
+    private ProgressBar initProgressBar(Context context) {
+        ProgressBar progressBar = new ProgressBar(context, null, android.R.attr.progressBarStyleHorizontal);
         progressBar.getIndeterminateDrawable().setColorFilter(Color.BLUE, android.graphics.PorterDuff.Mode.MULTIPLY);
         progressBar.setBackgroundColor(Color.TRANSPARENT);
         return progressBar;
     }
 
-    private WebView initWebView() throws Exception {
-        WebView webView = new WebView(this);
+    private WebView initWebView(Context context) throws Exception {
+        WebView webView = new WebView(context);
 
         webView.getSettings().setJavaScriptEnabled(true);
         webView.setWebViewClient(new WebViewClient() {
@@ -94,13 +82,13 @@ public class WebActivity extends AppCompatActivity {
                 String lurl = url.toLowerCase();
                 if (lurl.startsWith("http://") || lurl.startsWith("https://")) {
                     if (lurl.endsWith(".apk") || lurl.endsWith(".zip") || lurl.endsWith(".tar.gz") || lurl.contains("pan.baidu.com/s/")) {
-                        UrlUtil.openUrl(WebActivity.this, url);
+                        UrlUtil.openUrl(context, url);
                         return true;
                     }
                     view.loadUrl(url);
                     return true;
                 }
-                UrlUtil.openUrl(WebActivity.this, url);
+                UrlUtil.openUrl(context, url);
                 return true;
             }
         });
@@ -114,7 +102,7 @@ public class WebActivity extends AppCompatActivity {
         return webView;
     }
 
-    private void handleProgressChanged(int progress) {
+    private  void handleProgressChanged(int progress) {
         ProgressBar progressBar = mProgressBar;
         if (progress >= 100) {
             Task.onMain(1000, () -> {
@@ -141,14 +129,7 @@ public class WebActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        Umeng.onResume(this);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Umeng.onPause(this);
+    public String getDialogTitle() {
+        return Lang.getString(Lang.SETTINGS_TITLE_LICENSE);
     }
 }

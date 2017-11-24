@@ -6,6 +6,8 @@ import android.content.Intent;
 import com.yyxx.wechatfp.Constant;
 import com.yyxx.wechatfp.util.log.L;
 
+import org.json.JSONObject;
+
 import java.net.URLEncoder;
 
 /**
@@ -40,6 +42,29 @@ public class DonateUtil {
             donateIntent.putExtra("scene", 1);
             donateIntent.putExtra("pay_channel", 13);
             donateIntent.putExtra("receiver_name", Constant.DONATE_ID_WECHAT);
+            context.startActivity(donateIntent);
+            return true;
+        } catch (Exception e) {
+            L.e(e);
+        }
+        return false;
+    }
+
+    public static boolean openQQPay(Context context) {
+        Intent donateIntent = new Intent();
+        donateIntent.putExtra("come_from", 5);
+        JSONObject localJSONObject = new JSONObject();
+        try {
+            localJSONObject.put("targetUin", Constant.AUTHOR_QQ);
+            localJSONObject.put("targetNickname", Constant.AUTHOR_QQ_NAME);
+            localJSONObject.put("sign", "");
+            localJSONObject.put("trans_fee", "");
+            localJSONObject.put("source", "1");
+            localJSONObject.put("desc", "");
+            donateIntent.putExtra("extra_data", localJSONObject.toString());
+            donateIntent.putExtra("app_info", "appid#20000001|bargainor_id#1000026901|channel#wallet");
+            donateIntent.putExtra("callbackSn", "0");
+            donateIntent.setClassName(context, "com.tencent.mobileqq.activity.qwallet.TransactionActivity");
             context.startActivity(donateIntent);
             return true;
         } catch (Exception e) {

@@ -1,15 +1,18 @@
 package com.yyxx.wechatfp.view;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.method.HideReturnsTransformationMethod;
 import android.util.AttributeSet;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 
 import com.yyxx.wechatfp.Constant;
 import com.yyxx.wechatfp.Lang;
@@ -41,13 +44,20 @@ public class PasswordInputView extends DialogFrameLayout {
     }
 
     private void initView(Context context) {
+        LinearLayout rootLLayout = new LinearLayout(context);
+        rootLLayout.setOrientation(LinearLayout.VERTICAL);
+
         mInputView = new EditText(context);
+        mInputView.setPadding(0, 0, 0, 0);
+        mInputView.setBackgroundColor(Color.TRANSPARENT);
         mInputView.setFocusable(true);
         mInputView.setFocusableInTouchMode(true);
         mInputView.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
         String packageName = context.getPackageName();
         if (Constant.PACKAGE_NAME_ALIPAY.equals(packageName)
-                || Constant.PACKAGE_NAME_TAOBAO.equals(packageName)) {
+                || Constant.PACKAGE_NAME_TAOBAO.equals(packageName)
+                || Constant.PACKAGE_NAME_QQ.equals(packageName)
+                ) {
             mInputView.setInputType(InputType.TYPE_CLASS_TEXT
                     | InputType.TYPE_TEXT_VARIATION_PASSWORD
             );
@@ -57,13 +67,23 @@ public class PasswordInputView extends DialogFrameLayout {
             );
         }
 
-        LayoutParams layoutParam = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        LinearLayout.LayoutParams layoutParam = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         int defHMargin = DpUtil.dip2px(context, 15);
-        int defTMargin = DpUtil.dip2px(context, 30);
+        int defTMargin = DpUtil.dip2px(context, 20);
         int defBMargin = DpUtil.dip2px(context, 4);
         layoutParam.setMargins(defHMargin, defTMargin, defHMargin, defBMargin);
 
-        this.addView(mInputView, layoutParam);
+        View lineView = new View(context);
+        lineView.setBackgroundColor(0xFF45C01A);
+
+        rootLLayout.addView(mInputView, layoutParam);
+        rootLLayout.addView(lineView, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, DpUtil.dip2px(context, 1)));
+
+        LayoutParams rootLLayoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        rootLLayoutParams.setMargins(defHMargin, defTMargin, defHMargin, DpUtil.dip2px(context, 20));
+        this.addView(rootLLayout, rootLLayoutParams);
+
+        withPositiveButtonText(Lang.getString(Lang.OK));
     }
 
     @NonNull
@@ -77,6 +97,8 @@ public class PasswordInputView extends DialogFrameLayout {
 
     public void setDefaultText(String text) {
         mInputView.setText(text);
+        int len = text.length();
+        mInputView.setSelection(len, len);
     }
 
     @Override
