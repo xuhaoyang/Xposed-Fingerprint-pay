@@ -31,7 +31,7 @@ android {
     }
 
     packagingOptions {
-        exclude 'publicsuffixes.gz'
+        exclude '**/publicsuffixes.gz'
     }
 
     compileOptions {
