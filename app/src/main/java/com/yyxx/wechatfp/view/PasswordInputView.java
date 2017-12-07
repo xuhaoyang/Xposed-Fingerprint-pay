@@ -16,6 +16,7 @@ import android.widget.LinearLayout;
 
 import com.yyxx.wechatfp.Constant;
 import com.yyxx.wechatfp.Lang;
+import com.yyxx.wechatfp.R;
 import com.yyxx.wechatfp.util.DpUtil;
 
 /**
@@ -83,7 +84,7 @@ public class PasswordInputView extends DialogFrameLayout {
         rootLLayoutParams.setMargins(defHMargin, defTMargin, defHMargin, DpUtil.dip2px(context, 20));
         this.addView(rootLLayout, rootLLayoutParams);
 
-        withPositiveButtonText(Lang.getString(Lang.OK));
+        withPositiveButtonText(Lang.getString(R.id.ok));
     }
 
     @NonNull
@@ -112,6 +113,6 @@ public class PasswordInputView extends DialogFrameLayout {
 
     @Override
     public String getDialogTitle() {
-        return Lang.getString(Lang.ENTER_PASSWORD);
+        return Lang.getString(R.id.enter_password);
     }
 }

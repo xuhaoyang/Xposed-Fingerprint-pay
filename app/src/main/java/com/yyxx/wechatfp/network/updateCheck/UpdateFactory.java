@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.yyxx.wechatfp.Lang;
+import com.yyxx.wechatfp.R;
 import com.yyxx.wechatfp.network.inf.UpdateResultListener;
 import com.yyxx.wechatfp.network.updateCheck.github.GithubUpdateChecker;
 import com.yyxx.wechatfp.util.Config;
@@ -24,21 +25,21 @@ public class UpdateFactory {
 
     public static void doUpdateCheck(final Context context, final boolean quite, final boolean dontSkip) {
         if (!quite) {
-            Toast.makeText(context, Lang.getString(Lang.TOAST_CHECKING_UPDATE), Toast.LENGTH_LONG).show();
+            Toast.makeText(context, Lang.getString(R.id.toast_checking_update), Toast.LENGTH_LONG).show();
         }
         try {
             new GithubUpdateChecker(new UpdateResultListener() {
                 @Override
                 public void onNoUpdate() {
                     if (!quite) {
-                        Toast.makeText(context, Lang.getString(Lang.TOAST_NO_UPDATE), Toast.LENGTH_LONG).show();
+                        Toast.makeText(context, Lang.getString(R.id.toast_no_update), Toast.LENGTH_LONG).show();
                     }
                 }
 
                 @Override
                 public void onNetErr() {
                     if (!quite) {
-                        Toast.makeText(context, Lang.getString(Lang.TOAST_CHECK_UPDATE_FAIL_NET_ERR), Toast.LENGTH_LONG).show();
+                        Toast.makeText(context, Lang.getString(R.id.toast_check_update_fail_net_err), Toast.LENGTH_LONG).show();
                     }
                 }
 
@@ -51,7 +52,7 @@ public class UpdateFactory {
                         }
                     }
                     UpdateInfoView updateInfoView = new UpdateInfoView(context);
-                    updateInfoView.setTitle(Lang.getString(Lang.FOUND_NEW_VERSION) + version);
+                    updateInfoView.setTitle(Lang.getString(R.id.found_new_version) + version);
                     updateInfoView.setContent(content);
                     updateInfoView.withOnNeutralButtonClickListener((dialogInterface, i) -> {
                         Config.from(context).setSkipVersion(version);

@@ -28,6 +28,7 @@ import com.wei.android.lib.fingerprintidentify.FingerprintIdentify;
 import com.wei.android.lib.fingerprintidentify.base.BaseFingerprint;
 import com.yyxx.wechatfp.BuildConfig;
 import com.yyxx.wechatfp.Lang;
+import com.yyxx.wechatfp.R;
 import com.yyxx.wechatfp.network.updateCheck.UpdateFactory;
 import com.yyxx.wechatfp.util.Config;
 import com.yyxx.wechatfp.util.DpUtil;
@@ -232,11 +233,11 @@ public class XposedQQPlugin {
                     payDialog.titleTextView.setClickable(true);
                     payDialog.titleTextView.setText("找回密码");
                 } else {
-                    payDialog.titleTextView.setText(Lang.getString(Lang.QQ_PAYVIEW_PASSWORD_TITLE));
+                    payDialog.titleTextView.setText(Lang.getString(R.id.qq_payview_password_title));
                 }
             }
             if (payDialog.usePasswordText != null) {
-                payDialog.usePasswordText.setText(Lang.getString(Lang.QQ_PAYVIEW_FINGERPRINT_SWITCH_TEXT));
+                payDialog.usePasswordText.setText(Lang.getString(R.id.qq_payview_fingerprint_switch_text));
             }
             if (longPassword && payDialog.okButton != null) {
                 if (payDialog.okButton.getVisibility() != View.VISIBLE) {
@@ -268,13 +269,13 @@ public class XposedQQPlugin {
                 fingerprintImageView.setVisibility(View.VISIBLE);
             }
             if (payDialog.titleTextView != null) {
-                payDialog.titleTextView.setText(Lang.getString(Lang.QQ_PAYVIEW_FINGERPRINT_TITLE));
+                payDialog.titleTextView.setText(Lang.getString(R.id.qq_payview_fingerprint_title));
                 if (mQQVersionCode >= QQ_VERSION_CODE_7_3_0) {
                     payDialog.titleTextView.setClickable(false);
                 }
             }
             if (payDialog.usePasswordText != null) {
-                payDialog.usePasswordText.setText(Lang.getString(Lang.QQ_PAYVIEW_PASSWORD_SWITCH_TEXT));
+                payDialog.usePasswordText.setText(Lang.getString(R.id.qq_payview_password_switch_text));
             }
             if (longPassword && payDialog.okButton != null) {
                 if (payDialog.okButton.getVisibility() != View.GONE) {
@@ -293,7 +294,7 @@ public class XposedQQPlugin {
 
         if (payDialog.usePasswordText != null) {
             payDialog.usePasswordText.setOnClickListener(v -> {
-                if (Lang.getString(Lang.QQ_PAYVIEW_PASSWORD_SWITCH_TEXT).equals(payDialog.usePasswordText.getText())) {
+                if (Lang.getString(R.id.qq_payview_password_switch_text).equals(payDialog.usePasswordText.getText())) {
                     switchToPwdRunnable.run();
                 } else {
                     switchToFingerprintRunnable.run();
@@ -317,7 +318,7 @@ public class XposedQQPlugin {
             Config config = Config.from(context);
             String pwd = config.getPassword();
             if (TextUtils.isEmpty(pwd)) {
-                Toast.makeText(context, Lang.getString(Lang.TOAST_PASSWORD_NOT_SET_QQ), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, Lang.getString(R.id.toast_password_not_set_qq), Toast.LENGTH_SHORT).show();
                 return;
             }
             payDialog.inputEditText.setText(pwd);
@@ -404,7 +405,7 @@ public class XposedQQPlugin {
                 @Override
                 public void onSucceed() {
                     // 验证成功，自动结束指纹识别
-                    Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_MATCH), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, Lang.getString(R.id.toast_fingerprint_match), Toast.LENGTH_SHORT).show();
                     L.d("指纹识别成功");
                     onSuccessUnlockCallback.run();
                     mMockCurrentUser = false;
@@ -414,7 +415,7 @@ public class XposedQQPlugin {
                 public void onNotMatch(int availableTimes) {
                     // 指纹不匹配，并返回可用剩余次数并自动继续验证
                     L.d("指纹识别失败，还可尝试" + String.valueOf(availableTimes) + "次");
-                    Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_NOT_MATCH), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, Lang.getString(R.id.toast_fingerprint_not_match), Toast.LENGTH_SHORT).show();
                     mMockCurrentUser = false;
                 }
 
@@ -423,7 +424,7 @@ public class XposedQQPlugin {
                     // 错误次数达到上限或者API报错停止了验证，自动结束指纹识别
                     // isDeviceLocked 表示指纹硬件是否被暂时锁定
                     if (mFingerprintScanStateReady) {
-                        Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_RETRY_ENDED), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, Lang.getString(R.id.toast_fingerprint_retry_ended), Toast.LENGTH_SHORT).show();
                     }
                     L.d("多次尝试错误，请使用密码输入");
                     onFailureUnlockCallback.run();
@@ -434,7 +435,7 @@ public class XposedQQPlugin {
                 public void onStartFailedByDeviceLocked() {
                     // 第一次调用startIdentify失败，因为设备被暂时锁定
                     L.d("系统限制，重启后必须验证密码后才能使用指纹验证");
-                    Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_UNLOCK_REBOOT), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, Lang.getString(R.id.toast_fingerprint_unlock_reboot), Toast.LENGTH_SHORT).show();
                     onFailureUnlockCallback.run();
                     mMockCurrentUser = false;
                 }
@@ -442,10 +443,10 @@ public class XposedQQPlugin {
         } else {
             if (PermissionUtils.hasFingerprintPermission(context)) {
                 L.d("系统指纹功能未启用");
-                Toast.makeText(context, Lang.getString(Lang.TOAST_FINGERPRINT_NOT_ENABLE), Toast.LENGTH_LONG).show();
+                Toast.makeText(context, Lang.getString(R.id.toast_fingerprint_not_enable), Toast.LENGTH_LONG).show();
             } else {
                 L.d("QQ 版本过低");
-                Toast.makeText(context, Lang.getString(Lang.TOAST_NEED_QQ_7_2_5), Toast.LENGTH_LONG).show();
+                Toast.makeText(context, Lang.getString(R.id.toast_need_qq_7_2_5), Toast.LENGTH_LONG).show();
             }
             mMockCurrentUser = false;
             mFingerprintScanStateReady = false;
@@ -511,8 +512,8 @@ public class XposedQQPlugin {
 
         TextView itemNameText = new TextView(activity);
         StyleUtil.apply(itemNameText);
-        itemNameText.setText(Lang.getString(Lang.APP_SETTINGS_NAME));
         itemNameText.setGravity(Gravity.CENTER_VERTICAL);
+        itemNameText.setText(Lang.getString(R.id.app_settings_name));
         itemNameText.setPadding(defHPadding, 0, 0, 0);
         itemNameText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, StyleUtil.TEXT_SIZE_BIG);
 

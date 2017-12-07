@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.yyxx.wechatfp.BuildConfig;
 import com.yyxx.wechatfp.Constant;
 import com.yyxx.wechatfp.Lang;
+import com.yyxx.wechatfp.R;
 import com.yyxx.wechatfp.adapter.PreferenceAdapter;
 import com.yyxx.wechatfp.network.updateCheck.UpdateFactory;
 import com.yyxx.wechatfp.util.Config;
@@ -66,7 +67,7 @@ public class SettingsView extends DialogFrameLayout implements AdapterView.OnIte
 
         TextView settingsTitle = new TextView(context);
         settingsTitle.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXT_SIZE_BIG);
-        settingsTitle.setText(Lang.getString(Lang.APP_SETTINGS_NAME) + " " + BuildConfig.VERSION_NAME);
+        settingsTitle.setText(Lang.getString(R.id.app_settings_name) + " " + BuildConfig.VERSION_NAME);
         settingsTitle.setTextColor(Color.WHITE);
         settingsTitle.setTypeface(null, Typeface.BOLD);
         settingsTitle.setBackgroundColor(0xFF1AAEE5);
@@ -81,18 +82,18 @@ public class SettingsView extends DialogFrameLayout implements AdapterView.OnIte
         mListView.setDivider(new ColorDrawable(Color.TRANSPARENT));
 
         if (context.getPackageName().equals(Constant.PACKAGE_NAME_WECHAT)) {
-            mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_SWITCH), Lang.getString(Lang.SETTINGS_SUB_TITLE_SWITCH_WECHAT), true, Config.from(context).isOn()));
-            mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_PASSWORD), Lang.getString(Lang.SETTINGS_SUB_TITLE_PASSWORD_WECHAT)));
+            mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(R.id.settings_title_switch), Lang.getString(R.id.settings_sub_title_switch_wechat), true, Config.from(context).isOn()));
+            mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(R.id.settings_title_password), Lang.getString(R.id.settings_sub_title_password_wechat)));
         } else if (context.getPackageName().equals(Constant.PACKAGE_NAME_QQ)) {
-            mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_SWITCH), Lang.getString(Lang.SETTINGS_SUB_TITLE_SWITCH_QQ), true, Config.from(context).isOn()));
-            mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_PASSWORD), Lang.getString(Lang.SETTINGS_SUB_TITLE_PASSWORD_QQ)));
+            mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(R.id.settings_title_switch), Lang.getString(R.id.settings_sub_title_switch_qq), true, Config.from(context).isOn()));
+            mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(R.id.settings_title_password), Lang.getString(R.id.settings_sub_title_password_qq)));
         } else {
-            mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_SWITCH), Lang.getString(Lang.SETTINGS_SUB_TITLE_SWITCH_ALIPAY), true, Config.from(context).isOn()));
-            mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_PASSWORD), Lang.getString(Lang.SETTINGS_SUB_TITLE_PASSWORD_ALIPAY)));
+            mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(R.id.settings_title_switch), Lang.getString(R.id.settings_sub_title_switch_alipay), true, Config.from(context).isOn()));
+            mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(R.id.settings_title_password), Lang.getString(R.id.settings_sub_title_password_alipay)));
         }
-        mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_DONATE), Lang.getString(Lang.SETTINGS_SUB_TITLE_DONATE)));
-        mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_CHECKUPDATE), Lang.getString(Lang.SETTINGS_SUB_TITLE_CHECKUPDATE)));
-        mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_WEBSIDE), Constant.PROJECT_URL));
+        mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(R.id.settings_title_donate), Lang.getString(R.id.settings_sub_title_donate)));
+        mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(R.id.settings_title_checkupdate), Lang.getString(R.id.settings_sub_title_checkupdate)));
+        mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(R.id.settings_title_webside), Constant.PROJECT_URL));
         mListAdapter = new PreferenceAdapter(mSettingsDataList);
 
         rootVerticalLayout.addView(settingsTitle);
@@ -113,7 +114,7 @@ public class SettingsView extends DialogFrameLayout implements AdapterView.OnIte
         PreferenceAdapter.Data data = mListAdapter.getItem(position);
         final Context context = getContext();
         final Config config = Config.from(context);
-        if (Lang.getString(Lang.SETTINGS_TITLE_SWITCH).equals(data.title)) {
+        if (Lang.getString(R.id.settings_title_switch).equals(data.title)) {
             if (!data.selectionState && !config.getLicenseAgree()) {
                 new LicenseView(context)
                     .withOnNegativeButtonClickListener((dialog, which) -> {
@@ -138,7 +139,7 @@ public class SettingsView extends DialogFrameLayout implements AdapterView.OnIte
                     mListAdapter.notifyDataSetChanged();
                 }
             }
-        } else if (Lang.getString(Lang.SETTINGS_TITLE_PASSWORD).equals(data.title)) {
+        } else if (Lang.getString(R.id.settings_title_password).equals(data.title)) {
             PasswordInputView passwordInputView = new PasswordInputView(context);
             if (!TextUtils.isEmpty(config.getPassword())) {
                 passwordInputView.setDefaultText(DEFAULT_HIDDEN_PASS);
@@ -155,13 +156,13 @@ public class SettingsView extends DialogFrameLayout implements AdapterView.OnIte
                 }
                 config.setPassword(inputText);
             }).showInDialog();
-        } else if (Lang.getString(Lang.SETTINGS_TITLE_CHECKUPDATE).equals(data.title)) {
+        } else if (Lang.getString(R.id.settings_title_checkupdate).equals(data.title)) {
             UpdateFactory.doUpdateCheck(context, false, true);
-        } else if (Lang.getString(Lang.SETTINGS_TITLE_DONATE).equals(data.title)) {
+        } else if (Lang.getString(R.id.settings_title_donate).equals(data.title)) {
             new DonateView(context).showInDialog();
-        } else if (Lang.getString(Lang.SETTINGS_TITLE_WEBSIDE).equals(data.title)) {
+        } else if (Lang.getString(R.id.settings_title_webside).equals(data.title)) {
             UrlUtil.openUrl(context, Constant.PROJECT_URL);
-            Toast.makeText(context, Lang.getString(Lang.TOAST_GIVE_ME_STAR), Toast.LENGTH_LONG).show();
+            Toast.makeText(context, Lang.getString(R.id.toast_give_me_star), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -169,13 +170,13 @@ public class SettingsView extends DialogFrameLayout implements AdapterView.OnIte
         String pwd = Config.from(context).getPassword();
         if (TextUtils.isEmpty(pwd)) {
             if (context.getPackageName().equals(Constant.PACKAGE_NAME_WECHAT)) {
-                Toast.makeText(context, Lang.getString(Lang.TOAST_PASSWORD_NOT_SET_WECHAT), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, Lang.getString(R.id.toast_password_not_set_wechat), Toast.LENGTH_SHORT).show();
             } else if (context.getPackageName().equals(Constant.PACKAGE_NAME_ALIPAY)) {
-                Toast.makeText(context, Lang.getString(Lang.TOAST_PASSWORD_NOT_SET_ALIPAY), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, Lang.getString(R.id.toast_password_not_set_alipay), Toast.LENGTH_SHORT).show();
             } else if (context.getPackageName().equals(Constant.PACKAGE_NAME_TAOBAO)) {
-                Toast.makeText(context, Lang.getString(Lang.TOAST_PASSWORD_NOT_SET_TAOBAO), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, Lang.getString(R.id.toast_password_not_set_taobao), Toast.LENGTH_SHORT).show();
             } else if (context.getPackageName().equals(Constant.PACKAGE_NAME_QQ)) {
-                Toast.makeText(context, Lang.getString(Lang.TOAST_PASSWORD_NOT_SET_QQ), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, Lang.getString(R.id.toast_password_not_set_qq), Toast.LENGTH_SHORT).show();
             }
             return false;
         }

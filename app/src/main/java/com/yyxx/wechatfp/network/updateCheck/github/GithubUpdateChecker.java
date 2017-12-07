@@ -3,6 +3,8 @@ package com.yyxx.wechatfp.network.updateCheck.github;
 import com.google.gson.Gson;
 import com.yyxx.wechatfp.BuildConfig;
 import com.yyxx.wechatfp.Constant;
+import com.yyxx.wechatfp.Lang;
+import com.yyxx.wechatfp.R;
 import com.yyxx.wechatfp.network.inf.UpdateResultListener;
 import com.yyxx.wechatfp.network.updateCheck.BaseUpdateChecker;
 import com.yyxx.wechatfp.network.updateCheck.github.bean.GithubLatestInfo;
@@ -53,7 +55,7 @@ public class GithubUpdateChecker extends BaseUpdateChecker {
                                     String content = info.content;
                                     Date date = info.date;
                                     if (date != null) {
-                                        content = content + "\n\n更新日期: " + DateUtil.toString(date);
+                                        content = content + "\n\n" + Lang.getString(R.id.update_time) + ": " + DateUtil.toString(date);
                                     }
                                     onHasUpdate(info.version, content, info.contentUrl, info.getDownloadUrl());
                                 } else {

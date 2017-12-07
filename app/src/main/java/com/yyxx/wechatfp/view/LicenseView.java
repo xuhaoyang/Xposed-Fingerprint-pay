@@ -19,6 +19,7 @@ import android.widget.ProgressBar;
 
 import com.yyxx.wechatfp.Constant;
 import com.yyxx.wechatfp.Lang;
+import com.yyxx.wechatfp.R;
 import com.yyxx.wechatfp.util.DpUtil;
 import com.yyxx.wechatfp.util.Task;
 import com.yyxx.wechatfp.util.UrlUtil;
@@ -58,8 +59,8 @@ public class LicenseView extends DialogFrameLayout {
         } catch (Exception e) {
             L.e(e);
         }
-        withNegativeButtonText(Lang.getString(Lang.DISAGREE));
-        withPositiveButtonText(Lang.getString(Lang.AGREE));
+        withNegativeButtonText(Lang.getString(R.id.disagree));
+        withPositiveButtonText(Lang.getString(R.id.agree));
     }
 
     private ProgressBar initProgressBar(Context context) {
@@ -130,6 +131,6 @@ public class LicenseView extends DialogFrameLayout {
 
     @Override
     public String getDialogTitle() {
-        return Lang.getString(Lang.SETTINGS_TITLE_LICENSE);
+        return Lang.getString(R.id.settings_title_license);
     }
 }

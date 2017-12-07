@@ -47,17 +47,17 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
 
         ListView listView = (ListView) findViewById(R.id.list);
         List<PreferenceAdapter.Data> list = new ArrayList<>();
-        list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_HELP_WECHAT), Lang.getString(Lang.SETTINGS_SUB_TITLE_HELP_WECHAT)));
-        list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_HELP_ALIPAY), Lang.getString(Lang.SETTINGS_SUB_TITLE_HELP_ALIPAY)));
-        list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_HELP_TAOBAO), Lang.getString(Lang.SETTINGS_SUB_TITLE_HELP_TAOBAO)));
-        list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_HELP_QQ), Lang.getString(Lang.SETTINGS_SUB_TITLE_HELP_QQ)));
-        list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_HELP_FAQ), Lang.getString(Lang.SETTINGS_SUB_TITLE_HELP_FAQ)));
-        list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_QQ_GROUP), Lang.getString(Lang.SETTINGS_SUB_TITLE_QQ_GROUP)));
-        list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_CHECKUPDATE), Lang.getString(Lang.SETTINGS_SUB_TITLE_CHECKUPDATE)));
-        list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_LICENSE), Lang.getString(Lang.SETTINGS_SUB_TITLE_LICENSE)));
-        list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_WEBSIDE), PROJECT_URL));
-        list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_DONATE), Lang.getString(Lang.SETTINGS_SUB_TITLE_DONATE)));
-        list.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_VERSION), BuildConfig.VERSION_NAME));
+        list.add(new PreferenceAdapter.Data(Lang.getString(R.id.settings_title_help_wechat), Lang.getString(R.id.settings_sub_title_help_wechat)));
+        list.add(new PreferenceAdapter.Data(Lang.getString(R.id.settings_title_help_alipay), Lang.getString(R.id.settings_sub_title_help_alipay)));
+        list.add(new PreferenceAdapter.Data(Lang.getString(R.id.settings_title_help_taobao), Lang.getString(R.id.settings_sub_title_help_taobao)));
+        list.add(new PreferenceAdapter.Data(Lang.getString(R.id.settings_title_help_qq), Lang.getString(R.id.settings_sub_title_help_qq)));
+        list.add(new PreferenceAdapter.Data(Lang.getString(R.id.settings_title_help_faq), Lang.getString(R.id.settings_sub_title_help_faq)));
+        list.add(new PreferenceAdapter.Data(Lang.getString(R.id.settings_title_qq_group), Lang.getString(R.id.settings_sub_title_qq_group)));
+        list.add(new PreferenceAdapter.Data(Lang.getString(R.id.settings_title_checkupdate), Lang.getString(R.id.settings_sub_title_checkupdate)));
+        list.add(new PreferenceAdapter.Data(Lang.getString(R.id.settings_title_license), Lang.getString(R.id.settings_sub_title_license)));
+        list.add(new PreferenceAdapter.Data(Lang.getString(R.id.settings_title_webside), PROJECT_URL));
+        list.add(new PreferenceAdapter.Data(Lang.getString(R.id.settings_title_donate), Lang.getString(R.id.settings_sub_title_donate)));
+        list.add(new PreferenceAdapter.Data(Lang.getString(R.id.settings_title_version), BuildConfig.VERSION_NAME));
         mListAdapter = new PreferenceAdapter(list);
         listView.setAdapter(mListAdapter);
         listView.setOnItemClickListener(this);
@@ -71,27 +71,27 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
         if (data == null || TextUtils.isEmpty(data.title)) {
             return;
         }
-        if (Lang.getString(Lang.SETTINGS_TITLE_HELP_WECHAT).equals(data.title)) {
+        if (Lang.getString(R.id.settings_title_help_wechat).equals(data.title)) {
             WebActivity.openUrl(this, HELP_URL_WECHAT);
-        } else if (Lang.getString(Lang.SETTINGS_TITLE_HELP_ALIPAY).equals(data.title)) {
+        } else if (Lang.getString(R.id.settings_title_help_alipay).equals(data.title)) {
             WebActivity.openUrl(this, HELP_URL_ALIPAY);
-        } else if (Lang.getString(Lang.SETTINGS_TITLE_HELP_TAOBAO).equals(data.title)) {
+        } else if (Lang.getString(R.id.settings_title_help_taobao).equals(data.title)) {
             WebActivity.openUrl(this, HELP_URL_TAOBAO);
-        } else if (Lang.getString(Lang.SETTINGS_TITLE_HELP_QQ).equals(data.title)) {
+        } else if (Lang.getString(R.id.settings_title_help_qq).equals(data.title)) {
             WebActivity.openUrl(this, HELP_URL_QQ);
-        } else if (Lang.getString(Lang.SETTINGS_TITLE_HELP_FAQ).equals(data.title)) {
+        } else if (Lang.getString(R.id.settings_title_help_faq).equals(data.title)) {
             WebActivity.openUrl(this, HELP_URL_FAQ);
-        } else if (Lang.getString(Lang.SETTINGS_TITLE_QQ_GROUP).equals(data.title)) {
+        } else if (Lang.getString(R.id.settings_title_qq_group).equals(data.title)) {
             joinQQGroup();
-        } else if (Lang.getString(Lang.SETTINGS_TITLE_DONATE).equals(data.title)) {
+        } else if (Lang.getString(R.id.settings_title_donate).equals(data.title)) {
             new DonateView(this).showInDialog();
-        } else if (Lang.getString(Lang.SETTINGS_TITLE_CHECKUPDATE).equals(data.title)) {
+        } else if (Lang.getString(R.id.settings_title_checkupdate).equals(data.title)) {
             UpdateFactory.doUpdateCheck(this, false, true);
-        } else if (Lang.getString(Lang.SETTINGS_TITLE_LICENSE).equals(data.title)) {
+        } else if (Lang.getString(R.id.settings_title_license).equals(data.title)) {
             WebActivity.openUrl(this, HELP_URL_LICENSE);
-        } else if (Lang.getString(Lang.SETTINGS_TITLE_WEBSIDE).equals(data.title)) {
+        } else if (Lang.getString(R.id.settings_title_webside).equals(data.title)) {
             UrlUtil.openUrl(this, PROJECT_URL);
-            Toast.makeText(this, Lang.getString(Lang.TOAST_GIVE_ME_STAR), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, Lang.getString(R.id.toast_give_me_star), Toast.LENGTH_LONG).show();
         }
     }
 

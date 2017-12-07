@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.yyxx.wechatfp.Constant;
 import com.yyxx.wechatfp.Lang;
+import com.yyxx.wechatfp.R;
 import com.yyxx.wechatfp.adapter.PreferenceAdapter;
 import com.yyxx.wechatfp.util.DonateUtil;
 import com.yyxx.wechatfp.util.DpUtil;
@@ -59,11 +60,11 @@ public class DonateView extends DialogFrameLayout implements AdapterView.OnItemC
         mListView.setPadding(defHPadding, defVPadding, defHPadding, defVPadding);
         mListView.setDivider(new ColorDrawable(Color.TRANSPARENT));
 
-        mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_ALIPAY), Constant.AUTHOR_ALIPAY));
+        mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(R.id.settings_title_alipay), Constant.AUTHOR_ALIPAY));
         if (Constant.PACKAGE_NAME_WECHAT.equals(context.getPackageName())) {
-            mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_WECHAT), Constant.AUTHOR_WECHAT));
+            mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(R.id.settings_title_wechat), Constant.AUTHOR_WECHAT));
         } else if (Constant.PACKAGE_NAME_QQ.equals(context.getPackageName())) {
-            mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(Lang.SETTINGS_TITLE_QQ), Constant.AUTHOR_QQ));
+            mSettingsDataList.add(new PreferenceAdapter.Data(Lang.getString(R.id.settings_title_qq), Constant.AUTHOR_QQ));
         }
         mListAdapter = new PreferenceAdapter(mSettingsDataList);
 
@@ -82,17 +83,17 @@ public class DonateView extends DialogFrameLayout implements AdapterView.OnItemC
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
         PreferenceAdapter.Data data = mListAdapter.getItem(position);
         final Context context = getContext();
-        if (Lang.getString(Lang.SETTINGS_TITLE_ALIPAY).equals(data.title)) {
+        if (Lang.getString(R.id.settings_title_alipay).equals(data.title)) {
             if (!DonateUtil.openAlipayPayPage(context)) {
-                Toast.makeText(context, Lang.getString(Lang.TOAST_GOTO_DONATE_PAGE_FAIL_ALIPAY), Toast.LENGTH_LONG).show();
+                Toast.makeText(context, Lang.getString(R.id.toast_goto_donate_page_fail_alipay), Toast.LENGTH_LONG).show();
             }
-        } else if (Lang.getString(Lang.SETTINGS_TITLE_WECHAT).equals(data.title)) {
+        } else if (Lang.getString(R.id.settings_title_wechat).equals(data.title)) {
             if (!DonateUtil.openWeChatPay(context)) {
-                Toast.makeText(context, Lang.getString(Lang.TOAST_GOTO_DONATE_PAGE_FAIL_WECHAT), Toast.LENGTH_LONG).show();
+                Toast.makeText(context, Lang.getString(R.id.toast_goto_donate_page_fail_wechat), Toast.LENGTH_LONG).show();
             }
-        } else if (Lang.getString(Lang.SETTINGS_TITLE_QQ).equals(data.title)) {
+        } else if (Lang.getString(R.id.settings_title_qq).equals(data.title)) {
             if (!DonateUtil.openQQPay(context)) {
-                Toast.makeText(context, Lang.getString(Lang.TOAST_GOTO_DONATE_PAGE_FAIL_QQ), Toast.LENGTH_LONG).show();
+                Toast.makeText(context, Lang.getString(R.id.toast_goto_donate_page_fail_qq), Toast.LENGTH_LONG).show();
             }
         }
     }

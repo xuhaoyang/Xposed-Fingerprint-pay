@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.yyxx.wechatfp.Lang;
+import com.yyxx.wechatfp.R;
 import com.yyxx.wechatfp.util.DpUtil;
 import com.yyxx.wechatfp.util.StyleUtil;
 import com.yyxx.wechatfp.util.UrlUtil;
@@ -57,9 +58,9 @@ public class UpdateInfoView extends DialogFrameLayout {
 
         this.addView(contentTextView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        withNeutralButtonText(Lang.getString(Lang.SKIP_THIS_VERSION));
-        withNegativeButtonText(Lang.getString(Lang.CANCEL));
-        withPositiveButtonText(Lang.getString(Lang.GOTO_UPDATE_PAGE));
+        withNeutralButtonText(Lang.getString(R.id.skip_this_version));
+        withNegativeButtonText(Lang.getString(R.id.cancel));
+        withPositiveButtonText(Lang.getString(R.id.goto_update_page));
 
         mContentTextView = contentTextView;
     }
