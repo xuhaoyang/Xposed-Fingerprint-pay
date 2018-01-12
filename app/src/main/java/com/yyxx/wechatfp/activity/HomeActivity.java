@@ -42,7 +42,7 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Umeng.init(this);
+//        Umeng.init(this);
         setContentView(R.layout.home);
 
         ListView listView = (ListView) findViewById(R.id.list);
@@ -98,13 +98,13 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     protected void onResume() {
         super.onResume();
-        Umeng.onResume(this);
+//        Umeng.onResume(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        Umeng.onPause(this);
+//        Umeng.onPause(this);
     }
 
     @Override

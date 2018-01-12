@@ -16,7 +16,7 @@ public class Umeng {
     public static void init(Context context) {
         sContext = context;
         try {
-            MobclickAgent.startWithConfigure(new MobclickAgent.UMAnalyticsConfig(context.getApplicationContext(), "59b68c81f5ade45de90004f7", context.getPackageName()));
+//            MobclickAgent.startWithConfigure(new MobclickAgent.UMAnalyticsConfig(context.getApplicationContext(), "59b68c81f5ade45de90004f7", context.getPackageName()));
         } catch (Exception e) {
             L.e(e);
         }
@@ -28,14 +28,14 @@ public class Umeng {
             L.d("context not set");
             return;
         }
-        MobclickAgent.reportError(context, message);
+//        MobclickAgent.reportError(context, message);
     }
 
     public static void onResume(Context context) {
-        MobclickAgent.onResume(context);
+//        MobclickAgent.onResume(context);
     }
 
     public static void onPause(Context context) {
-        MobclickAgent.onPause(context);
+//        MobclickAgent.onPause(context);
     }
 }

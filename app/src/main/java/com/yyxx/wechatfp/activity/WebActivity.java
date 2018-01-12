@@ -143,12 +143,12 @@ public class WebActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Umeng.onResume(this);
+//        Umeng.onResume(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        Umeng.onPause(this);
+//        Umeng.onPause(this);
     }
 }

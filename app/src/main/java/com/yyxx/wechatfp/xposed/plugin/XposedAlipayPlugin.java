@@ -65,7 +65,7 @@ public class XposedAlipayPlugin {
     public void main(final Context context, final XC_LoadPackage.LoadPackageParam lpparam) {
         L.d("Xposed plugin init version: " + BuildConfig.VERSION_NAME);
         try {
-            Umeng.init(context);
+//            Umeng.init(context);
             XposedLogNPEBugFixer.fix();
             final PackageInfo packageInfo = context.getPackageManager().getPackageInfo(lpparam.packageName, 0);
             final int versionCode = packageInfo.versionCode;

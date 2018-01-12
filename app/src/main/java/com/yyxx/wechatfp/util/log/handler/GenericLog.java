@@ -18,6 +18,6 @@ public class GenericLog implements ILog {
     @Override
     public void error(String tag, String msg) {
         Log.e(tag, msg);
-        Umeng.reportError(tag + " " + msg);
+//        Umeng.reportError(tag + " " + msg);
     }
 }

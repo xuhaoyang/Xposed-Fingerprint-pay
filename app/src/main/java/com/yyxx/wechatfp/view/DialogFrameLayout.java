@@ -68,7 +68,7 @@ public abstract class DialogFrameLayout extends FrameLayout implements DialogInt
 
 
         dialog.show();
-        Umeng.onResume(getContext());
+//        Umeng.onResume(getContext());
     }
 
     @Override
@@ -77,7 +77,7 @@ public abstract class DialogFrameLayout extends FrameLayout implements DialogInt
         if (listener != null) {
             listener.onDismiss(this);
         }
-        Umeng.onPause(getContext());
+//        Umeng.onPause(getContext());
     }
 
     public DialogFrameLayout withOnDismissListener(OnDismissListener listener) {

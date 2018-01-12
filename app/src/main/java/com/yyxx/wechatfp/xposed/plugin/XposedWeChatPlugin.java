@@ -70,7 +70,7 @@ public class XposedWeChatPlugin {
     public void main(final Context context, final XC_LoadPackage.LoadPackageParam lpparam) {
         L.d("Xposed plugin init version: " + BuildConfig.VERSION_NAME);
         try {
-            Umeng.init(context);
+//            Umeng.init(context);
             XposedLogNPEBugFixer.fix();
             //for multi user
             if (!Tools.isCurrentUserOwner(context)) {

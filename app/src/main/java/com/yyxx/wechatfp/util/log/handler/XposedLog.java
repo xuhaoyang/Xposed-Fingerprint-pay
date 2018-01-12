@@ -19,6 +19,6 @@ public class XposedLog implements ILog {
     @Override
     public void error(String tag, String msg) {
         XposedBridge.log(tag + " " + msg);
-        Umeng.reportError(tag + " " + msg);
+//        Umeng.reportError(tag + " " + msg);
     }
 }

@@ -96,7 +96,7 @@ public class XposedQQPlugin {
              *     at com.umeng.analytics.AnalyticsConfig.getVerticalType(AnalyticsConfig.java:133)
              */
             Task.onMain(1000, ()-> {
-                Umeng.init(context);
+//                Umeng.init(context);
             });
             XposedLogNPEBugFixer.fix();
             final PackageInfo packageInfo = context.getPackageManager().getPackageInfo(lpparam.packageName, 0);
